@@ -37,3 +37,13 @@ describe('pasted-receipt wording', () => {
     expect(ui).toMatch(/cannot (verify|tell whether)/i);
   });
 });
+
+describe('signature interface', () => {
+  it('the ownership receipt is marked issued only via isIssued (verified receipt), never from a preview or submission', () => {
+    const ui = readFileSync('src/components/own-flow.tsx', 'utf8');
+    expect(ui).toMatch(/isIssued\(paper\)/); expect(ui).not.toMatch(/issued=\{true\}|issued\s*$/m);
+  });
+  it('no throwaway preview routes ship', () => {
+    expect(files.filter(f => /zz-|preview|mock/i.test(f))).toEqual([]);
+  });
+});

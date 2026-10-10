@@ -1,5 +1,7 @@
 'use client';
 import { useState } from 'react';
+import { PaperPair } from '@/components/paper-pair';
+import { ownershipRows, isIssued } from '@/lib/paperrows';
 import { parseReceiptText, SAMPLE_RECEIPT, type ParsedReceipt } from '@/lib/receipttext';
 
 interface Eip1193 { request(a: { method: string; params?: unknown[] }): Promise<unknown> }
@@ -27,8 +29,8 @@ interface Result {
 const money = (n: number) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 
 export function OwnFlow() {
-  const [merchant, setMerchant] = useState('STARBUCKS #4411 SEATTLE WA');
-  const [spend, setSpend] = useState('100');
+  const [merchant, setMerchant] = useState('');
+  const [spend, setSpend] = useState('');
   const [investPct, setInvestPct] = useState('5');
   const [recipient, setRecipient] = useState('');
   const [res, setRes] = useState<Result | null>(null);
@@ -107,7 +109,11 @@ export function OwnFlow() {
   }
 
   const field = 'mt-1 w-full border border-neutral-400 bg-white px-3 py-2 text-sm';
+  const paper = { res, txHash, settle, receipt };
+  const issued = isIssued(paper);
   return (
+    <div className="space-y-10">
+    <PaperPair pasted={pasted} parsed={parsed} rows={ownershipRows(paper)} issued={issued} receiptId={receipt?.receipt?.receiptId} reason={receipt && !receipt.ok ? receipt.reason : undefined} />
     <div className="grid gap-10 md:grid-cols-[22rem_1fr]">
       <form onSubmit={run} className="space-y-4">
         <fieldset className="space-y-2 border border-neutral-300 p-3">
@@ -125,9 +131,9 @@ export function OwnFlow() {
             </div>)}
         </fieldset>
         <p className="text-sm font-medium">2. Confirm the spending event</p>
-        <label className="block text-sm font-medium">Merchant name (you type it; Stockup does not see your real purchases)
+        <label className="block text-sm font-medium">Merchant (read from your receipt; edit if wrong)
           <input className={field} value={merchant} onChange={e => setMerchant(e.target.value)} /></label>
-        <label className="block text-sm font-medium">Spending amount (USD, entered by you)
+        <label className="block text-sm font-medium">Spending amount in USD (read from your receipt; edit if wrong)
           <input className={field} inputMode="decimal" value={spend} onChange={e => setSpend(e.target.value)} /></label>
         <label className="block text-sm font-medium">Invest from my own funds (% of purchase)
           <input className={field} inputMode="decimal" value={investPct} onChange={e => setInvestPct(e.target.value)} />
@@ -135,7 +141,7 @@ export function OwnFlow() {
         <label className="block text-sm font-medium">Your BSC address (receives the stock)
           <input className={`${field} font-mono`} placeholder="0x…" value={recipient} onChange={e => setRecipient(e.target.value)} /></label>
         <button type="button" onClick={connect} className="w-full border border-neutral-900 px-4 py-2 text-sm">Use my browser wallet address</button>
-        <button disabled={busy} className="w-full bg-neutral-900 px-4 py-3 text-sm font-medium text-white disabled:opacity-50">
+        <button disabled={busy || !merchant.trim() || !(Number(spend) > 0)} className="w-full bg-neutral-900 px-4 py-3 text-sm font-medium text-white disabled:opacity-50">
           {busy ? 'Checking live BSC…' : 'Check and prepare my investment'}</button>
         {err && <p role="alert" className="text-sm text-red-700">{err}</p>}
       </form>
@@ -148,7 +154,7 @@ export function OwnFlow() {
               <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Identified company</h2>
               {res.identification.status === 'identified' && res.identification.company && (
                 <p className="mt-1"><span className="text-base font-semibold">{res.identification.company.name}</span> <span className="font-mono">({res.identification.company.ticker})</span>
-                  <span className="block text-neutral-600">Matched “{res.identification.matchedAlias}” in “{res.identification.input}”. {res.identification.company.tokenSymbol ? `Token: ${res.identification.company.tokenSymbol}.` : 'No Stockup token registered.'}</span></p>)}
+                  <span className="block text-neutral-600">Matched “{res.identification.matchedAlias}” in “{res.identification.input}”.</span></p>)}
               {res.identification.status === 'ambiguous' && <p className="mt-1">Matched more than one company: {res.identification.candidates?.map(c => c.name).join(', ')}.</p>}
               {res.identification.status === 'not_found' && <p className="mt-1">No publicly traded company matched “{res.identification.input}”.</p>}
             </section>
@@ -177,6 +183,17 @@ export function OwnFlow() {
                 <p className="mt-1">PancakeSwap on-chain quote: <strong>{res.quote.dex.tokensOut.toFixed(6)}</strong> tokens (min {res.quote.dex.minOut.toFixed(6)}), simulation {res.quote.dex.simulated ? 'passed' : 'not run or failed'}.
                   {res.quote.vsReferenceBps != null && ` Versus Binance reference price: ${(res.quote.vsReferenceBps / 100).toFixed(2)}% ${res.quote.vsReferenceBps >= 0 ? 'fewer' : 'more'} tokens.`}</p>
                 <p className="mt-1 text-neutral-600">Binance swap quote: {res.quote.binance.available ? 'available' : `not available. ${res.quote.binance.reason}`}</p>
+              </section>)}
+            {res.checks && (
+              <section aria-label="Pre-execution checks" className="border-b pb-4 text-sm">
+                <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Execution eligibility: {res.eligibility?.eligible ? 'eligible' : 'not eligible'}</h2>
+                <ul className="mt-2 space-y-2">
+                  {res.checks.map(c => (
+                    <li key={c.id} className="grid grid-cols-[4.5rem_1fr] gap-2">
+                      <span className={`font-mono text-xs font-semibold uppercase ${c.state === 'pass' ? 'text-green-800' : c.state === 'fail' ? 'text-red-700' : 'text-amber-700'}`}>{c.state}</span>
+                      <span><span className="font-medium">{c.label}.</span> {c.detail}<span className="block text-xs text-neutral-500">Source: {c.source}</span></span>
+                    </li>))}
+                </ul>
               </section>)}
             {res.review && res.plan?.tx && (
               <section aria-label="Review and authorize" className="border-2 border-neutral-900 p-4 text-sm">
@@ -241,17 +258,6 @@ export function OwnFlow() {
                 </div>
               </section>)}
             {res.reviewProblems && res.reviewProblems.length > 0 && <section role="alert" className="border-l-4 border-red-700 bg-red-50 p-4 text-sm">Transaction failed verification and was withheld: {res.reviewProblems.join('; ')}.</section>}
-            {res.checks && (
-              <section aria-label="Pre-execution checks" className="border-b pb-4 text-sm">
-                <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Execution eligibility: {res.eligibility?.eligible ? 'eligible' : 'not eligible'}</h2>
-                <ul className="mt-2 space-y-2">
-                  {res.checks.map(c => (
-                    <li key={c.id} className="grid grid-cols-[4.5rem_1fr] gap-2">
-                      <span className={`font-mono text-xs font-semibold uppercase ${c.state === 'pass' ? 'text-green-800' : c.state === 'fail' ? 'text-red-700' : 'text-amber-700'}`}>{c.state}</span>
-                      <span><span className="font-medium">{c.label}.</span> {c.detail}<span className="block text-xs text-neutral-500">Source: {c.source}</span></span>
-                    </li>))}
-                </ul>
-              </section>)}
             {(res.outcome === 'unidentified' || res.outcome === 'no_token') && <section className="border-l-4 border-amber-600 bg-amber-50 p-4 text-sm">{res.note}</section>}
             {res.investment && res.instrument && <dl className="grid grid-cols-2 gap-y-2 border-b pb-4 text-sm">
               <dt className="text-neutral-500">Spending event (entered by you, not verified)</dt><dd className="text-right">{money(res.investment.spendUsd)}</dd>
@@ -277,6 +283,7 @@ export function OwnFlow() {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 }
