@@ -30,3 +30,9 @@ If concept arrives: write docs/PROJECT.md and build the core flow. If W3W keys a
 - JNJon has no WBNB pool on Pancake V2. USDon rejected as unsupported.
 - 14/14 tests. Session input is still fixture data.
 - Open decision: executable route exists, but these tokens' DEX liquidity is too thin for safe trades. Not retreating; options in report.
+
+## Update 15:45 UTC: Spend to Own (product name received)
+- `POST /api/own` works end to end on live chain data: $100 Apple Store spend -> $2 reward -> 0.00266 BNB (live WBNB/USDT $751) -> AAPLon plan.
+- Live result: guard BLOCKED conversion (impact 82.42%, pool 0.00057 BNB), outcome `held_reward`. Honest, correct, and the demo-blocking fact.
+- 17/17 tests. Concept mechanics are the agent's interpretation of the name only.
+- Next: page UI for the flow; decide liquidity route (W3W swap or deeper-pool token).

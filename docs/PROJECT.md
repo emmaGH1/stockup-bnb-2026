@@ -1,16 +1,16 @@
-# Project: Stockup 2.0 (DRAFT - concept not recorded)
+# Stockup 2.0: Spend to Own
 
-The human states the concept, MVP scope and plan are approved, but their content never reached the agent or this repo.
-This file must be replaced with the approved text. Until then nothing below is a product claim.
+Name received from the human on 2026-10-10: "STOCKUP 2.0 - SPEND TO OWN". Only the name was provided.
+The mechanics below are the AGENT'S INTERPRETATION and must be confirmed or corrected by the human.
 
-## Known constraints
-- Event: BNB Hack Tokenized Stocks Edition. Deadline 2026-10-11 12:00 UTC (from search summary; verify on official page).
-- Chain: BSC mainnet (56). Funds, signing, publishing, merging, public deploy and submission need explicit human approval.
+## Interpreted concept
+A purchase at a merchant earns a reward. Part of the reward converts into the tokenized stock of that merchant, so everyday spending builds ownership.
 
-## What the foundation supports today (concept-neutral)
-- Live read-only BSC token reads and a verified-asset registry.
-- Off-market trade gate (`canTrade`), fed by labeled fixtures until W3W keys exist.
-- A signed W3W client (live signing unverified).
+## Implemented (dev/foundation)
+- `src/lib/spend.ts` merchant rules (our own config, not real merchant data) and reward math.
+- `POST /api/own`: spend -> reward -> live BNB/USD -> guarded swap plan -> `ready_to_sign` or `held_reward`.
+- Guard blocks conversion on closed/halted session, high price impact, thin pool. Nothing is signed or sent.
 
-## To fill in once available
-User, painful moment, core action, judge story, must-have / nice-to-have / cut list, W3W endpoints used.
+## Not implemented
+- Real card/merchant recognition, user accounts, wallet connect/signing UI, Binance W3W integration, live session data.
+- A designed UI. Real execution is blocked by thin liquidity (see CURRENT_STATE.md).
