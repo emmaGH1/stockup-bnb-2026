@@ -3,7 +3,7 @@
 export interface Company { ticker: string; name: string; aliases: string[]; tokenSymbol?: string }
 
 export const COMPANIES: Company[] = [
-  { ticker: 'SBUX', name: 'Starbucks Corporation', aliases: ['STARBUCKS', 'SBUX'], tokenSymbol: 'SBUXx' },
+  { ticker: 'SBUX', name: 'Starbucks Corporation', aliases: ['STARBUCKS', 'SBUX'], tokenSymbol: 'SBUXon' },
   { ticker: 'AAPL', name: 'Apple Inc.', aliases: ['APPLE STORE', 'APPLE', 'APPLE.COM'], tokenSymbol: 'AAPLon' },
   { ticker: 'JNJ', name: 'Johnson & Johnson', aliases: ['JOHNSON & JOHNSON', 'JNJ', 'NEUTROGENA', 'BAND-AID'], tokenSymbol: 'JNJon' },
   { ticker: 'DIS', name: 'The Walt Disney Company', aliases: ['DISNEY', 'DISNEYLAND', 'DISNEY+', 'DISNEYPLUS', 'WALT DISNEY', 'DIS'] },

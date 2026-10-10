@@ -5,7 +5,7 @@ describe('identifyCompany', () => {
   it('identifies Starbucks from a raw card-style descriptor', () => {
     const r = identifyCompany('STARBUCKS #4411 SEATTLE WA');
     expect(r.status).toBe('identified');
-    if (r.status === 'identified') { expect(r.company.ticker).toBe('SBUX'); expect(r.company.tokenSymbol).toBe('SBUXx'); expect(r.matchedAlias).toBe('STARBUCKS'); }
+    if (r.status === 'identified') { expect(r.company.ticker).toBe('SBUX'); expect(r.company.tokenSymbol).toBe('SBUXon'); expect(r.matchedAlias).toBe('STARBUCKS'); }
   });
   it('is case/punctuation tolerant', () => {
     expect(identifyCompany('starbucks coffee 12345').status).toBe('identified');
