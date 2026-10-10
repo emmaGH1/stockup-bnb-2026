@@ -136,8 +136,8 @@ export function OwnFlow() {
           <legend className="px-1 text-sm font-medium">1. Paste a shopping receipt</legend>
           <textarea aria-label="Shopping receipt text" className="h-32 w-full border border-neutral-400 bg-white p-2 font-mono text-xs" placeholder="Paste receipt text here" value={pasted} onChange={e => setPasted(e.target.value)} />
           <div className="flex gap-2">
-            <button type="button" onClick={readReceipt} disabled={!pasted.trim()} className="border border-neutral-900 px-3 py-1 text-sm disabled:opacity-40">Read receipt</button>
-            <button type="button" onClick={() => setPasted(SAMPLE_RECEIPT)} className="px-3 py-1 text-sm underline">Use a sample</button>
+            <button type="button" onClick={readReceipt} disabled={!pasted.trim()} className="min-h-11 border border-neutral-900 px-4 text-sm disabled:opacity-40">Read receipt</button>
+            <button type="button" onClick={() => setPasted(SAMPLE_RECEIPT)} className="min-h-11 px-4 text-sm underline">Use a sample</button>
           </div>
           {parsed && (
             <div role="status" className="space-y-1 text-xs">
