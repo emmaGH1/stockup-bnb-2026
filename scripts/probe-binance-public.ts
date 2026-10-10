@@ -1,3 +1,4 @@
+export {};
 // Read-only probe of Binance Web3 PUBLIC RWA endpoints (no credentials). Checks that the live response
 // contains the fields our code depends on. Exit code 1 if a required field is missing. Never sends anything.
 const H = { 'Accept-Encoding': 'identity', 'User-Agent': 'binance-web3/1.1 (Skill)' };
