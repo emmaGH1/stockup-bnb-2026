@@ -1,6 +1,9 @@
 import { computeRewardByTicker, computeInvestment, usdToBnb } from './spend';
 import { findInstrument, fetchAssetStatus } from './instruments';
 import { fetchMarketData, dexVsReferenceBps } from './marketdata';
+import { client } from './bsc';
+import { getAddress } from 'viem';
+import { checkMarketStatus, estimateFees, checkFees, checkQuoteValidity, checkWalletFunds, executionEligibility, type Check } from './checks';
 import type { SecurityStatus } from './fixtures/w3w';
 import { identifyCompany, type Identification } from './company';
 import { bnbUsd } from './bnbprice';
@@ -38,7 +41,11 @@ export async function spendToOwn(req: OwnRequest) {
   catch (e) {
     const why = e instanceof Error ? e.message : 'route unavailable';
     // Purchase and reward are still recorded; only the on-chain conversion is unavailable.
-    return { identification, discovery, instrument: inst, liveStatus: live, market, quote: null, calc, investment, bnbUsd: price, convertedBnb: bnbStr, plan: null, outcome: 'no_route' as const,
+    const checks: Check[] = [
+      checkMarketStatus({ asset: live, market: null }),
+      { id: 'route', label: 'Execution route', state: 'fail', detail: `No PancakeSwap route: ${why}.`, source: 'On-chain PancakeSwap V2 factory', required: true },
+    ];
+    return { identification, discovery, instrument: inst, liveStatus: live, market, quote: null, checks, eligibility: executionEligibility(checks), calc, investment, bnbUsd: price, convertedBnb: bnbStr, plan: null, outcome: 'no_route' as const,
       note: `Purchase recorded and reward calculated. Investment unavailable: ${why}. Your own funds were not touched. Nothing was sent.` };
   }
   const quote = {
@@ -48,7 +55,25 @@ export async function spendToOwn(req: OwnRequest) {
     // Binance's own executable quote (baw market-order quote) exists but requires a signed-in Binance Agentic Wallet session (human action).
     binance: { available: false as const, reason: 'Requires Binance Agentic Wallet sign-in (baw auth signin); returned NOT_LOGGED_IN. Not attempted on your behalf.' },
   };
-  return { identification, discovery, instrument: inst, liveStatus: live, market, quote, calc, investment, bnbUsd: price, convertedBnb: bnbStr, plan,
-    outcome: plan.tx ? 'ready_to_sign' : 'held',
-    note: plan.tx ? 'Unsigned transaction ready for your wallet.' : 'Guard blocked the investment. Your own funds were not touched. Nothing was sent.' };
+  // Step 6: checklist from real data. Anything unobtainable is 'unknown', which blocks execution.
+  const c = client();
+  const [gasPrice, balance] = await Promise.all([
+    c.getGasPrice().catch(() => null),
+    c.getBalance({ address: getAddress(req.recipient) }).then(b => Number(b) / 1e18).catch(() => null),
+  ]);
+  const fees = estimateFees({ investUsd: investment.investUsd, bnbUsd: price, gasUnits: plan.gasUnits ? BigInt(plan.gasUnits) : null, gasPriceWei: gasPrice });
+  const checks: Check[] = [
+    checkMarketStatus({ asset: live, market: null }),
+    checkFees(fees, investment.investUsd),
+    checkQuoteValidity({ quotedAtMs: plan.quotedAtMs, nowMs: Date.now(), simulated: plan.simulation.ok, minOut: Number(plan.minOut), quotedOut: Number(plan.quotedOut) }),
+    { id: 'guard', label: 'Price impact and pool depth guard', state: plan.guard.allowed ? 'pass' : 'fail', detail: plan.guard.allowed ? 'Within limits.' : plan.guard.reasons.join('; '), source: 'On-chain PancakeSwap V2 reserves', required: true },
+    checkWalletFunds({ balanceBnb: balance, tradeBnb: Number(bnbStr), gasBnb: fees.gasBnb }),
+  ];
+  const eligibility = executionEligibility(checks);
+  const safePlan = { ...plan, tx: eligibility.eligible ? plan.tx : null }; // unsigned tx is released only when every required check passed
+  return { identification, discovery, instrument: inst, liveStatus: live, market, quote, checks, fees, eligibility, calc, investment, bnbUsd: price, convertedBnb: bnbStr, plan: safePlan,
+    outcome: eligibility.eligible ? 'ready_to_sign' as const : plan.guard.allowed ? 'not_eligible' as const : 'held' as const,
+    note: eligibility.eligible ? 'All required checks passed. Unsigned transaction ready for your wallet.'
+      : plan.guard.allowed ? `Blocked by checks: ${[...eligibility.blockedBy, ...eligibility.unknown.map(u => `${u} (unknown)`)].join(', ')}. Nothing was sent.`
+      : 'Guard blocked the investment. Your own funds were not touched. Nothing was sent.' };
 }

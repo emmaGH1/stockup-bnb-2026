@@ -11,9 +11,11 @@ interface Result {
   liveStatus?: { openState: boolean; marketStatus: string; reasonCode: string; reasonMsg: string | null } | null;
   market?: { tokenPriceUsd: number | null; stockPriceUsd: number | null; changePct24h: number | null; holders: number | null; high52w: number | null; low52w: number | null; pe: number | null; fetchedAt: string } | null;
   quote?: { dex: { tokensOut: number; minOut: number; simulated: boolean }; vsReferenceBps: number | null; binance: { available: boolean; reason: string } } | null;
+  checks?: { id: string; label: string; state: 'pass' | 'fail' | 'unknown'; detail: string; source: string }[];
+  eligibility?: { eligible: boolean; blockedBy: string[]; unknown: string[] };
   investment?: { investUsd: number; investBps: number; fundedBy: string };
   calc: null | { merchant: { name: string; symbol: string; rewardBps: number }; spendUsd: number; rewardUsd: number; convertedUsd: number; keptUsd: number };
-  bnbUsd?: number; convertedBnb?: string; outcome: 'ready_to_sign' | 'held' | 'no_route' | 'unidentified' | 'no_token'; note: string;
+  bnbUsd?: number; convertedBnb?: string; outcome: 'ready_to_sign' | 'held' | 'not_eligible' | 'no_route' | 'unidentified' | 'no_token'; note: string;
   plan: null | { tx: { to: string; data: string; value: string; chainId: number } | null; quotedOut: string; minOut: string; impactBps: number; pairLiquidityBnb: number; guard: { allowed: boolean; reasons: string[] }; simulation: { ok: boolean; error?: string } };
   error?: string;
 }
@@ -119,6 +121,17 @@ export function OwnFlow() {
                   {res.quote.vsReferenceBps != null && ` Versus Binance reference price: ${(res.quote.vsReferenceBps / 100).toFixed(2)}% ${res.quote.vsReferenceBps >= 0 ? 'fewer' : 'more'} tokens.`}</p>
                 <p className="mt-1 text-neutral-600">Binance swap quote: {res.quote.binance.available ? 'available' : `not available. ${res.quote.binance.reason}`}</p>
               </section>)}
+            {res.checks && (
+              <section aria-label="Pre-execution checks" className="border-b pb-4 text-sm">
+                <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Execution eligibility: {res.eligibility?.eligible ? 'eligible' : 'not eligible'}</h2>
+                <ul className="mt-2 space-y-2">
+                  {res.checks.map(c => (
+                    <li key={c.id} className="grid grid-cols-[4.5rem_1fr] gap-2">
+                      <span className={`font-mono text-xs font-semibold uppercase ${c.state === 'pass' ? 'text-green-800' : c.state === 'fail' ? 'text-red-700' : 'text-amber-700'}`}>{c.state}</span>
+                      <span><span className="font-medium">{c.label}.</span> {c.detail}<span className="block text-xs text-neutral-500">Source: {c.source}</span></span>
+                    </li>))}
+                </ul>
+              </section>)}
             {(res.outcome === 'unidentified' || res.outcome === 'no_token') && <section className="border-l-4 border-amber-600 bg-amber-50 p-4 text-sm">{res.note}</section>}
             {res.calc && <dl className="grid grid-cols-2 gap-y-2 border-b pb-4 text-sm">
               <dt className="text-neutral-500">Purchase</dt><dd className="text-right">{money(res.calc.spendUsd)}</dd>
@@ -128,7 +141,7 @@ export function OwnFlow() {
             {res.outcome === 'no_route' && res.calc && <section className="border-l-4 border-amber-600 bg-amber-50 p-4 text-sm"><h2 className="font-semibold">No on-chain route for {res.calc.merchant.symbol}</h2><p className="mt-1">{res.note}</p></section>}
             {res.plan && <>
             <section className={`border-l-4 p-4 ${res.outcome === 'ready_to_sign' ? 'border-green-700 bg-green-50' : 'border-amber-600 bg-amber-50'}`}>
-              <h2 className="text-sm font-semibold">{res.outcome === 'ready_to_sign' ? 'Investment cleared the guard' : 'Investment held by the guard'}</h2>
+              <h2 className="text-sm font-semibold">{res.outcome === 'ready_to_sign' ? 'Eligible to execute' : res.outcome === 'not_eligible' ? 'Not eligible to execute' : 'Investment held by the guard'}</h2>
               <ul className="mt-2 list-disc pl-5 text-sm">
                 {res.plan!.guard.allowed ? <li>All pre-trade checks passed; simulation {res.plan!.simulation.ok ? 'succeeded' : 'failed'}.</li>
                   : res.plan!.guard.reasons.map(r => <li key={r}>{r}</li>)}

@@ -78,3 +78,11 @@ If concept arrives: write docs/PROJECT.md and build the core flow. If W3W keys a
 - Live: AMZNon $5 -> 0.018999 tokens (min 0.018809), simulation OK, 30 bps worse than Binance reference (consistent with 0.25% pool fee + 0.15% impact). SBUXon: market data returned ($92.42 token / $90.80 stock, -2.02%), but no DEX quote (no pool).
 - **Binance's own swap quote (`baw market-order quote`) is NOT available.** Installed @binance/agentic-wallet 1.10.0 in /tmp (not in repo); quote returned `NOT_LOGGED_IN` (code 10003000). Sign-in is a human step (pairing code confirmed in the Binance app). Not attempted on your behalf. UI and API state this explicitly (`quote.binance.available=false` + reason).
 - Still: no tx sent, page not browser-checked, sign path never run.
+
+## Update ~18:00 UTC: journey step 6, pre-execution checks
+- `src/lib/checks.ts` (pure, 43/43 tests): market status, fees, quote validity, wallet funds; `executionEligibility` = every REQUIRED check must pass; `unknown` blocks (never a pass).
+- `/api/own` now returns `checks[]` (each with state, detail, source), `fees`, `eligibility`. The unsigned tx is RELEASED ONLY when eligible (server withholds it otherwise). New outcomes: `not_eligible`, and `no_route` now carries a failed `route` check.
+- Fees: PancakeSwap 0.25% pool fee (protocol constant) + gas from live `estimateGas` x `gasPrice`. **Binance Web3 Wallet trading fees are NOT included** (only applies to the `baw` route; schedule is on a Binance support page I did not read).
+- Quote validity: simulation OK + amounts consistent + age <= 120s (our own deadline). Requote required after expiry.
+- Live: Amazon $5 from a funded address -> all 5 PASS, eligible, fee $0.0203 (0.41%). Empty wallet -> `wallet_funds` FAIL, tx withheld. Starbucks -> market closed + no route. Apple -> guard + simulation FAIL.
+- Caveat: eligibility is evaluated at quote time; it does not re-check at signing. Not browser-checked; no tx sent.
