@@ -33,6 +33,11 @@ Last updated: 2026-10-10 ~18:50 UTC (VPS clock). Branch `dev/foundation`. Latest
 - Anonymous temporary deployment: expires 60 minutes after the latest deploy unless claimed by a Vercel account.
 - No transaction sent. Repo private. `main` unchanged at 024eafb.
 
+## Production journey check (2026-10-10, ~21:00 UTC)
+- Nine-step journey run against https://temporary-turbo-rowan-fk635uu.vercel.app (commit 9df393d). All nine pass; no page or console errors.
+- Scope: step 5 used live BSC and Binance public data; step 8 had no wallet extension present. The journey stops at the authorization gate. No transaction was built for sending, signed, or sent.
+- Preview is anonymous and expires about 40 minutes after its last deploy unless claimed.
+
 ## Blockers (owned by a human)
 1. Approval for one capped real purchase (about $5 of BNB plus gas), from a funded wallet connected by the user.
 2. Binance Agentic Wallet sign-in, if the official quote is wanted.
