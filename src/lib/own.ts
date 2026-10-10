@@ -78,7 +78,7 @@ export async function spendToOwn(req: OwnRequest) {
   const review = verified?.ok ? verified.review : null;
   const reviewProblems = verified && !verified.ok ? verified.problems : [];
   const safePlan = { ...plan, tx: review ? plan.tx : null };
-  return { identification, discovery, instrument: inst, liveStatus: live, market, quote, checks, fees, eligibility, review, reviewProblems, calc, investment, bnbUsd: price, convertedBnb: bnbStr, plan: safePlan,
+  return { identification, discovery, instrument: inst, liveStatus: live, market, quote, checks, fees, eligibility, review, reviewProblems, settleParams: review ? { token: inst.address, recipient: req.recipient, valueWei: plan.valueWei, minOutWei: plan.minOutWei, quotedOutWei: plan.quotedOutWei } : null, calc, investment, bnbUsd: price, convertedBnb: bnbStr, plan: safePlan,
     outcome: review ? 'ready_to_sign' as const : reviewProblems.length ? 'not_eligible' as const : plan.guard.allowed ? 'not_eligible' as const : 'held' as const,
     note: review ? 'All checks passed and the transaction was decoded and verified. Review it, then authorize in your wallet.'
       : reviewProblems.length ? `Transaction failed verification: ${reviewProblems.join('; ')}. Nothing was sent.`

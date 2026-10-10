@@ -43,7 +43,7 @@ export async function buildPlan(req: PlanRequest) {
   }
   const gas = await estimateGas(plan, req.recipient, c);
   return {
-    minOutWei: plan.minOut.toString(), valueWei: plan.value.toString(),
+    minOutWei: plan.minOut.toString(), valueWei: plan.value.toString(), quotedOutWei: plan.quotedOut.toString(),
     quotedAtMs: Date.now(), gasUnits: gas?.toString() ?? null,
     asset: asset.symbol, tokenAddress: asset.address, pair, pairLiquidityBnb: Number(formatUnits(reserveBnb, 18)),
     quotedOut: formatUnits(plan.quotedOut, 18), minOut: formatUnits(plan.minOut, 18), impactBps: impact, slippageBps: plan.slippageBps,

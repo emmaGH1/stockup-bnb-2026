@@ -13,6 +13,7 @@ interface Result {
   quote?: { dex: { tokensOut: number; minOut: number; simulated: boolean }; vsReferenceBps: number | null; binance: { available: boolean; reason: string } } | null;
   checks?: { id: string; label: string; state: 'pass' | 'fail' | 'unknown'; detail: string; source: string }[];
   eligibility?: { eligible: boolean; blockedBy: string[]; unknown: string[] };
+  settleParams?: { token: string; recipient: string; valueWei: string; minOutWei: string; quotedOutWei: string } | null;
   fees?: { totalUsd: number | null };
   review?: { contract: string; sendsBnb: string; minTokensOut: string; receivesToken: string; recipient: string; deadlineUtc: string; secondsLeft: number; calldataDigest: string } | null;
   reviewProblems?: string[];
@@ -37,6 +38,16 @@ export function OwnFlow() {
   const [txHash, setTxHash] = useState('');
   const [quotedAt, setQuotedAt] = useState(0);
   const [ack, setAck] = useState(false);
+  const [settle, setSettle] = useState<null | { state: string; detail?: string; problems?: string[]; receivedTokens?: string; minTokens?: string; confirmations?: number; blockNumber?: string; gasCostBnb?: string; vsQuotedBps?: number | null; error?: string }>(null);
+
+  async function checkSettlement() {
+    if (!txHash || !res?.settleParams) return;
+    setSettle(null);
+    try {
+      const r = await fetch('/api/settle', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ txHash, ...res.settleParams }) });
+      setSettle(await r.json());
+    } catch { setSettle({ state: 'error', error: 'network error' }); }
+  }
 
   async function connect() {
     setErr('');
@@ -148,7 +159,19 @@ export function OwnFlow() {
                     I understand this spends real BNB on BSC mainnet and cannot be undone.</label>
                   <button type="button" disabled={!ack || !confirm || !!txHash} onClick={sign} className="w-full bg-neutral-900 px-4 py-3 text-white disabled:opacity-40">Authorize in my wallet</button>
                   <p className="text-xs text-neutral-500">Your wallet will show its own confirmation. If the amounts there differ from this page, reject it.</p>
-                  {txHash && <p className="break-all font-mono text-xs">Submitted: <a className="underline" href={`https://bscscan.com/tx/${txHash}`} target="_blank" rel="noreferrer">{txHash}</a> (submitted, not yet confirmed on-chain)</p>}
+                  {txHash && (
+                    <div className="space-y-2 border-t pt-3">
+                      <p className="break-all font-mono text-xs">Submitted: <a className="underline" href={`https://bscscan.com/tx/${txHash}`} target="_blank" rel="noreferrer">{txHash}</a> (submitted is not the same as settled)</p>
+                      <button type="button" onClick={checkSettlement} className="border border-neutral-900 px-3 py-2">Verify settlement on-chain</button>
+                      {settle && (
+                        <div role="status" className={`border-l-4 p-3 ${settle.state === 'settled' ? 'border-green-700 bg-green-50' : settle.state === 'pending' ? 'border-amber-600 bg-amber-50' : 'border-red-700 bg-red-50'}`}>
+                          <strong className="uppercase">{settle.state}</strong>
+                          {settle.state === 'settled' && <p>Received {Number(settle.receivedTokens).toFixed(6)} {res.instrument?.symbol} (authorized minimum {Number(settle.minTokens).toFixed(6)}) in block {settle.blockNumber}, {settle.confirmations} confirmations, gas {Number(settle.gasCostBnb).toFixed(6)} BNB{settle.vsQuotedBps != null && `, ${(settle.vsQuotedBps / 100).toFixed(2)}% below the quote`}. Verified from the receipt&apos;s token Transfer logs.</p>}
+                          {settle.detail && <p>{settle.detail}</p>}
+                          {settle.problems && <ul className="list-disc pl-5">{settle.problems.map(p => <li key={p}>{p}</li>)}</ul>}
+                          {settle.error && <p>{settle.error}</p>}
+                        </div>)}
+                    </div>)}
                 </div>
               </section>)}
             {res.reviewProblems && res.reviewProblems.length > 0 && <section role="alert" className="border-l-4 border-red-700 bg-red-50 p-4 text-sm">Transaction failed verification and was withheld: {res.reviewProblems.join('; ')}.</section>}
