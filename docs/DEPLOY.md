@@ -35,3 +35,9 @@ No secret is required for the current build. Binance public endpoints need no ke
 - Verification: `/` and `/api/assets` return 200. The nine-step browser journey passes against this URL (see docs/CURRENT_STATE.md).
 - Not a permanent production deployment. Making it durable needs a Vercel account claim (`claimUrl` in the deploy output) and the owner's approval.
 - No transaction has been sent from this deployment. The app cannot send one: it has no key and only builds unsigned transactions for the user's own wallet.
+
+## Redeployed: commit 7eaa407 (2026-10-10, ~20:55 UTC)
+- Same temporary preview URL: https://temporary-turbo-rowan-fk635uu.vercel.app (anonymous; expires 60 min after the most recent deploy unless claimed).
+- Verified on the live URL: security headers present; malformed recipient rejected with 400; nine-step journey passes.
+- Uploaded files exclude `HANDOFF.md`, `.env*` (except the example), `scripts/`, `test/`, `docs/`, `.github/` (see `.vercelignore`).
+- Still not: a permanent production deployment, a claimed account, a custom domain, or a public repo.

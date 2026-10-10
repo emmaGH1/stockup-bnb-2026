@@ -28,6 +28,11 @@ Last updated: 2026-10-10 ~18:50 UTC (VPS clock). Branch `dev/foundation`. Latest
 - Known gaps, not fixed: no rate limiting (needs infrastructure beyond the free tier for durable enforcement); `'unsafe-inline'` remains in the CSP because the Next.js runtime needs it without a nonce setup; the mock wallet is not a real extension.
 - Tests: 84 passing. Typecheck and production build pass.
 
+## Live (latest)
+- Preview: https://temporary-turbo-rowan-fk635uu.vercel.app serves commit 7eaa407 (verified: headers, validation, nine-step journey).
+- Anonymous temporary deployment: expires 60 minutes after the latest deploy unless claimed by a Vercel account.
+- No transaction sent. Repo private. `main` unchanged at 024eafb.
+
 ## Blockers (owned by a human)
 1. Approval for one capped real purchase (about $5 of BNB plus gas), from a funded wallet connected by the user.
 2. Binance Agentic Wallet sign-in, if the official quote is wanted.
