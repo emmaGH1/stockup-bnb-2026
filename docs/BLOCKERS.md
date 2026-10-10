@@ -14,3 +14,4 @@ Rule: fixture data is never presented as live and never counted as mainnet or W3
 | Tokenized-stock addresses | Search summary -> 5 full candidates | On-chain symbol() check: 3 passed, 2 failed (CRCLon, NVDAB), several truncated | Stopped for failed ones; 3 verified kept. Not retrying more searches for those. |
 | Concept lookup | Searched VPS files and sessions | Checked GitHub account repos | Stopped. Needs human. |
 | W3W live validation | Unauthenticated probe (401) | n/a, needs keys | Waiting on keys, not retrying. |
+| On-chain DEX price for AAPLon | PancakeSwap V2 reserves: AAPLon/USDT ~ $1.64 total liquidity, AAPLon/WBNB ~ dust | PancakeSwap V3 pools (fees 100/2500): quote tokens held ~ $6-23, some pools liquidity=0 | Stopped 2026-10-10. Pools are effectively empty, so spot price (~364 USDT) is unreliable/manipulable and is NOT shown in the UI. Need W3W price API or the issuer's own price source. |

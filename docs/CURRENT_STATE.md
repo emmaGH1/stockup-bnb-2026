@@ -1,5 +1,5 @@
 # Current state
-Last updated: 2026-10-10 ~09:10 UTC (VPS clock). Repo: private emmaGH1/stockup-bnb-2026, branch main.
+Last updated: 2026-10-10 ~09:25 UTC (VPS clock). Repo: private emmaGH1/stockup-bnb-2026, branch main.
 
 ## Verified (run this session)
 - `tsc --noEmit` clean; `vitest` 5/5 pass; `next build` passes.
@@ -9,6 +9,8 @@ Last updated: 2026-10-10 ~09:10 UTC (VPS clock). Repo: private emmaGH1/stockup-b
 
 - Off-market gate `canTrade()` (src/lib/session.ts) unit-tested: blocks closed/halted/unknown. Home page renders live token reads plus a session column.
 - Session data is FIXTURE ONLY (src/lib/fixtures/w3w.ts, source:"fixture"); UI shows an amber banner saying so. 7/7 tests.
+
+- src/lib/price.ts: V2 reserve price math unit-tested (10/10 tests). Live pools checked: liquidity is dust, so price is NOT surfaced in the UI (see BLOCKERS.md).
 
 ## Unverified / not done
 - Live W3W tokenized-securities status is not implemented; fixture shapes are invented, not real response schemas.

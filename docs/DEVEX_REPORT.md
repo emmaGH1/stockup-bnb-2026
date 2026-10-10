@@ -4,3 +4,4 @@
 - Unauthenticated POST to W3W returns 401.
 - Search-grounded address lookups returned truncated/invalid addresses (e.g. 0xcac2bf017ebde4444) and two full-length ones that did not resolve as ERC-20 on BSC (CRCLon, NVDAB). Always verify symbol()/decimals() on-chain before use. 3 of 5 full candidates verified.
 - Fixture-first development needed because response schemas for tokenized-securities status aren't discoverable without credentials; public docs summary gave request signing but no verified response shape.
+- Tokenized-stock tokens (AAPLon) exist on BSC but PancakeSwap V2/V3 liquidity is dust (~$2-25), so on-chain DEX pricing cannot stand in for a price API. Builders need an official price/oracle endpoint; this is a real finding for the feedback report.
