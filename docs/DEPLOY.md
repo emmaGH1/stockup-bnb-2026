@@ -26,3 +26,12 @@ No secret is required for the current build. Binance public endpoints need no ke
 - Only AMZNon is open and liquid while markets are closed (weekend). Disney reopens on Monday.
 - The wallet path has been tested with a mock provider, not a real extension.
 - No Stockup transaction has been sent, so no ownership receipt exists yet.
+
+## Deployed: temporary public preview (2026-10-10, ~20:46 UTC)
+- URL: https://temporary-turbo-rowan-fk635uu.vercel.app
+- Type: Vercel **anonymous temporary deployment**, no account, no paid plan. It **expires after 60 minutes** unless claimed by an account owner.
+- Created with: `vercel deploy --temporary --yes --non-interactive` (Vercel CLI 63.1.2, installed in /tmp, not in the repo).
+- Security checks run before deploy: git history scan for keys/tokens/mnemonics (none); tracked env files (only `.env.example`); production dependency audit (0 vulnerabilities); server reads only `BSC_RPC_URL`; no server-side signing or sending code.
+- Verification: `/` and `/api/assets` return 200. The nine-step browser journey passes against this URL (see docs/CURRENT_STATE.md).
+- Not a permanent production deployment. Making it durable needs a Vercel account claim (`claimUrl` in the deploy output) and the owner's approval.
+- No transaction has been sent from this deployment. The app cannot send one: it has no key and only builds unsigned transactions for the user's own wallet.

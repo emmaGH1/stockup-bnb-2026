@@ -14,6 +14,11 @@ Last updated: 2026-10-10 ~18:50 UTC (VPS clock). Branch `dev/foundation`. Latest
 - `scripts/probe-binance-public.ts`: live Binance public endpoints (token list, asset status, market status, meta) return every field the code reads. Read-only, no credentials.
 - `docs/DEPLOY.md`: deployment notes only. Not deployed. Public deployment and making the repo public need approval.
 
+## Public preview (latest)
+- Temporary Vercel preview: https://temporary-turbo-rowan-fk635uu.vercel.app (expires after 60 min unless claimed). Created after the security checks in docs/DEPLOY.md passed.
+- Nine-step browser journey: all pass against the preview URL.
+- No transaction sent. Nothing merged to main. Repo still private.
+
 ## Blockers (owned by a human)
 1. Approval for one capped real purchase (about $5 of BNB plus gas), from a funded wallet connected by the user.
 2. Binance Agentic Wallet sign-in, if the official quote is wanted.
