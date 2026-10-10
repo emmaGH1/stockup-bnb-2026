@@ -7,3 +7,10 @@
 | 4 | Docker not installed on VPS | 2026-10-10 | Dockerfile untested | CI builds the app; Docker unverified |
 
 Rule: fixture data is never presented as live and never counted as mainnet or W3W evidence.
+
+## Attempt log (retry rule: stop after 2 different failed solutions)
+| Blocker | Attempt 1 | Attempt 2 | Status |
+|---|---|---|---|
+| Tokenized-stock addresses | Search summary -> 5 full candidates | On-chain symbol() check: 3 passed, 2 failed (CRCLon, NVDAB), several truncated | Stopped for failed ones; 3 verified kept. Not retrying more searches for those. |
+| Concept lookup | Searched VPS files and sessions | Checked GitHub account repos | Stopped. Needs human. |
+| W3W live validation | Unauthenticated probe (401) | n/a, needs keys | Waiting on keys, not retrying. |

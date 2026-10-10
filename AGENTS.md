@@ -10,3 +10,6 @@ Hackathon: BNB Hack Tokenized Stocks Edition. Deadline 2026-10-11 12:00 UTC. Mod
 ## Human-approval gates (explicit, standing)
 Never without the human's explicit approval: spend funds, sign transactions, make the repo public, merge to main, deploy publicly, submit the hackathon.
 Work on `dev/*` branches only. (Early checkpoints up to 024eafb were pushed straight to private main before this rule; main is unchanged since.)
+
+## Retry rule
+If two materially different solutions fail for the same blocker, stop retrying it, log it in docs/BLOCKERS.md (attempts + outcome), and switch to another approved task.
