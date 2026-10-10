@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PaperPair } from '@/components/paper-pair';
 import { connectWallet, readWallet, switchToBsc, type WalletState } from '@/lib/wallet/provider';
 import { ownershipRows, isIssued } from '@/lib/paperrows';
@@ -114,6 +114,11 @@ export function OwnFlow() {
     } catch { setErr('Transaction was not sent. Nothing was submitted.'); }
   }
 
+  const reviewRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (res?.review && window.matchMedia('(max-width: 767px)').matches) reviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [res?.review]);
+
   async function run(e: React.FormEvent) {
     e.preventDefault(); setBusy(true); setErr(''); setRes(null); setConfirm(false); setTxHash('');
     try {
@@ -160,7 +165,7 @@ export function OwnFlow() {
         <p role="status" className="text-xs text-neutral-600">{walletLine(wallet)}</p>
         <button disabled={busy || !merchant.trim() || !(Number(spend) > 0)} className="w-full bg-neutral-900 px-4 py-3 text-sm font-medium text-white disabled:opacity-50">
           {busy ? 'Checking live BSC…' : 'Check and prepare my investment'}</button>
-        {err && <p role="alert" className="text-sm text-red-700">{err}</p>}
+        {err ? <p role="alert" className="text-sm text-red-700">{err}</p> : null}
       </form>
 
       <div aria-live="polite">
@@ -213,7 +218,7 @@ export function OwnFlow() {
                 </ul>
               </section>)}
             {res.review && res.plan?.tx && (
-              <section aria-label="Review and authorize" className="border-2 border-neutral-900 p-4 text-sm">
+              <section ref={reviewRef} aria-label="Review and authorize" className="scroll-mt-4 border-2 border-neutral-900 p-4 text-sm">
                 <h2 className="text-base font-semibold">Review before you authorize</h2>
                 <p className="mt-1 text-neutral-600">Decoded from the transaction itself, not from this page&apos;s text.</p>
                 <dl className="mt-3 grid grid-cols-[9rem_1fr] gap-y-2">
@@ -232,7 +237,7 @@ export function OwnFlow() {
                   <label className="flex items-start gap-2"><input type="checkbox" checked={confirm} onChange={e => setConfirm(e.target.checked)} className="mt-1" />
                     I understand this spends real BNB on BSC mainnet and cannot be undone.</label>
                   <button type="button" disabled={!ack || !confirm || !!txHash || wallet.status !== 'connected'} onClick={sign} className="w-full bg-neutral-900 px-4 py-3 text-white disabled:opacity-40">Authorize in my wallet</button>
-                  {wallet.status !== 'connected' && <p className="text-xs text-neutral-600">Connect your wallet above to authorize. Stockup will check that the account matches the recipient and that the wallet is on BSC before anything is sent.</p>}
+                  {wallet.status !== 'connected' && <p className="text-xs text-neutral-600">Use “Connect my browser wallet” in step 2 to authorize. Stockup will check that the account matches the recipient and that the wallet is on BSC before anything is sent.</p>}
                   <p className="text-xs text-neutral-500">Your wallet will show its own confirmation. If the amounts there differ from this page, reject it.</p>
                   {txHash && (
                     <div className="space-y-2 border-t pt-3">

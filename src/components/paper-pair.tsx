@@ -29,7 +29,7 @@ export function PaperPair({ pasted, parsed, rows, issued, receiptId, reason }: {
           <h2 className="font-serif text-base font-semibold tracking-tight">Purchase receipt</h2>
           <span className="text-[11px] uppercase tracking-wider text-[#6b6857]">pasted by you · unverified</span>
         </header>
-        <div className="mt-3 min-h-[10.5rem] whitespace-pre-wrap break-words">
+        <div className="mt-3 md:min-h-[10.5rem] whitespace-pre-wrap break-words">
           {lines.length ? lines.map((l, i) => <div key={i} className={parsed && l === parsed.merchantLine ? 'bg-[#fff3a8]' : parsed?.totalLabel && l === parsed.totalLabel ? 'bg-[#fff3a8]' : ''}>{l}</div>)
             : <div className="text-[#8a8672]">No receipt yet. Paste text or use the sample.</div>}
         </div>
@@ -49,7 +49,7 @@ export function PaperPair({ pasted, parsed, rows, issued, receiptId, reason }: {
             {issued ? `Issued ${receiptId ?? ''}` : 'Unissued'}
           </span>
         </header>
-        <div className="mt-3 min-h-[10.5rem] space-y-0.5">
+        <div className="mt-3 md:min-h-[10.5rem] space-y-0.5">
           {rows.map(r => (
             <div key={r.key} className="motion-safe:transition-opacity motion-safe:duration-500" style={{ opacity: r.state === 'waiting' ? 0.45 : 1 }}>
               <Leader label={r.label} value={r.state === 'waiting' ? '' : r.value} tone={r.state === 'blocked' ? 'bad' : r.state === 'done' && (r.key === 'settle' || r.key === 'owned') ? 'ok' : undefined} />
