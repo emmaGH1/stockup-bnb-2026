@@ -1,5 +1,5 @@
 # Current state
-Last updated: 2026-10-10 ~09:35 UTC. Docs complete for safe scope; see BLOCKERS.md.
+Last updated: 2026-10-10 ~15:30 UTC (VPS clock). Branch dev/foundation.
 
 ## Verified (run this session)
 - `tsc --noEmit` clean; `vitest` 5/5 pass; `next build` passes.
@@ -23,3 +23,10 @@ Concept + MVP scope; W3W keys in .env on VPS; approval to spend for on-chain txs
 
 ## Next action
 If concept arrives: write docs/PROJECT.md and build the core flow. If W3W keys arrive: run live signed call and log DevEx findings. Otherwise: check GitHub Actions result for the latest push.
+
+## Update 15:30 UTC: guarded swap planner (new)
+- `POST /api/plan` builds an UNSIGNED PancakeSwap V2 BNB->token swap, runs a pre-trade guard (session, price impact, pool depth) and an eth_call simulation. Server holds no key, sends nothing, caps at 0.05 BNB.
+- Verified live: calldata simulates OK against mainnet state (0.0001 BNB -> AAPLon, eth_call). Guard correctly BLOCKS the same trade: pool holds ~0.00057 BNB, impact 14.97%.
+- JNJon has no WBNB pool on Pancake V2. USDon rejected as unsupported.
+- 14/14 tests. Session input is still fixture data.
+- Open decision: executable route exists, but these tokens' DEX liquidity is too thin for safe trades. Not retreating; options in report.
