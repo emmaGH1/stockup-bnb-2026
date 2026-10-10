@@ -36,3 +36,8 @@ If concept arrives: write docs/PROJECT.md and build the core flow. If W3W keys a
 - Live result: guard BLOCKED conversion (impact 82.42%, pool 0.00057 BNB), outcome `held_reward`. Honest, correct, and the demo-blocking fact.
 - 17/17 tests. Concept mechanics are the agent's interpretation of the name only.
 - Next: page UI for the flow; decide liquidity route (W3W swap or deeper-pool token).
+
+## Update ~15:35 UTC: first UI
+- `/` now renders the Spend to Own form (client component `src/components/own-flow.tsx`) calling `POST /api/own`; shows reward split, guard verdict and live pool facts. Page served and form text confirmed in HTML; NOT yet checked in a real browser.
+- Pharmacy (JNJon) returns "no WBNB pool" (honest error, surfaced as alert).
+- Liquidity scan: Ondo API 403 twice, V2 factory has 3.4M pairs; stopped per retry rule (see BLOCKERS.md).
