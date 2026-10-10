@@ -1,7 +1,9 @@
 # Stockup 2.0: Spend to Own
 
-Name received from the human on 2026-10-10: "STOCKUP 2.0 - SPEND TO OWN". Only the name was provided.
-The mechanics below are the AGENT'S INTERPRETATION and must be confirmed or corrected by the human.
+## Human-provided definition (verbatim, 2026-10-10)
+> Stockup is a consumer fintech application that connects everyday purchases to investments in tokenized shares of the companies people shop with.
+
+Name: "STOCKUP 2.0 - SPEND TO OWN". Anything below beyond these two statements (reward rates, the reward-to-stock conversion mechanic, the merchant list) is the AGENT'S INTERPRETATION until the human confirms it.
 
 ## Interpreted concept
 A purchase at a merchant earns a reward. Part of the reward converts into the tokenized stock of that merchant, so everyday spending builds ownership.

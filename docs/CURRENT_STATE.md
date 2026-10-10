@@ -41,3 +41,9 @@ If concept arrives: write docs/PROJECT.md and build the core flow. If W3W keys a
 - `/` now renders the Spend to Own form (client component `src/components/own-flow.tsx`) calling `POST /api/own`; shows reward split, guard verdict and live pool facts. Page served and form text confirmed in HTML; NOT yet checked in a real browser.
 - Pharmacy (JNJon) returns "no WBNB pool" (honest error, surfaced as alert).
 - Liquidity scan: Ondo API 403 twice, V2 factory has 3.4M pairs; stopped per retry rule (see BLOCKERS.md).
+
+## Update ~15:45 UTC: product definition recorded + wallet step
+- Human's definition recorded verbatim in docs/PROJECT.md. Reward rates / conversion mechanic remain agent interpretation.
+- UI: "Use my browser wallet address" (eth_requestAccounts) and a "Sign in my wallet" button that exists ONLY when the server returned a tx (guard passed + simulation OK), requires an explicit confirm checkbox, and sends via the user's own wallet (eth_sendTransaction on chain 56). The server holds no key.
+- Today the guard blocks every conversion, so the sign button never appears in practice. The sign path is UNTESTED in a browser and has sent nothing.
+- 17/17 tests, build passes.
