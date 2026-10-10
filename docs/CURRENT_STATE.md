@@ -121,3 +121,11 @@ If concept arrives: write docs/PROJECT.md and build the core flow. If W3W keys a
 - Wording: page banner and form labels say the amount/merchant are typed in by you and Stockup sees no real purchases; submitted-to-network is labeled "not confirmed"; receipt note says the spending event is manual and there is no cashback.
 - `test/claims.test.ts` (58/58 total): scans src for cashback/reward/earn language (negations allowed), bans unconditional success phrases in the UI, and asserts receipts are refused for pending/not_found/reverted/mismatch.
 - Still no Stockup trade executed. Settlement verification + receipt remain the ONLY paths to a success claim.
+
+## Update ~21:05 UTC: shopping receipt -> investment journey
+- Product line from human: "Stockup converts a familiar shopping receipt into an investment journey."
+- `src/lib/receipttext.ts` `parseReceiptText`: reads PASTED receipt text locally (no OCR, no network): merchant = known-company line else first plausible header; amount = TOTAL / AMOUNT DUE / BALANCE DUE (ignores subtotal/tax/tip); warns on conflicting totals, no TOTAL line, non-USD currency (no conversion), empty, out-of-range. 64 -> 66 tests with claims tests.
+- UI step "1. Paste a shopping receipt" + "Use a sample" + "Read receipt" -> fills merchant/amount -> user must confirm ("2. Confirm the spending event"). Copy says Stockup cannot verify the receipt is real.
+- Live: sample Amazon receipt -> $100 -> AMZNon -> ready_to_sign. A pasted $9,999.99 total hits the 0.05 BNB per-trade cap and returns new outcome `over_limit` (was mislabeled `no_route`); check label "Per-trade limit".
+- Prompt-injection text inside a receipt is just data: the parser only extracts merchant/amount; nothing in receipt text reaches a command, URL or contract.
+- NOT built: image/PDF/photo OCR (text paste only), email-receipt import, proof a receipt is genuine. Not browser-checked. No tx sent.

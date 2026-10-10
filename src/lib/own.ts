@@ -43,10 +43,10 @@ export async function spendToOwn(req: OwnRequest) {
     // The spending event is noted; only the on-chain investment is unavailable.
     const checks: Check[] = [
       checkMarketStatus({ asset: live, market: null }),
-      { id: 'route', label: 'Execution route', state: 'fail', detail: `No PancakeSwap route: ${why}.`, source: 'On-chain PancakeSwap V2 factory', required: true },
+      { id: 'route', label: /amount must be/.test(why) ? 'Per-trade limit' : 'Execution route', state: 'fail', detail: /amount must be/.test(why) ? `${why}.` : `No PancakeSwap route: ${why}.`, source: 'On-chain PancakeSwap V2 factory', required: true },
     ];
-    return { identification, discovery, instrument: inst, liveStatus: live, market, quote: null, checks, eligibility: executionEligibility(checks),  investment, bnbUsd: price, convertedBnb: bnbStr, plan: null, outcome: 'no_route' as const,
-      note: `Spending event noted (manually entered). Investment unavailable: ${why}. Your own funds were not touched. Nothing was sent.` };
+    return { identification, discovery, instrument: inst, liveStatus: live, market, quote: null, checks, eligibility: executionEligibility(checks),  investment, bnbUsd: price, convertedBnb: bnbStr, plan: null, outcome: (/amount must be/.test(why) ? 'over_limit' : 'no_route') as 'over_limit' | 'no_route',
+      note: `Spending event noted (from text you provided, unverified). Investment unavailable: ${why}. Your own funds were not touched. Nothing was sent.` };
   }
   const quote = {
     // Executable quote = PancakeSwap V2 router getAmountsOut + eth_call simulation, computed by US from BSC mainnet.

@@ -16,7 +16,7 @@ describe('issueReceipt', () => {
       expect(r.receipt.links.tx).toBe('https://bscscan.com/tx/0x' + 'ab'.repeat(32));
       expect(r.receipt.links.holderOnToken).toContain(`?a=${ME}`);
       expect(r.receipt.onChain.tokenSymbol).toBe('AMZNon'); expect(r.receipt.onChain.holderBalanceNow).toBe('0.019');
-      expect(r.receipt.recordedByApp.note).toMatch(/entered manually/); expect(r.receipt.recordedByApp.note).toMatch(/no merchant cashback/); expect(JSON.stringify(r.receipt)).not.toMatch(/rewardUsd/); expect(r.receipt.exposure.sharesApprox).toBeCloseTo(0.019);
+      expect(r.receipt.recordedByApp.note).toMatch(/pasted or typed/); expect(r.receipt.recordedByApp.note).toMatch(/no merchant cashback/); expect(JSON.stringify(r.receipt)).not.toMatch(/rewardUsd/); expect(r.receipt.exposure.sharesApprox).toBeCloseTo(0.019);
       expect(r.receipt.limits.join()).toMatch(/not direct share ownership/);
     }
   });

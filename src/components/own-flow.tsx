@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { parseReceiptText, SAMPLE_RECEIPT, type ParsedReceipt } from '@/lib/receipttext';
 
 interface Eip1193 { request(a: { method: string; params?: unknown[] }): Promise<unknown> }
 const eth = () => (typeof window === 'undefined' ? undefined : (window as unknown as { ethereum?: Eip1193 }).ethereum);
@@ -18,7 +19,7 @@ interface Result {
   review?: { contract: string; sendsBnb: string; minTokensOut: string; receivesToken: string; recipient: string; deadlineUtc: string; secondsLeft: number; calldataDigest: string } | null;
   reviewProblems?: string[];
   investment?: { spendUsd: number; investUsd: number; investBps: number; fundedBy: string };
-  bnbUsd?: number; convertedBnb?: string; outcome: 'ready_to_sign' | 'held' | 'not_eligible' | 'no_route' | 'unidentified' | 'no_token'; note: string;
+  bnbUsd?: number; convertedBnb?: string; outcome: 'ready_to_sign' | 'held' | 'not_eligible' | 'over_limit' | 'no_route' | 'unidentified' | 'no_token'; note: string;
   plan: null | { tx: { to: string; data: string; value: string; chainId: number } | null; quotedOut: string; minOut: string; impactBps: number; pairLiquidityBnb: number; guard: { allowed: boolean; reasons: string[] }; simulation: { ok: boolean; error?: string } };
   error?: string;
 }
@@ -37,6 +38,14 @@ export function OwnFlow() {
   const [txHash, setTxHash] = useState('');
   const [quotedAt, setQuotedAt] = useState(0);
   const [ack, setAck] = useState(false);
+  const [pasted, setPasted] = useState('');
+  const [parsed, setParsed] = useState<ParsedReceipt | null>(null);
+
+  function readReceipt() {
+    const p = parseReceiptText(pasted); setParsed(p);
+    if (p.merchantLine) setMerchant(p.merchantLine);
+    if (p.totalUsd != null) setSpend(String(p.totalUsd));
+  }
   const [receipt, setReceipt] = useState<null | { ok: boolean; reason?: string; receipt?: {
     receiptId: string; issuedAt: string; chain: string;
     onChain: { txHash: string; blockNumber: string; confirmations: number; tokenSymbol: string; tokenAddress: string; holder: string; receivedTokens: string; authorizedMinimum: string; gasCostBnb: string; holderBalanceNow: string | null };
@@ -101,6 +110,21 @@ export function OwnFlow() {
   return (
     <div className="grid gap-10 md:grid-cols-[22rem_1fr]">
       <form onSubmit={run} className="space-y-4">
+        <fieldset className="space-y-2 border border-neutral-300 p-3">
+          <legend className="px-1 text-sm font-medium">1. Paste a shopping receipt</legend>
+          <textarea aria-label="Shopping receipt text" className="h-32 w-full border border-neutral-400 bg-white p-2 font-mono text-xs" placeholder="Paste receipt text here" value={pasted} onChange={e => setPasted(e.target.value)} />
+          <div className="flex gap-2">
+            <button type="button" onClick={readReceipt} disabled={!pasted.trim()} className="border border-neutral-900 px-3 py-1 text-sm disabled:opacity-40">Read receipt</button>
+            <button type="button" onClick={() => setPasted(SAMPLE_RECEIPT)} className="px-3 py-1 text-sm underline">Use a sample</button>
+          </div>
+          {parsed && (
+            <div role="status" className="space-y-1 text-xs">
+              <p>Read from your text: merchant <strong>{parsed.merchantLine ?? 'not found'}</strong>, amount <strong>{parsed.totalUsd != null ? money(parsed.totalUsd) : 'not found'}</strong>{parsed.totalLabel && <> (from “{parsed.totalLabel.slice(0, 40)}”)</>}.</p>
+              {parsed.warnings.map(w => <p key={w} className="text-amber-800">⚠ {w}</p>)}
+              <p className="text-neutral-600">Stockup cannot tell whether this receipt is real. Check the two fields below, edit them if wrong, then continue.</p>
+            </div>)}
+        </fieldset>
+        <p className="text-sm font-medium">2. Confirm the spending event</p>
         <label className="block text-sm font-medium">Merchant name (you type it; Stockup does not see your real purchases)
           <input className={field} value={merchant} onChange={e => setMerchant(e.target.value)} /></label>
         <label className="block text-sm font-medium">Spending amount (USD, entered by you)
@@ -112,7 +136,7 @@ export function OwnFlow() {
           <input className={`${field} font-mono`} placeholder="0x…" value={recipient} onChange={e => setRecipient(e.target.value)} /></label>
         <button type="button" onClick={connect} className="w-full border border-neutral-900 px-4 py-2 text-sm">Use my browser wallet address</button>
         <button disabled={busy} className="w-full bg-neutral-900 px-4 py-3 text-sm font-medium text-white disabled:opacity-50">
-          {busy ? 'Checking live BSC…' : 'Invest in the company'}</button>
+          {busy ? 'Checking live BSC…' : 'Check and prepare my investment'}</button>
         {err && <p role="alert" className="text-sm text-red-700">{err}</p>}
       </form>
 
@@ -234,7 +258,7 @@ export function OwnFlow() {
               <dt className="text-neutral-500">Your investment in {res.instrument.symbol} ({res.investment.investBps / 100}% of that amount)</dt><dd className="text-right">{money(res.investment.investUsd)} ≈ {res.convertedBnb} BNB</dd>
               <dt className="text-neutral-500">Funded by</dt><dd className="text-right">your own wallet. No merchant cashback.</dd>
             </dl>}
-            {res.outcome === 'no_route' && <section className="border-l-4 border-amber-600 bg-amber-50 p-4 text-sm"><h2 className="font-semibold">No on-chain route for {res.instrument?.symbol}</h2><p className="mt-1">{res.note}</p></section>}
+            {(res.outcome === 'no_route' || res.outcome === 'over_limit') && <section className="border-l-4 border-amber-600 bg-amber-50 p-4 text-sm"><h2 className="font-semibold">{res.outcome === 'over_limit' ? 'Amount over this build\'s per-trade limit' : `No on-chain route for ${res.instrument?.symbol}`}</h2><p className="mt-1">{res.note}</p></section>}
             {res.plan && <>
             <section className={`border-l-4 p-4 ${res.outcome === 'ready_to_sign' ? 'border-green-700 bg-green-50' : 'border-amber-600 bg-amber-50'}`}>
               <h2 className="text-sm font-semibold">{res.outcome === 'ready_to_sign' ? 'Eligible to execute' : res.outcome === 'not_eligible' ? 'Not eligible to execute' : 'Investment held by the guard'}</h2>

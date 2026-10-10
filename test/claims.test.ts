@@ -26,3 +26,14 @@ describe('product claims (rules from the human)', () => {
       expect((await issueReceipt(s, '0x0000000000000000000000000000000000000001', ctx, deps)).ok).toBe(false);
   });
 });
+
+describe('pasted-receipt wording', () => {
+  it('own.ts never labels an over-limit amount as a routing failure and never says "manually entered" for pasted text', () => {
+    const src = readFileSync('src/lib/own.ts', 'utf8');
+    expect(src).toMatch(/over_limit/); expect(src).not.toMatch(/\(manually entered\)/);
+  });
+  it('UI tells the user the pasted receipt cannot be verified', () => {
+    const ui = readFileSync('src/components/own-flow.tsx', 'utf8') + readFileSync('src/app/page.tsx', 'utf8');
+    expect(ui).toMatch(/cannot (verify|tell whether)/i);
+  });
+});
