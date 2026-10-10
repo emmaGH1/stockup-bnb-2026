@@ -6,3 +6,7 @@ Hackathon: BNB Hack Tokenized Stocks Edition. Deadline 2026-10-11 12:00 UTC. Mod
 - Never commit secrets (.env ignored). No spending funds, deploying, or submitting without human approval.
 - Commit every 20-30 min; push verified checkpoints. Feature branches for risky work.
 - Update docs/CURRENT_STATE.md honestly.
+
+## Human-approval gates (explicit, standing)
+Never without the human's explicit approval: spend funds, sign transactions, make the repo public, merge to main, deploy publicly, submit the hackathon.
+Work on `dev/*` branches only. (Early checkpoints up to 024eafb were pushed straight to private main before this rule; main is unchanged since.)
