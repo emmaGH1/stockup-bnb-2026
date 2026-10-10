@@ -38,6 +38,15 @@ Last updated: 2026-10-10 ~18:50 UTC (VPS clock). Branch `dev/foundation`. Latest
 - Scope: step 5 used live BSC and Binance public data; step 8 had no wallet extension present. The journey stops at the authorization gate. No transaction was built for sending, signed, or sent.
 - Preview is anonymous and expires about 40 minutes after its last deploy unless claimed.
 
+## Live-site audit (2026-10-10, ~21:05 UTC, commit 526e8b6 site)
+- URL https://temporary-turbo-rowan-fk635uu.vercel.app
+- Console errors and warnings: none (desktop, mobile, all four wallet scenarios).
+- Failed or 4xx/5xx network requests: none.
+- Layout: no horizontal overflow, no clipped text, no broken images at 1280px or 390px.
+- Wallet: no wallet (disabled honestly), connect rejected (honest message), wrong chain (honest message), matching account on BSC (connected). Authorize stayed disabled in all four. No sign, send or switch request was made by the page without a click; the audit clicks only Connect.
+- Known minor: an always-present, empty `role=alert` container exists; harmless, noted for accessibility polish.
+- Audit script: scripts/audit-live.mjs.
+
 ## Blockers (owned by a human)
 1. Approval for one capped real purchase (about $5 of BNB plus gas), from a funded wallet connected by the user.
 2. Binance Agentic Wallet sign-in, if the official quote is wanted.
