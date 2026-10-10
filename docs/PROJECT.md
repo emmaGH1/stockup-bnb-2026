@@ -5,12 +5,15 @@
 
 Name: "STOCKUP 2.0 - SPEND TO OWN". Anything below beyond these two statements (reward rates, the reward-to-stock conversion mechanic, the merchant list) is the AGENT'S INTERPRETATION until the human confirms it.
 
-## Interpreted concept
-A purchase at a merchant earns a reward. Part of the reward converts into the tokenized stock of that merchant, so everyday spending builds ownership.
+## Binding product rules (from the human, 2026-10-10)
+1. The purchase is a **manually entered or simulated spending event**. Stockup does not connect to cards, banks or merchants.
+2. The investment is **user-funded** (the user's own wallet). It is **NOT merchant cashback**; there is no reward in this product.
+3. **Never claim a trade succeeded unless settlement was independently verified** from the chain. "Submitted" is not "settled"; receipts exist only for verified, final settlements.
+These rules are enforced by tests (`test/claims.test.ts`).
 
 ## Implemented (dev/foundation)
-- `src/lib/spend.ts` merchant rules (our own config, not real merchant data) and reward math.
-- `POST /api/own`: spend -> reward -> live BNB/USD -> guarded swap plan -> `ready_to_sign` or `held`.
+- `src/lib/spend.ts`: own-funds investment sizing from the manually entered spend (default 5%).
+- `POST /api/own`: spend -> company -> instrument -> live data -> checks -> reviewed unsigned tx.
 - Guard blocks conversion on closed/halted session, high price impact, thin pool. Nothing is signed or sent.
 
 ## Not implemented
@@ -23,4 +26,4 @@ A purchase at a merchant earns a reward. Part of the reward converts into the to
 3. User chooses to invest 5% of the spend ($5) using their OWN funds. (built: `computeInvestment`; independent of the merchant reward)
 Later steps: not yet received.
 
-Correction: earlier drafts converted the reward into stock. Per step 3 the investment is the user's own money; the reward is shown separately and is not converted.
+Correction: earlier drafts had a merchant reward converted into stock. That concept was REMOVED; the investment is the user's own money and no reward exists.

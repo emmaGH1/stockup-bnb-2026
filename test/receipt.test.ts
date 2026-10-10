@@ -4,7 +4,7 @@ import type { Settlement } from '../src/lib/settle';
 
 const TOKEN = '0x4553cfe1c09f37f38b12dc509f676964e392f8fc', ME = '0x1234567890123456789012345678901234567890';
 const settled = (conf = 6, txHash = '0x' + 'ab'.repeat(32)): Settlement => ({ state: 'settled', txHash, blockNumber: '100', confirmations: conf, receivedTokens: '0.019', minTokens: '0.0188', vsQuotedBps: 30, gasUsed: '1', gasCostBnb: '0.00001', from: ME, recipient: ME });
-const ctx: PurchaseContext = { merchantInput: 'AMAZON.COM*2K4', companyName: 'Amazon.com, Inc.', ticker: 'AMZN', spendUsd: 100, investUsd: 5, rewardUsd: 1, sharesPerToken: 1 };
+const ctx: PurchaseContext = { merchantInput: 'AMAZON.COM*2K4', companyName: 'Amazon.com, Inc.', ticker: 'AMZN', spendUsd: 100, investUsd: 5, sharesPerToken: 1 };
 const deps = { listing: async () => ({ ticker: 'AMZN', symbol: 'AMZNon', multiplier: 1 }), token: async () => ({ address: TOKEN as `0x${string}`, symbol: 'AMZNon', decimals: 18, totalSupply: '1' }), balanceOf: async () => '0.019', now: () => new Date('2026-10-10T12:00:00Z') };
 
 describe('issueReceipt', () => {
@@ -16,7 +16,7 @@ describe('issueReceipt', () => {
       expect(r.receipt.links.tx).toBe('https://bscscan.com/tx/0x' + 'ab'.repeat(32));
       expect(r.receipt.links.holderOnToken).toContain(`?a=${ME}`);
       expect(r.receipt.onChain.tokenSymbol).toBe('AMZNon'); expect(r.receipt.onChain.holderBalanceNow).toBe('0.019');
-      expect(r.receipt.recordedByApp.note).toMatch(/NOT on-chain/); expect(r.receipt.exposure.sharesApprox).toBeCloseTo(0.019);
+      expect(r.receipt.recordedByApp.note).toMatch(/entered manually/); expect(r.receipt.recordedByApp.note).toMatch(/no merchant cashback/); expect(JSON.stringify(r.receipt)).not.toMatch(/rewardUsd/); expect(r.receipt.exposure.sharesApprox).toBeCloseTo(0.019);
       expect(r.receipt.limits.join()).toMatch(/not direct share ownership/);
     }
   });

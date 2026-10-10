@@ -114,3 +114,10 @@ If concept arrives: write docs/PROJECT.md and build the core flow. If W3W keys a
 - **Selected: Amazon / AMZNon** for any real run now (only open + liquid + guard-passing + simulation-OK). **Fallback: Disney / DISon** (pool 3.37 BNB, impact 0.19%, but market closed until Monday; flow correctly returns not eligible). Added Disney merchant aliases (DISNEY+, WALT DISNEY WORLD, DISNEYLAND) + tests; 57/57.
 - Small fix: quote_validity is now `unknown` (not a misleading `fail`) when the simulation was skipped because an earlier check blocked.
 - Starbucks remains unsupported on BSC (no pool; market closed). No tx sent.
+
+## Update ~20:40 UTC: binding product rules enforced
+- Human rules: (1) purchase = manually entered/simulated spending event; (2) investment is USER-FUNDED, NOT merchant cashback; (3) never claim a trade succeeded unless settlement was independently verified.
+- Removed the entire reward/cashback concept from code, API, UI, receipt and docs (`computeReward*`, `rewardBps`, `calc`, `rewardUsd`). `/api/own` no longer returns any reward field (verified: the word does not appear in the response).
+- Wording: page banner and form labels say the amount/merchant are typed in by you and Stockup sees no real purchases; submitted-to-network is labeled "not confirmed"; receipt note says the spending event is manual and there is no cashback.
+- `test/claims.test.ts` (58/58 total): scans src for cashback/reward/earn language (negations allowed), bans unconditional success phrases in the UI, and asserts receipts are refused for pending/not_found/reverted/mismatch.
+- Still no Stockup trade executed. Settlement verification + receipt remain the ONLY paths to a success claim.

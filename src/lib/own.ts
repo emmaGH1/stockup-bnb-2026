@@ -1,4 +1,4 @@
-import { computeRewardByTicker, computeInvestment, usdToBnb } from './spend';
+import { computeInvestment, usdToBnb } from './spend';
 import { findInstrument, fetchAssetStatus } from './instruments';
 import { fetchMarketData, dexVsReferenceBps } from './marketdata';
 import { client } from './bsc';
@@ -16,18 +16,17 @@ export async function spendToOwn(req: OwnRequest) {
   // Step 2: identify the publicly traded company behind the merchant string.
   const identification: Identification = identifyCompany(String(req.merchant ?? ''));
   if (identification.status !== 'identified') {
-    return { identification, outcome: 'unidentified' as const, calc: null, plan: null,
-      note: identification.status === 'ambiguous' ? 'More than one public company matched; pick one. Nothing was calculated or sent.' : 'No publicly traded company matched this merchant. Nothing was calculated or sent.' };
+    return { identification, outcome: 'unidentified' as const, plan: null,
+      note: identification.status === 'ambiguous' ? 'More than one public company matched; pick one. Nothing was sent.' : 'No publicly traded company matched this merchant. Nothing was sent.' };
   }
   const { company } = identification;
   // Step 4: search for a genuinely supported tokenized instrument for this company.
   const discovery = await findInstrument(company.ticker);
   if (discovery.status !== 'supported') {
-    return { identification, discovery, outcome: 'no_token' as const, calc: null, plan: null,
+    return { identification, discovery, outcome: 'no_token' as const, plan: null,
       note: `${company.name} (${company.ticker}): no supported tokenized instrument. ${discovery.reason} Nothing was sent.` };
   }
   const inst = discovery.instrument;
-  const calc = computeRewardByTicker(company.ticker, company.name, inst.symbol, req.spendUsd);
   const investment = computeInvestment(req.spendUsd, req.investBps);
   const price = await bnbUsd();
   const bnb = usdToBnb(investment.investUsd, price);
@@ -41,13 +40,13 @@ export async function spendToOwn(req: OwnRequest) {
   try { plan = await buildPlan({ symbol: inst.symbol, tokenAddress: inst.address, status, bnb: bnbStr, recipient: req.recipient }); }
   catch (e) {
     const why = e instanceof Error ? e.message : 'route unavailable';
-    // Purchase and reward are still recorded; only the on-chain conversion is unavailable.
+    // The spending event is noted; only the on-chain investment is unavailable.
     const checks: Check[] = [
       checkMarketStatus({ asset: live, market: null }),
       { id: 'route', label: 'Execution route', state: 'fail', detail: `No PancakeSwap route: ${why}.`, source: 'On-chain PancakeSwap V2 factory', required: true },
     ];
-    return { identification, discovery, instrument: inst, liveStatus: live, market, quote: null, checks, eligibility: executionEligibility(checks), calc, investment, bnbUsd: price, convertedBnb: bnbStr, plan: null, outcome: 'no_route' as const,
-      note: `Purchase recorded and reward calculated. Investment unavailable: ${why}. Your own funds were not touched. Nothing was sent.` };
+    return { identification, discovery, instrument: inst, liveStatus: live, market, quote: null, checks, eligibility: executionEligibility(checks),  investment, bnbUsd: price, convertedBnb: bnbStr, plan: null, outcome: 'no_route' as const,
+      note: `Spending event noted (manually entered). Investment unavailable: ${why}. Your own funds were not touched. Nothing was sent.` };
   }
   const quote = {
     // Executable quote = PancakeSwap V2 router getAmountsOut + eth_call simulation, computed by US from BSC mainnet.
@@ -78,7 +77,7 @@ export async function spendToOwn(req: OwnRequest) {
   const review = verified?.ok ? verified.review : null;
   const reviewProblems = verified && !verified.ok ? verified.problems : [];
   const safePlan = { ...plan, tx: review ? plan.tx : null };
-  return { identification, discovery, instrument: inst, liveStatus: live, market, quote, checks, fees, eligibility, review, reviewProblems, settleParams: review ? { token: inst.address, recipient: req.recipient, valueWei: plan.valueWei, minOutWei: plan.minOutWei, quotedOutWei: plan.quotedOutWei } : null, calc, investment, bnbUsd: price, convertedBnb: bnbStr, plan: safePlan,
+  return { identification, discovery, instrument: inst, liveStatus: live, market, quote, checks, fees, eligibility, review, reviewProblems, settleParams: review ? { token: inst.address, recipient: req.recipient, valueWei: plan.valueWei, minOutWei: plan.minOutWei, quotedOutWei: plan.quotedOutWei } : null,  investment, bnbUsd: price, convertedBnb: bnbStr, plan: safePlan,
     outcome: review ? 'ready_to_sign' as const : reviewProblems.length ? 'not_eligible' as const : plan.guard.allowed ? 'not_eligible' as const : 'held' as const,
     note: review ? 'All checks passed and the transaction was decoded and verified. Review it, then authorize in your wallet.'
       : reviewProblems.length ? `Transaction failed verification: ${reviewProblems.join('; ')}. Nothing was sent.`

@@ -7,7 +7,7 @@ import { fetchTokenList } from './instruments';
 
 const SCAN = 'https://bscscan.com';
 
-export interface PurchaseContext { merchantInput: string; companyName: string; ticker: string; spendUsd: number; investUsd: number; rewardUsd: number | null; sharesPerToken: number | null }
+export interface PurchaseContext { merchantInput: string; companyName: string; ticker: string; spendUsd: number; investUsd: number; sharesPerToken: number | null }
 export interface Receipt {
   receiptId: string; issuedAt: string; chain: 'BNB Smart Chain (56)';
   onChain: { txHash: string; blockNumber: string; confirmations: number; tokenSymbol: string; tokenAddress: string; holder: string;
@@ -51,7 +51,7 @@ export async function issueReceipt(settlement: Settlement, token: string, ctx: P
       holder, receivedTokens: settlement.receivedTokens, authorizedMinimum: settlement.minTokens, gasCostBnb: settlement.gasCostBnb, holderBalanceNow: bal,
       belowQuotePct: settlement.vsQuotedBps != null ? settlement.vsQuotedBps / 100 : null },
     links: { tx: `${SCAN}/tx/${settlement.txHash}`, token: `${SCAN}/token/${tokenAddr}`, holderOnToken: `${SCAN}/token/${tokenAddr}?a=${holder}` },
-    recordedByApp: { ...ctx, ticker: listing.ticker, sharesPerToken, note: 'Purchase details and reward are recorded by Stockup from your session. They are NOT on-chain and not independently verified.' },
+    recordedByApp: { ...ctx, ticker: listing.ticker, sharesPerToken, note: 'The spending event was entered manually (or simulated) in this session; Stockup did not see a card, bank or merchant record. The investment was paid from your own funds; there is no merchant cashback or reward. None of this is on-chain or independently verified.' },
     exposure: { sharesApprox: shares, basis: `tokens received x ${sharesPerToken} shares per token (Binance list multiplier)` },
     verifyYourself: [
       `Open the transaction link and confirm status Success, block ${settlement.blockNumber}, and that it was sent to the PancakeSwap V2 router.`,

@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     const c = b.context ?? {};
     const out = await issueReceipt(s, b.token, {
       merchantInput: String(c.merchantInput ?? ''), companyName: String(c.companyName ?? ''), ticker: String(c.ticker ?? ''),
-      spendUsd: Number(c.spendUsd) || 0, investUsd: Number(c.investUsd) || 0, rewardUsd: c.rewardUsd == null ? null : Number(c.rewardUsd),
+      spendUsd: Number(c.spendUsd) || 0, investUsd: Number(c.investUsd) || 0,
       sharesPerToken: c.sharesPerToken == null ? null : Number(c.sharesPerToken) });
     return NextResponse.json({ settlement: s, ...out });
   } catch (e) { return NextResponse.json({ error: e instanceof Error ? e.message : 'bad request' }, { status: 400 }); }

@@ -17,8 +17,7 @@ interface Result {
   fees?: { totalUsd: number | null };
   review?: { contract: string; sendsBnb: string; minTokensOut: string; receivesToken: string; recipient: string; deadlineUtc: string; secondsLeft: number; calldataDigest: string } | null;
   reviewProblems?: string[];
-  investment?: { investUsd: number; investBps: number; fundedBy: string };
-  calc: null | { merchant: { name: string; symbol: string; rewardBps: number }; spendUsd: number; rewardUsd: number; convertedUsd: number; keptUsd: number };
+  investment?: { spendUsd: number; investUsd: number; investBps: number; fundedBy: string };
   bnbUsd?: number; convertedBnb?: string; outcome: 'ready_to_sign' | 'held' | 'not_eligible' | 'no_route' | 'unidentified' | 'no_token'; note: string;
   plan: null | { tx: { to: string; data: string; value: string; chainId: number } | null; quotedOut: string; minOut: string; impactBps: number; pairLiquidityBnb: number; guard: { allowed: boolean; reasons: string[] }; simulation: { ok: boolean; error?: string } };
   error?: string;
@@ -42,7 +41,7 @@ export function OwnFlow() {
     receiptId: string; issuedAt: string; chain: string;
     onChain: { txHash: string; blockNumber: string; confirmations: number; tokenSymbol: string; tokenAddress: string; holder: string; receivedTokens: string; authorizedMinimum: string; gasCostBnb: string; holderBalanceNow: string | null };
     links: { tx: string; token: string; holderOnToken: string };
-    recordedByApp: { merchantInput: string; companyName: string; ticker: string; spendUsd: number; investUsd: number; rewardUsd: number | null; note: string };
+    recordedByApp: { merchantInput: string; companyName: string; ticker: string; spendUsd: number; investUsd: number; note: string };
     exposure: { sharesApprox: number | null; basis: string }; verifyYourself: string[]; limits: string[] } }>(null);
   const [settle, setSettle] = useState<null | { state: string; detail?: string; problems?: string[]; receivedTokens?: string; minTokens?: string; confirmations?: number; blockNumber?: string; gasCostBnb?: string; vsQuotedBps?: number | null; error?: string }>(null);
 
@@ -52,7 +51,7 @@ export function OwnFlow() {
     try {
       const r = await fetch('/api/receipt', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ txHash, ...res.settleParams,
         context: { merchantInput: res.identification.input, companyName: res.identification.company?.name, ticker: res.identification.company?.ticker,
-          spendUsd: res.calc?.spendUsd, investUsd: res.investment?.investUsd, rewardUsd: res.calc?.rewardUsd, sharesPerToken: Number(res.instrument.multiplier) } }) });
+          spendUsd: res.investment?.spendUsd, investUsd: res.investment?.investUsd, sharesPerToken: Number(res.instrument.multiplier) } }) });
       setReceipt(await r.json());
     } catch { setReceipt({ ok: false, reason: 'network error' }); }
   }
@@ -102,9 +101,9 @@ export function OwnFlow() {
   return (
     <div className="grid gap-10 md:grid-cols-[22rem_1fr]">
       <form onSubmit={run} className="space-y-4">
-        <label className="block text-sm font-medium">Merchant (as it appears on the purchase)
+        <label className="block text-sm font-medium">Merchant name (you type it; Stockup does not see your real purchases)
           <input className={field} value={merchant} onChange={e => setMerchant(e.target.value)} /></label>
-        <label className="block text-sm font-medium">Purchase (USD)
+        <label className="block text-sm font-medium">Spending amount (USD, entered by you)
           <input className={field} inputMode="decimal" value={spend} onChange={e => setSpend(e.target.value)} /></label>
         <label className="block text-sm font-medium">Invest from my own funds (% of purchase)
           <input className={field} inputMode="decimal" value={investPct} onChange={e => setInvestPct(e.target.value)} />
@@ -178,7 +177,7 @@ export function OwnFlow() {
                   <p className="text-xs text-neutral-500">Your wallet will show its own confirmation. If the amounts there differ from this page, reject it.</p>
                   {txHash && (
                     <div className="space-y-2 border-t pt-3">
-                      <p className="break-all font-mono text-xs">Submitted: <a className="underline" href={`https://bscscan.com/tx/${txHash}`} target="_blank" rel="noreferrer">{txHash}</a> (submitted is not the same as settled)</p>
+                      <p className="break-all font-mono text-xs">Submitted to the network (not confirmed): <a className="underline" href={`https://bscscan.com/tx/${txHash}`} target="_blank" rel="noreferrer">{txHash}</a> Submitted is not settled. Nothing is confirmed until you verify settlement below.</p>
                       <div className="flex gap-2">
                         <button type="button" onClick={checkSettlement} className="border border-neutral-900 px-3 py-2">Verify settlement on-chain</button>
                         <button type="button" onClick={getReceipt} className="bg-neutral-900 px-3 py-2 text-white">Get ownership receipt</button>
@@ -230,12 +229,12 @@ export function OwnFlow() {
                 </ul>
               </section>)}
             {(res.outcome === 'unidentified' || res.outcome === 'no_token') && <section className="border-l-4 border-amber-600 bg-amber-50 p-4 text-sm">{res.note}</section>}
-            {res.calc && <dl className="grid grid-cols-2 gap-y-2 border-b pb-4 text-sm">
-              <dt className="text-neutral-500">Purchase</dt><dd className="text-right">{money(res.calc.spendUsd)}</dd>
-              <dt className="text-neutral-500">Reward ({res.calc.merchant.rewardBps / 100}%)</dt><dd className="text-right">{money(res.calc.rewardUsd)}</dd>
-              <dt className="text-neutral-500">Your investment in {res.calc.merchant.symbol} ({(res.investment?.investBps ?? 0) / 100}% of purchase, own funds)</dt><dd className="text-right">{money(res.investment?.investUsd ?? 0)} ≈ {res.convertedBnb} BNB</dd>
+            {res.investment && res.instrument && <dl className="grid grid-cols-2 gap-y-2 border-b pb-4 text-sm">
+              <dt className="text-neutral-500">Spending event (entered by you, not verified)</dt><dd className="text-right">{money(res.investment.spendUsd)}</dd>
+              <dt className="text-neutral-500">Your investment in {res.instrument.symbol} ({res.investment.investBps / 100}% of that amount)</dt><dd className="text-right">{money(res.investment.investUsd)} ≈ {res.convertedBnb} BNB</dd>
+              <dt className="text-neutral-500">Funded by</dt><dd className="text-right">your own wallet. No merchant cashback.</dd>
             </dl>}
-            {res.outcome === 'no_route' && res.calc && <section className="border-l-4 border-amber-600 bg-amber-50 p-4 text-sm"><h2 className="font-semibold">No on-chain route for {res.calc.merchant.symbol}</h2><p className="mt-1">{res.note}</p></section>}
+            {res.outcome === 'no_route' && <section className="border-l-4 border-amber-600 bg-amber-50 p-4 text-sm"><h2 className="font-semibold">No on-chain route for {res.instrument?.symbol}</h2><p className="mt-1">{res.note}</p></section>}
             {res.plan && <>
             <section className={`border-l-4 p-4 ${res.outcome === 'ready_to_sign' ? 'border-green-700 bg-green-50' : 'border-amber-600 bg-amber-50'}`}>
               <h2 className="text-sm font-semibold">{res.outcome === 'ready_to_sign' ? 'Eligible to execute' : res.outcome === 'not_eligible' ? 'Not eligible to execute' : 'Investment held by the guard'}</h2>
