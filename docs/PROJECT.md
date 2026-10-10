@@ -10,9 +10,17 @@ A purchase at a merchant earns a reward. Part of the reward converts into the to
 
 ## Implemented (dev/foundation)
 - `src/lib/spend.ts` merchant rules (our own config, not real merchant data) and reward math.
-- `POST /api/own`: spend -> reward -> live BNB/USD -> guarded swap plan -> `ready_to_sign` or `held_reward`.
+- `POST /api/own`: spend -> reward -> live BNB/USD -> guarded swap plan -> `ready_to_sign` or `held`.
 - Guard blocks conversion on closed/halted session, high price impact, thin pool. Nothing is signed or sent.
 
 ## Not implemented
 - Real card/merchant recognition, user accounts, wallet connect/signing UI, Binance W3W integration, live session data.
 - A designed UI. Real execution is blocked by thin liquidity (see CURRENT_STATE.md).
+
+## Journey as specified by the human (2026-10-10)
+1. User records a $100 Starbucks purchase. (built)
+2. Stockup identifies Starbucks as the associated publicly traded company. (built, curated alias table)
+3. User chooses to invest 5% of the spend ($5) using their OWN funds. (built: `computeInvestment`; independent of the merchant reward)
+Later steps: not yet received.
+
+Correction: earlier drafts converted the reward into stock. Per step 3 the investment is the user's own money; the reward is shown separately and is not converted.

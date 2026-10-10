@@ -23,6 +23,15 @@ export function computeReward(merchantId: string, spendUsd: number, convertShare
 /** Reward rate comes from the identified company's token symbol; placeholder product config. */
 export function ruleForSymbol(symbol: string): MerchantRule | undefined { return MERCHANTS.find(m => m.symbol === symbol); }
 
+export interface Investment { spendUsd: number; investBps: number; investUsd: number; fundedBy: 'own_funds' }
+
+/** Pure. The user's OWN money: investBps of the purchase amount (500 = 5%). Independent of the merchant reward. */
+export function computeInvestment(spendUsd: number, investBps = 500): Investment {
+  if (!(spendUsd > 0) || spendUsd > 10_000) throw new Error('spend must be >0 and <= 10000 USD');
+  if (!Number.isInteger(investBps) || investBps < 1 || investBps > 2_000) throw new Error('invest share must be 0.01%-20%');
+  return { spendUsd, investBps, investUsd: (spendUsd * investBps) / 10_000, fundedBy: 'own_funds' };
+}
+
 export function usdToBnb(usd: number, bnbUsd: number): number {
   if (!(bnbUsd > 0)) throw new Error('invalid BNB price');
   return usd / bnbUsd;

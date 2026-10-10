@@ -33,7 +33,7 @@ If concept arrives: write docs/PROJECT.md and build the core flow. If W3W keys a
 
 ## Update 15:45 UTC: Spend to Own (product name received)
 - `POST /api/own` works end to end on live chain data: $100 Apple Store spend -> $2 reward -> 0.00266 BNB (live WBNB/USDT $751) -> AAPLon plan.
-- Live result: guard BLOCKED conversion (impact 82.42%, pool 0.00057 BNB), outcome `held_reward`. Honest, correct, and the demo-blocking fact.
+- Live result: guard BLOCKED conversion (impact 82.42%, pool 0.00057 BNB), outcome `held`. Honest, correct, and the demo-blocking fact.
 - 17/17 tests. Concept mechanics are the agent's interpretation of the name only.
 - Next: page UI for the flow; decide liquidity route (W3W swap or deeper-pool token).
 
@@ -50,7 +50,7 @@ If concept arrives: write docs/PROJECT.md and build the core flow. If W3W keys a
 
 ## Update ~16:05 UTC: journey step 1, $100 Starbucks purchase
 - Starbucks added (3% placeholder rate, SBUXx). $100 purchase -> $3 reward -> 0.0039928 BNB equivalent (live WBNB/USDT). Verified via /api/own.
-- SBUXx has NO Pancake V2 pool, so API returns outcome `no_route` with the reward intact and a plain explanation; UI shows an amber panel. Apple still `held_reward` (thin pool).
+- SBUXx has NO Pancake V2 pool, so API returns outcome `no_route` with the reward intact and a plain explanation; UI shows an amber panel. Apple still `held` (thin pool).
 - Page default merchant is now Starbucks. 18/18 tests. Still no transaction, no browser check, session data fixture.
 
 ## Update ~16:25 UTC: journey step 2, company identification
@@ -58,3 +58,8 @@ If concept arrives: write docs/PROJECT.md and build the core flow. If W3W keys a
 - `/api/own` now takes `merchant` (free text) and returns `identification` + outcome (`identified` path continues; `unidentified`/`no_token` stop with nothing calculated or sent).
 - Verified live: "STARBUCKS #4411 SEATTLE WA" and "Sq *Starbucks" -> SBUX; "WHOLE FOODS MKT" -> AMZN (public, no token); unknown diner -> not_found; "APPLE AMAZON MARKETPLACE" -> ambiguous.
 - UI: free-text merchant field + "Identified company" panel. 25/25 tests. Not browser-checked. Conversion still `no_route` for SBUXx.
+
+## Update ~16:45 UTC: journey step 3, own-funds investment
+- `computeInvestment(spend, investBps=500)`: $100 -> $5 own funds, tested (27/27). Reward ($3 Starbucks, placeholder) is now display-only, NOT converted. `/api/own` takes `investBps` (0.01-20%); sizes the swap from the $5 using live WBNB/USDT ($751.41 -> 0.00665416 BNB).
+- Live: Starbucks -> `no_route` (no Pancake pool for SBUXx); Apple -> `held` (impact 92%, pool 0.00057 BNB). Nothing sent; own funds untouched.
+- UI field: "Invest from my own funds (% of purchase)" defaulting to 5 with a live dollar readout. Not browser-checked.
