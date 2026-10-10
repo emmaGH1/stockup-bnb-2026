@@ -1,22 +1,27 @@
-# Developer Experience log (feeds 25% criterion)
-- 2026-10-10: BSC public RPC reachable, no auth. W3W API needs HMAC keys (X-OC-* headers) - key acquisition path: TBD.
-- Signature scheme (timestamp+METHOD+path incl. /build+body, HMAC-SHA256, base64) taken from a search summary; docs pitfall: omitting /build prefix -> 40102. Unverified live (no keys).
-- Unauthenticated POST to W3W returns 401.
-- Search-grounded address lookups returned truncated/invalid addresses (e.g. 0xcac2bf017ebde4444) and two full-length ones that did not resolve as ERC-20 on BSC (CRCLon, NVDAB). Always verify symbol()/decimals() on-chain before use. 3 of 5 full candidates verified.
-- Fixture-first development needed because response schemas for tokenized-securities status aren't discoverable without credentials; public docs summary gave request signing but no verified response shape.
-- Tokenized-stock tokens (AAPLon) exist on BSC but PancakeSwap V2/V3 liquidity is dust (~$2-25), so on-chain DEX pricing cannot stand in for a price API. Builders need an official price/oracle endpoint; this is a real finding for the feedback report.
+# Developer Experience Report: Binance Web3 / BNB Chain tokenized stocks
+Status: agent-written from direct experience in this repo, 2026-10-10. Verifiable: each finding names the file, command or endpoint that shows it. Mark-ups for the human to review before submission.
 
-## Structured findings so far (2026-10-10)
-| # | Area | Finding | Severity |
-|---|---|---|---|
-| 1 | Onboarding | Obtaining W3W API key/secret requires the Binance developer portal; no keyless sandbox found, so integration testing is blocked until a human creates a project. | High |
-| 2 | Auth | Signing = base64(HMAC-SHA256(timestamp+METHOD+path incl. /build+body)). Omitting `/build` reportedly causes 40102. Unverified live. | Medium |
-| 3 | Discovery | No obvious official machine-readable list of tokenized-stock contract addresses; search results gave truncated or non-resolving addresses (3 of 5 full ones verified). | High |
-| 4 | Liquidity | AAPLon PancakeSwap pools hold ~$2-25; DEX price is unusable, an official price endpoint is needed. | High |
-| 5 | Token behavior | Tokenized stocks are 18-decimal ERC-20s with symbols like AAPLon; market sessions/halts are not visible on-chain, so an off-chain status source is required. | Medium |
-| 6 | Docs | Response schemas for tokenized-securities status were not discoverable without credentials. | Medium |
-| 7 | Discovery (resolved) | Binance publishes keyless public RWA endpoints (token list, per-asset status w/ corporate-action codes) in binance/binance-skills-hub. This solved the address-discovery pain (#3), but it is only discoverable via the skills repo, not the main docs I searched first. Search summaries had given a WRONG Starbucks token (SBUXx); the official list says SBUXon. | High (positive) |
-| 8 | Liquidity | Of 458 BSC Ondo tokens, liquidity varies wildly on PancakeSwap V2: AMZNon 4.36 BNB (tradable), AAPLon 0.0006 BNB, SBUXon no pool. | High |
-| 9 | Docs/API | `assetType`, `d`, `lastUpdateTime` fields appear in the live list but not in the skill doc's response table. Market status response includes an `offhours` object not in the doc. | Low |
-| 10 | Quote API | Binance's executable quote lives in the `baw` CLI (`market-order quote`), not in a public REST endpoint; it returns NOT_LOGGED_IN without a human-confirmed Binance App session, so server-side/CI use is not possible without a human pairing step. Market data (dynamic endpoint) is fully public. | High |
-| 11 | Data | Dynamic endpoint's `stockInfo.price` is null off-hours for some tickers (AAPL) but present for others (AMZN, SBUX); `volume24h` is documented as US-stock volume, not DEX volume. | Low |
+## Summary
+Building a tokenized-stock product on Binance's stack is possible without credentials for market data, but the executable path is gated. Discovery took the most effort. The public endpoints we needed were found only in a skills repository, not in the main docs we searched first.
+
+## Findings
+| # | Area | Finding | Evidence | Severity |
+|---|---|---|---|---|
+| 1 | Discovery | The keyless RWA endpoints (token list, per-asset status, dynamic data, meta) live in `binance/binance-skills-hub` (`binance-tokenized-securities-info/SKILL.md`), not in the docs we searched first. Finding them removed the need for guessed addresses. | `src/lib/instruments.ts`, `scripts/probe-binance-public.ts` | High (positive) |
+| 2 | Discovery | Web search summaries returned a wrong Starbucks token (SBUXx, from a third-party page). The official list names SBUXon. Our first version of the product used the wrong token until the list was checked. Fixed in commit 4d5aa37. | `docs/CURRENT_STATE.md`; `git show 4d5aa37` | High |
+| 3 | Discovery | Of 458 BSC tokens on the Ondo list, only 48 have PancakeSwap V2 pools and 7 hold at least $5k. Liquidity varies widely; several listed tokens have no pool at all. | `scripts/scan-liquidity.ts` | High |
+| 4 | Auth | Binance Web3 signed REST requests need HMAC keys (X-OC-* headers). Unauthenticated calls return HTTP 401 with code 40101. We could not test a signed call without keys. | `curl` probe, 2026-10-10 | High |
+| 5 | Auth | The signing format we implemented (timestamp + METHOD + path incl. `/build` + body, HMAC-SHA256, base64) came from a search summary, not a verified spec. Unit-tested against our own copy of the formula only. | `src/lib/w3w.ts` | Medium |
+| 6 | Quote API | The executable quote (`baw market-order quote`) requires an interactive Binance App sign-in. Without it the CLI returns `NOT_LOGGED_IN` (code 10003000). A server or CI cannot obtain an executable Binance quote without a human pairing step. | `docs` run in `/tmp/baw`, 2026-10-10 | High |
+| 7 | Data | The dynamic endpoint returns `stockInfo.price` as null outside trading hours for some tickers (e.g. AAPL) and as a value for others (AMZN). `volume24h` is documented as US-stock volume, not on-chain volume. | live responses | Low |
+| 8 | Docs | The live list response includes `assetType`, `d` and `lastUpdateTime`, and market status includes an `offhours` object. None are in the skill doc's response tables. | live responses vs. SKILL.md | Low |
+| 9 | Schema | Field schemas were consistent with the skill doc for the four endpoints we use. Our probe checks those fields on every run. | `scripts/probe-binance-public.ts` (4/4 pass) | Positive |
+| 10 | Fees | Binance Web3 Wallet trading fees are not shown in any endpoint we read; we could not include them in the fee estimate. | `src/lib/checks.ts` | Medium |
+| 11 | Ownership | Token ≠ share: each token represents a multiplier of underlying shares (1.0 for most, higher after splits). The list supplies the multiplier; we use it for shares-approx in receipts. | `src/lib/receipt.ts` | Positive |
+| 12 | Issuer | Verifying issuer authenticity is hard from chain data alone. Identical 824-byte bytecode across Amazon, Apple, Disney and PDD tokens shows one template, not one issuer. We rely on Binance's listing. | `docs/CURRENT_STATE.md` | Medium |
+| 13 | Price | DEX spot on V2 pools for these tokens is unusable at scale (AAPLon pool ~$2). An official price source is needed for a credible quote. | `docs/BLOCKERS.md` | High |
+
+## What this means for Binance
+- Keyless discovery and market-status endpoints are a strong developer experience once found. Documenting them in the main API docs would remove the discovery detour (finding 1).
+- The executable quote is the largest gap for builders: an agent or a server cannot get a Binance quote without a human sign-in (finding 6).
+- A published response schema for the signed W3W API would let us verify our signing rather than trust a summary (finding 5).

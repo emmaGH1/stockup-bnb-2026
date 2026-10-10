@@ -47,6 +47,13 @@ Last updated: 2026-10-10 ~18:50 UTC (VPS clock). Branch `dev/foundation`. Latest
 - Known minor: an always-present, empty `role=alert` container exists; harmless, noted for accessibility polish.
 - Audit script: scripts/audit-live.mjs.
 
+## Demo and DevEx evidence (2026-10-10, ~21:20 UTC)
+- Fixed a stale instrument: SBUXx removed from the registry and company table; Starbucks maps to SBUXon. Live registry now lists only AAPLon, JNJon, USDon. Commit 4d5aa37.
+- DevEx report rewritten from current evidence (13 findings, each with a file, command or endpoint). docs/DEVEX_REPORT.md.
+- Demo evidence captured from the live preview with consistency checks: docs/evidence/ (4 screenshots, README). A first Starbucks capture mixed an Amazon receipt with Starbucks fields and was discarded.
+- Demo script with honest claims and "do not show" list: docs/DEMO.md.
+- No transaction, no ownership receipt, no real wallet exists.
+
 ## Blockers (owned by a human)
 1. Approval for one capped real purchase (about $5 of BNB plus gas), from a funded wallet connected by the user.
 2. Binance Agentic Wallet sign-in, if the official quote is wanted.
