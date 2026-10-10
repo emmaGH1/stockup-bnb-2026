@@ -1,10 +1,18 @@
 'use client';
 import { useState } from 'react';
 import { PaperPair } from '@/components/paper-pair';
+import { connectWallet, readWallet, switchToBsc, type WalletState } from '@/lib/wallet/provider';
 import { ownershipRows, isIssued } from '@/lib/paperrows';
 import { parseReceiptText, SAMPLE_RECEIPT, type ParsedReceipt } from '@/lib/receipttext';
 
 interface Eip1193 { request(a: { method: string; params?: unknown[] }): Promise<unknown> }
+function walletLine(w: WalletState): string {
+  if (w.status === 'connected') return `Connected to BNB Smart Chain (56) as ${w.account.slice(0, 8)}…${w.account.slice(-4)}.`;
+  if (w.status === 'wrong_chain') return 'Your wallet is on another network. Connecting again will ask it to switch to BSC.';
+  if (w.status === 'no_wallet') return 'No browser wallet found.';
+  return 'Not connected. Connecting only shares your address. It never sends anything.';
+}
+
 const eth = () => (typeof window === 'undefined' ? undefined : (window as unknown as { ethereum?: Eip1193 }).ethereum);
 
 interface Ident { status: 'identified' | 'ambiguous' | 'not_found'; input: string; matchedAlias?: string; company?: { ticker: string; name: string; tokenSymbol?: string }; candidates?: { ticker: string; name: string }[] }
@@ -76,26 +84,35 @@ export function OwnFlow() {
     } catch { setSettle({ state: 'error', error: 'network error' }); }
   }
 
+  const [wallet, setWallet] = useState<WalletState>({ status: 'disconnected' });
+
+  // Explicit click only. Requests account access; never a transaction.
   async function connect() {
     setErr('');
-    try {
-      const w = eth(); if (!w) return setErr('No browser wallet found');
-      const accts = (await w.request({ method: 'eth_requestAccounts' })) as string[];
-      if (accts[0]) setRecipient(accts[0]);
-    } catch { setErr('Wallet connection was declined'); }
+    const w = eth();
+    const st = await connectWallet(w);
+    setWallet(st);
+    if (st.status === 'no_wallet') setErr('No browser wallet found.');
+    else if (st.status === 'disconnected') setErr('Wallet connection was declined.');
+    else if (st.status === 'connected' || st.status === 'wrong_chain') setRecipient(st.account);
   }
 
-  // Reachable only when the server released a tx (eligible AND calldata verified). Re-checks quote age at the moment of authorization.
+  // Authorization needs: a released tx, verified review, both acknowledgements, a fresh quote,
+  // the connected account equal to the recipient, and the wallet on BSC.
   async function sign() {
     const tx = res?.plan?.tx; const w = eth();
     if (!tx || !res?.review || !w || !confirm || !ack) return;
     if (Date.now() - quotedAt > 100_000) { setErr('This quote is too old to authorize. Run the check again.'); return; }
     setErr('');
+    let st = await readWallet(w);
+    if (st.status === 'wrong_chain') { if (!(await switchToBsc(w))) { setErr('Switch your wallet to BNB Smart Chain (56) to continue.'); return; } st = await readWallet(w); }
+    if (st.status !== 'connected') { setErr('Connect your wallet first.'); return; }
+    setWallet(st);
+    if (st.account.toLowerCase() !== res.review.recipient.toLowerCase()) { setErr(`Your wallet account (${st.account.slice(0, 8)}…) is not the recipient address on this review. Switch accounts or re-run the check.`); return; }
     try {
-      await w.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x38' }] });
-      const hash = (await w.request({ method: 'eth_sendTransaction', params: [{ from: recipient, to: tx.to, data: tx.data, value: tx.value }] })) as string;
+      const hash = (await w.request({ method: 'eth_sendTransaction', params: [{ from: st.account, to: tx.to, data: tx.data, value: tx.value }] })) as string;
       setTxHash(hash);
-    } catch { setErr('Transaction was not sent'); }
+    } catch { setErr('Transaction was not sent. Nothing was submitted.'); }
   }
 
   async function run(e: React.FormEvent) {
@@ -140,7 +157,8 @@ export function OwnFlow() {
           <span className="mt-1 block text-xs font-normal text-neutral-600">{Number(spend) > 0 && Number(investPct) > 0 ? `= ${money(Number(spend) * Number(investPct) / 100)} of your own money` : ''}</span></label>
         <label className="block text-sm font-medium">Your BSC address (receives the stock)
           <input className={`${field} font-mono`} placeholder="0x…" value={recipient} onChange={e => setRecipient(e.target.value)} /></label>
-        <button type="button" onClick={connect} className="w-full border border-neutral-900 px-4 py-2 text-sm">Use my browser wallet address</button>
+        <button type="button" onClick={connect} className="w-full border border-neutral-900 px-4 py-2 text-sm">Connect my browser wallet</button>
+        <p role="status" className="text-xs text-neutral-600">{walletLine(wallet)}</p>
         <button disabled={busy || !merchant.trim() || !(Number(spend) > 0)} className="w-full bg-neutral-900 px-4 py-3 text-sm font-medium text-white disabled:opacity-50">
           {busy ? 'Checking live BSC…' : 'Check and prepare my investment'}</button>
         {err && <p role="alert" className="text-sm text-red-700">{err}</p>}
@@ -214,7 +232,7 @@ export function OwnFlow() {
                     I reviewed the amounts and addresses above and I am authorizing this exact transaction.</label>
                   <label className="flex items-start gap-2"><input type="checkbox" checked={confirm} onChange={e => setConfirm(e.target.checked)} className="mt-1" />
                     I understand this spends real BNB on BSC mainnet and cannot be undone.</label>
-                  <button type="button" disabled={!ack || !confirm || !!txHash} onClick={sign} className="w-full bg-neutral-900 px-4 py-3 text-white disabled:opacity-40">Authorize in my wallet</button>
+                  <button type="button" disabled={!ack || !confirm || !!txHash || wallet.status === 'no_wallet'} onClick={sign} className="w-full bg-neutral-900 px-4 py-3 text-white disabled:opacity-40">Authorize in my wallet</button>
                   <p className="text-xs text-neutral-500">Your wallet will show its own confirmation. If the amounts there differ from this page, reject it.</p>
                   {txHash && (
                     <div className="space-y-2 border-t pt-3">

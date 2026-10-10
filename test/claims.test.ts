@@ -47,3 +47,14 @@ describe('signature interface', () => {
     expect(files.filter(f => /zz-|preview|mock/i.test(f))).toEqual([]);
   });
 });
+
+describe('wallet authorization guard (source-level)', () => {
+  it('sign() checks the account matches the recipient and the chain before sending', () => {
+    const ui = readFileSync('src/components/own-flow.tsx', 'utf8');
+    const body = ui.slice(ui.indexOf('async function sign()'), ui.indexOf('async function run('));
+    expect(body).toMatch(/st\.account\.toLowerCase\(\) !== res\.review\.recipient\.toLowerCase\(\)/);
+    expect(body).toMatch(/switchToBsc|wrong_chain/);
+    expect(body.indexOf('eth_sendTransaction')).toBeGreaterThan(body.indexOf('toLowerCase()'));
+    expect(ui).not.toMatch(/personal_sign|eth_sign\b|signTypedData/);
+  });
+});

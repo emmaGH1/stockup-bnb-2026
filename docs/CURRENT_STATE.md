@@ -129,3 +129,8 @@ If concept arrives: write docs/PROJECT.md and build the core flow. If W3W keys a
 - Live: sample Amazon receipt -> $100 -> AMZNon -> ready_to_sign. A pasted $9,999.99 total hits the 0.05 BNB per-trade cap and returns new outcome `over_limit` (was mislabeled `no_route`); check label "Per-trade limit".
 - Prompt-injection text inside a receipt is just data: the parser only extracts merchant/amount; nothing in receipt text reaches a command, URL or contract.
 - NOT built: image/PDF/photo OCR (text paste only), email-receipt import, proof a receipt is genuine. Not browser-checked. No tx sent.
+
+## Pause: provider budget (not a project failure)
+- A previous agent session stopped because its model-gateway daily budget was exhausted. This is a billing limit on the provider side; the repo, tests and CI were unaffected.
+- Last commit de4afbe: CI passed; branch in sync with origin/dev/foundation.
+- Resumed work does not spend funds, sign, merge, deploy or submit.
