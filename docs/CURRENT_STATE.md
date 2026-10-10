@@ -29,7 +29,7 @@ Last updated: 2026-10-10 ~18:50 UTC (VPS clock). Branch `dev/foundation`. Latest
 - Tests: 84 passing. Typecheck and production build pass.
 
 ## Live (latest)
-- Preview: https://temporary-turbo-rowan-fk635uu.vercel.app serves commit 7eaa407 (verified: headers, validation, nine-step journey).
+- Preview: https://temporary-turbo-rowan-fk635uu.vercel.app serves commit 9df393d. Verified on the live URL at desktop and mobile widths: no overflow, no HTTP or JS errors, live check returns ELIGIBLE, touch targets at least 44px.
 - Anonymous temporary deployment: expires 60 minutes after the latest deploy unless claimed by a Vercel account.
 - No transaction sent. Repo private. `main` unchanged at 024eafb.
 

@@ -41,3 +41,11 @@ No secret is required for the current build. Binance public endpoints need no ke
 - Verified on the live URL: security headers present; malformed recipient rejected with 400; nine-step journey passes.
 - Uploaded files exclude `HANDOFF.md`, `.env*` (except the example), `scripts/`, `test/`, `docs/`, `.github/` (see `.vercelignore`).
 - Still not: a permanent production deployment, a claimed account, a custom domain, or a public repo.
+
+## Deployed-site check: desktop and mobile (2026-10-10, ~21:05 UTC)
+- URL: https://temporary-turbo-rowan-fk635uu.vercel.app serving commit 9df393d.
+- Desktop (1280x900) and mobile (390x844), headless Chromium, live BSC:
+  - no horizontal overflow; no HTTP 4xx/5xx; no page or console errors;
+  - the live check returns ELIGIBLE on both (about 0.8-1.3 s);
+  - touch targets: "Read receipt" and "Use a sample" raised to 44 px minimum; no control under 32 px.
+- Known visual gaps for a later polish pass: on mobile the review panel is long and "Authorize" sits far down the page; the two receipts stack with extra space. Not blocking.
