@@ -49,3 +49,8 @@ No secret is required for the current build. Binance public endpoints need no ke
   - the live check returns ELIGIBLE on both (about 0.8-1.3 s);
   - touch targets: "Read receipt" and "Use a sample" raised to 44 px minimum; no control under 32 px.
 - Known visual gaps for a later polish pass: on mobile the review panel is long and "Authorize" sits far down the page; the two receipts stack with extra space. Not blocking.
+
+## Redeployed: commit aa21c20 (2026-10-10, ~21:15 UTC)
+- Same preview URL: https://temporary-turbo-rowan-fk635uu.vercel.app (anonymous; expires after the latest deploy unless claimed).
+- Changes: empty alert regions no longer rendered; receipts drop the fixed minimum height on phones; shorter development notice (same obligations); on phones the review panel scrolls into view after a successful check; the wallet hint names the connect control.
+- Verified on the live URL: nine-step journey passes; six-section live audit clean (console, network, layout, wallet states).
