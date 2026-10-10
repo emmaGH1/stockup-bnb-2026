@@ -3,11 +3,12 @@ import { isAddress } from 'viem';
 import { verifySettlement } from '@/lib/settle';
 import { issueReceipt } from '@/lib/receipt';
 export const dynamic = 'force-dynamic';
+import { readBounded } from '@/lib/http';
 
 // Read-only. Re-verifies settlement from the chain on every call; a receipt is never built from client claims alone.
 export async function POST(req: Request) {
   try {
-    const b = await req.json();
+    const b = (await readBounded(req)) as Record<string, any>;
     if (!isAddress(b.token) || !isAddress(b.recipient)) throw new Error('invalid token or recipient');
     const s = await verifySettlement(String(b.txHash), { token: b.token, recipient: b.recipient,
       valueWei: BigInt(b.valueWei), minOutWei: BigInt(b.minOutWei), quotedOutWei: b.quotedOutWei ? BigInt(b.quotedOutWei) : undefined });

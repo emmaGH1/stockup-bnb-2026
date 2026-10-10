@@ -12,7 +12,12 @@ import { buildPlan } from './plan';
 
 export interface OwnRequest { merchant: string; spendUsd: number; investBps?: number; recipient: string }
 
+import { isAddress } from 'viem';
+
 export async function spendToOwn(req: OwnRequest) {
+  if (typeof req.recipient !== 'string' || !isAddress(req.recipient)) throw new Error('recipient must be a valid BSC address');
+  if (typeof req.merchant !== 'string' || req.merchant.length > 200) throw new Error('merchant must be text up to 200 characters');
+  if (typeof req.spendUsd !== 'number' && typeof req.spendUsd !== 'string') throw new Error('spend must be a number');
   // Step 2: identify the publicly traded company behind the merchant string.
   const identification: Identification = identifyCompany(String(req.merchant ?? ''));
   if (identification.status !== 'identified') {

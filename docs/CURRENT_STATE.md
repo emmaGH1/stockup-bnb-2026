@@ -19,6 +19,15 @@ Last updated: 2026-10-10 ~18:50 UTC (VPS clock). Branch `dev/foundation`. Latest
 - Nine-step browser journey: all pass against the preview URL.
 - No transaction sent. Nothing merged to main. Repo still private.
 
+## Production readiness and security audit (2026-10-10, local production build)
+- Routes: `/api/own`, `/api/plan`, `/api/receipt`, `/api/settle` now read bodies through a bounded reader (8 KB cap, JSON only). Oversize and non-JSON bodies return 400.
+- Server validates the recipient as a BSC address before any chain or Binance work (previously a bad recipient reached the route check). Merchant text capped at 200 characters.
+- Security headers on every response: nosniff, frame DENY, referrer policy, permissions policy, and a Content-Security-Policy limited to self plus the public RPC and Binance endpoints. `poweredByHeader` off.
+- Secrets: none in git history; only `.env.example` tracked; server reads only `BSC_RPC_URL`; no server-side signing or sending code; no logging of request data.
+- Wallet authorization: send requires a released transaction, verified review, both acknowledgements, a fresh quote, the connected account equal to the recipient, and the wallet on BSC. Verified in headless Chromium with a mock provider.
+- Known gaps, not fixed: no rate limiting (needs infrastructure beyond the free tier for durable enforcement); `'unsafe-inline'` remains in the CSP because the Next.js runtime needs it without a nonce setup; the mock wallet is not a real extension.
+- Tests: 84 passing. Typecheck and production build pass.
+
 ## Blockers (owned by a human)
 1. Approval for one capped real purchase (about $5 of BNB plus gas), from a funded wallet connected by the user.
 2. Binance Agentic Wallet sign-in, if the official quote is wanted.

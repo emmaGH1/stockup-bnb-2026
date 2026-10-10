@@ -58,3 +58,25 @@ describe('wallet authorization guard (source-level)', () => {
     expect(ui).not.toMatch(/personal_sign|eth_sign\b|signTypedData/);
   });
 });
+
+describe('server hardening', () => {
+  it('every POST route reads bodies through the bounded reader', () => {
+    for (const r of ['own', 'plan', 'receipt', 'settle']) {
+      const s = readFileSync(`src/app/api/${r}/route.ts`, 'utf8');
+      expect(s, r).toMatch(/readBounded\(req\)/); expect(s, r).not.toMatch(/await req\.json\(\)/);
+    }
+  });
+  it('bounded reader rejects oversize bodies', async () => {
+    const { readBounded } = await import('../src/lib/http');
+    const big = new Request('http://x', { method: 'POST', body: 'a'.repeat(9000), headers: { 'content-length': '9000' } });
+    await expect(readBounded(big)).rejects.toThrow(/too large/);
+  });
+  it('server rejects a malformed recipient before any chain or Binance work', async () => {
+    const { spendToOwn } = await import('../src/lib/own');
+    await expect(spendToOwn({ merchant: 'AMAZON', spendUsd: 100, recipient: 'nope' })).rejects.toThrow(/valid BSC address/);
+  });
+  it('security headers are configured', () => {
+    const c = readFileSync('next.config.ts', 'utf8');
+    for (const h of ['X-Frame-Options', 'X-Content-Type-Options', 'Content-Security-Policy', 'Strict-Transport-Security'.replace('Strict-Transport-Security', 'Referrer-Policy')]) expect(c).toMatch(new RegExp(h));
+  });
+});
