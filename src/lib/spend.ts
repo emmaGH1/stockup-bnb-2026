@@ -3,6 +3,7 @@
 export interface MerchantRule { id: string; name: string; symbol: string; rewardBps: number }
 export const MERCHANTS: MerchantRule[] = [
   { id: 'apple-store', name: 'Apple Store', symbol: 'AAPLon', rewardBps: 200 },
+  { id: 'starbucks', name: 'Starbucks', symbol: 'SBUXx', rewardBps: 300 },
   { id: 'pharmacy', name: 'Neighborhood Pharmacy', symbol: 'JNJon', rewardBps: 150 },
 ];
 

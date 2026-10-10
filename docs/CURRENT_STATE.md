@@ -47,3 +47,8 @@ If concept arrives: write docs/PROJECT.md and build the core flow. If W3W keys a
 - UI: "Use my browser wallet address" (eth_requestAccounts) and a "Sign in my wallet" button that exists ONLY when the server returned a tx (guard passed + simulation OK), requires an explicit confirm checkbox, and sends via the user's own wallet (eth_sendTransaction on chain 56). The server holds no key.
 - Today the guard blocks every conversion, so the sign button never appears in practice. The sign path is UNTESTED in a browser and has sent nothing.
 - 17/17 tests, build passes.
+
+## Update ~16:05 UTC: journey step 1, $100 Starbucks purchase
+- Starbucks added (3% placeholder rate, SBUXx). $100 purchase -> $3 reward -> 0.0039928 BNB equivalent (live WBNB/USDT). Verified via /api/own.
+- SBUXx has NO Pancake V2 pool, so API returns outcome `no_route` with the reward intact and a plain explanation; UI shows an amber panel. Apple still `held_reward` (thin pool).
+- Page default merchant is now Starbucks. 18/18 tests. Still no transaction, no browser check, session data fixture.

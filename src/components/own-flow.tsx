@@ -6,16 +6,16 @@ const eth = () => (typeof window === 'undefined' ? undefined : (window as unknow
 
 interface Result {
   calc: { merchant: { name: string; symbol: string; rewardBps: number }; spendUsd: number; rewardUsd: number; convertedUsd: number; keptUsd: number };
-  bnbUsd: number; convertedBnb: string; outcome: 'ready_to_sign' | 'held_reward'; note: string;
-  plan: { tx: { to: string; data: string; value: string; chainId: number } | null; quotedOut: string; minOut: string; impactBps: number; pairLiquidityBnb: number; guard: { allowed: boolean; reasons: string[] }; simulation: { ok: boolean; error?: string } };
+  bnbUsd: number; convertedBnb: string; outcome: 'ready_to_sign' | 'held_reward' | 'no_route'; note: string;
+  plan: null | { tx: { to: string; data: string; value: string; chainId: number } | null; quotedOut: string; minOut: string; impactBps: number; pairLiquidityBnb: number; guard: { allowed: boolean; reasons: string[] }; simulation: { ok: boolean; error?: string } };
   error?: string;
 }
 
-const MERCHANTS = [{ id: 'apple-store', name: 'Apple Store → AAPLon' }, { id: 'pharmacy', name: 'Neighborhood Pharmacy → JNJon' }];
+const MERCHANTS = [{ id: 'starbucks', name: 'Starbucks → SBUXx' }, { id: 'apple-store', name: 'Apple Store → AAPLon' }, { id: 'pharmacy', name: 'Neighborhood Pharmacy → JNJon' }];
 const money = (n: number) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 
 export function OwnFlow() {
-  const [merchantId, setMerchant] = useState('apple-store');
+  const [merchantId, setMerchant] = useState('starbucks');
   const [spend, setSpend] = useState('100');
   const [share, setShare] = useState(100);
   const [recipient, setRecipient] = useState('');
@@ -36,7 +36,7 @@ export function OwnFlow() {
 
   // Only reachable when the guard passed AND the server simulation succeeded (tx non-null). User must tick confirm and approve in their wallet.
   async function sign() {
-    const tx = res?.plan.tx; const w = eth();
+    const tx = res?.plan?.tx; const w = eth();
     if (!tx || !w || !confirm) return;
     setErr('');
     try {
@@ -86,14 +86,16 @@ export function OwnFlow() {
               <dt className="text-neutral-500">Converting to {res.calc.merchant.symbol}</dt><dd className="text-right">{money(res.calc.convertedUsd)} ≈ {res.convertedBnb} BNB</dd>
               <dt className="text-neutral-500">Kept as plain reward</dt><dd className="text-right">{money(res.calc.keptUsd)}</dd>
             </dl>
+            {res.outcome === 'no_route' && <section className="border-l-4 border-amber-600 bg-amber-50 p-4 text-sm"><h2 className="font-semibold">No on-chain route for {res.calc.merchant.symbol}</h2><p className="mt-1">{res.note}</p></section>}
+            {res.plan && <>
             <section className={`border-l-4 p-4 ${res.outcome === 'ready_to_sign' ? 'border-green-700 bg-green-50' : 'border-amber-600 bg-amber-50'}`}>
               <h2 className="text-sm font-semibold">{res.outcome === 'ready_to_sign' ? 'Conversion cleared the guard' : 'Conversion held by the guard'}</h2>
               <ul className="mt-2 list-disc pl-5 text-sm">
-                {res.plan.guard.allowed ? <li>All pre-trade checks passed; simulation {res.plan.simulation.ok ? 'succeeded' : 'failed'}.</li>
-                  : res.plan.guard.reasons.map(r => <li key={r}>{r}</li>)}
+                {res.plan!.guard.allowed ? <li>All pre-trade checks passed; simulation {res.plan!.simulation.ok ? 'succeeded' : 'failed'}.</li>
+                  : res.plan!.guard.reasons.map(r => <li key={r}>{r}</li>)}
               </ul>
               <p className="mt-2 text-sm">{res.note}</p>
-              {res.plan.tx && (
+              {res.plan?.tx && (
                 <div className="mt-3 space-y-2 text-sm">
                   <label className="flex items-start gap-2"><input type="checkbox" checked={confirm} onChange={e => setConfirm(e.target.checked)} className="mt-1" />
                     I understand this sends {res.convertedBnb} BNB from my wallet on BSC mainnet and cannot be undone.</label>
@@ -101,13 +103,13 @@ export function OwnFlow() {
                   {txHash && <p className="break-all font-mono text-xs">Submitted: {txHash} (unverified until confirmed on-chain)</p>}
                 </div>
               )}
-            </section>
-            <dl className="grid grid-cols-2 gap-y-1 text-xs text-neutral-600">
-              <dt>Pool liquidity</dt><dd className="text-right">{res.plan.pairLiquidityBnb.toFixed(6)} BNB</dd>
-              <dt>Price impact</dt><dd className="text-right">{(res.plan.impactBps / 100).toFixed(2)}%</dd>
-              <dt>Quoted / minimum out</dt><dd className="text-right">{Number(res.plan.quotedOut).toFixed(6)} / {Number(res.plan.minOut).toFixed(6)}</dd>
+            </section></>}
+            {res.plan && <dl className="grid grid-cols-2 gap-y-1 text-xs text-neutral-600">
+              <dt>Pool liquidity</dt><dd className="text-right">{res.plan!.pairLiquidityBnb.toFixed(6)} BNB</dd>
+              <dt>Price impact</dt><dd className="text-right">{(res.plan!.impactBps / 100).toFixed(2)}%</dd>
+              <dt>Quoted / minimum out</dt><dd className="text-right">{Number(res.plan!.quotedOut).toFixed(6)} / {Number(res.plan!.minOut).toFixed(6)}</dd>
               <dt>BNB/USD (live PancakeSwap spot)</dt><dd className="text-right">{res.bnbUsd.toFixed(2)}</dd>
-            </dl>
+            </dl>}
           </div>
         )}
       </div>

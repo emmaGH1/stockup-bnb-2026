@@ -6,6 +6,10 @@ describe('spend to own', () => {
     expect(r.rewardUsd).toBe(2); expect(r.convertedUsd).toBe(1); expect(r.keptUsd).toBe(1);
     expect(r.merchant.symbol).toBe('AAPLon');
   });
+  it('records a $100 Starbucks purchase', () => {
+    const r = computeReward('starbucks', 100);
+    expect(r.merchant.symbol).toBe('SBUXx'); expect(r.rewardUsd).toBe(3); expect(r.convertedUsd).toBe(3);
+  });
   it('rejects bad input', () => {
     expect(() => computeReward('nope', 10)).toThrow(/merchant/);
     expect(() => computeReward('apple-store', 0)).toThrow();
