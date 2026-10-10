@@ -15,3 +15,11 @@ cp .env.example .env   # add W3W keys on the VPS only
 npm run dev
 ```
 No funds are spent and no transactions are sent by this code.
+
+## Scripts
+- `npx tsx scripts/verify-addresses.ts` check registry addresses on-chain
+- `npx tsx scripts/find-pools.ts` / `pool-depth.ts` / `probe-price.ts` DEX pool discovery and depth (read-only)
+- `node scripts/check-env.mjs` shows which env vars are set (no values)
+
+See `docs/ARCHITECTURE.md`, `docs/BLOCKERS.md`, `docs/DEVEX_REPORT.md`, `docs/CURRENT_STATE.md`.
+Fixture data (`src/lib/fixtures`) is development-only and labeled in the UI.

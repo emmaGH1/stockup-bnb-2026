@@ -1,5 +1,5 @@
 # Current state
-Last updated: 2026-10-10 ~09:25 UTC (VPS clock). Repo: private emmaGH1/stockup-bnb-2026, branch main.
+Last updated: 2026-10-10 ~09:35 UTC. Docs complete for safe scope; see BLOCKERS.md.
 
 ## Verified (run this session)
 - `tsc --noEmit` clean; `vitest` 5/5 pass; `next build` passes.
