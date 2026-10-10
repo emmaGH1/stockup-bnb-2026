@@ -20,7 +20,7 @@ export function computeReward(merchantId: string, spendUsd: number, convertShare
   return { merchant, spendUsd, rewardUsd, convertedUsd, keptUsd: rewardUsd - convertedUsd };
 }
 
-const REWARD_BPS: Record<string, number> = { SBUX: 300, AAPL: 200, JNJ: 150 }; // placeholder product config
+const REWARD_BPS: Record<string, number> = { SBUX: 300, AAPL: 200, JNJ: 150, DIS: 250 }; // placeholder product config
 /** Reward for any identified ticker (default 1%). Placeholder rates, not merchant data. */
 export function computeRewardByTicker(ticker: string, name: string, symbol: string, spendUsd: number): RewardCalc {
   if (!(spendUsd > 0) || spendUsd > 10_000) throw new Error('spend must be >0 and <= 10000 USD');

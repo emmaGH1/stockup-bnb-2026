@@ -16,6 +16,10 @@ describe('identifyCompany', () => {
     expect(r.status === 'identified' && r.company.ticker).toBe('AMZN');
     expect(r.status === 'identified' && r.company.tokenSymbol).toBeUndefined();
   });
+  it('identifies Disney from card-style descriptors', () => {
+    for (const m of ['DISNEY+ 877-7886', 'WALT DISNEY WORLD ORLANDO FL', 'DISNEYLAND PARK ANAHEIM']) { const r = identifyCompany(m); expect(r.status === 'identified' && r.company.ticker).toBe('DIS'); }
+    expect(identifyCompany('DISCOUNT TIRE').status).toBe('not_found');
+  });
   it('does not match inside other words', () => {
     expect(identifyCompany('PINEAPPLE GROVE CAFE').status).toBe('not_found');
     expect(identifyCompany('STARBUCKSY').status).toBe('not_found');

@@ -66,7 +66,7 @@ export async function spendToOwn(req: OwnRequest) {
   const checks: Check[] = [
     checkMarketStatus({ asset: live, market: null }),
     checkFees(fees, investment.investUsd),
-    checkQuoteValidity({ quotedAtMs: plan.quotedAtMs, nowMs: Date.now(), simulated: plan.simulation.ok, minOut: Number(plan.minOut), quotedOut: Number(plan.quotedOut) }),
+    checkQuoteValidity({ quotedAtMs: plan.quotedAtMs, nowMs: Date.now(), simulated: plan.simulation.ok, skipped: !plan.simulation.ok && (plan.simulation.error ?? '').startsWith('skipped'), minOut: Number(plan.minOut), quotedOut: Number(plan.quotedOut) }),
     { id: 'guard', label: 'Price impact and pool depth guard', state: plan.guard.allowed ? 'pass' : 'fail', detail: plan.guard.allowed ? 'Within limits.' : plan.guard.reasons.join('; '), source: 'On-chain PancakeSwap V2 reserves', required: true },
     checkWalletFunds({ balanceBnb: balance, tradeBnb: Number(bnbStr), gasBnb: fees.gasBnb }),
   ];

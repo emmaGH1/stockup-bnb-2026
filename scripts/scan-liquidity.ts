@@ -1,0 +1,31 @@
+// Read-only: for every BSC token on Binance's Ondo list, find PancakeSwap V2 pools vs WBNB/USDT/USDC and measure depth in USD.
+import { fetchTokenList } from '../src/lib/instruments';
+import { client } from '../src/lib/bsc';
+import { readV2Price } from '../src/lib/price';
+import { getAddress, parseAbi, formatUnits } from 'viem';
+const c = client();
+const F = getAddress('0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73');
+const fAbi = parseAbi(['function getPair(address,address) view returns (address)']);
+const pAbi = parseAbi(['function getReserves() view returns (uint112,uint112,uint32)', 'function token0() view returns (address)']);
+const Q = { WBNB: getAddress('0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'), USDT: getAddress('0x55d398326f99059fF775485246999027B3197955'), USDC: getAddress('0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d') };
+const bnbUsd = (await readV2Price('0x16b9a82891338f9bA80E2D6970FddA79D1eb0daE', Q.WBNB, Q.USDT))!.priceQuotePerBase;
+const list = (await fetchTokenList()).filter(t => t.chainId === '56');
+console.log('BSC list tokens', list.length, '| BNB/USD', bnbUsd.toFixed(2));
+const calls = list.flatMap(t => Object.entries(Q).map(([n, q]) => ({ t, n, q })));
+const pairs = await c.multicall({ contracts: calls.map(x => ({ address: F, abi: fAbi, functionName: 'getPair' as const, args: [getAddress(x.t.contractAddress), x.q] as const })), allowFailure: true, batchSize: 8192 });
+const found = calls.map((x, i) => ({ ...x, pair: pairs[i].status === 'success' ? pairs[i].result as string : '0x0000000000000000000000000000000000000000' })).filter(x => !/^0x0+$/.test(x.pair));
+console.log('pools found', found.length);
+const res = await c.multicall({ contracts: found.flatMap(x => [{ address: x.pair as `0x${string}`, abi: pAbi, functionName: 'getReserves' as const }, { address: x.pair as `0x${string}`, abi: pAbi, functionName: 'token0' as const }]), allowFailure: true, batchSize: 4096 });
+const out: any[] = [];
+found.forEach((x, i) => {
+  const r = res[i * 2], t0 = res[i * 2 + 1];
+  if (r.status !== 'success' || t0.status !== 'success') return;
+  const [r0, r1] = r.result as readonly [bigint, bigint, number];
+  const tokIs0 = (t0.result as string).toLowerCase() === x.t.contractAddress.toLowerCase();
+  const quoteRes = Number(formatUnits(tokIs0 ? r1 : r0, 18)), tokRes = Number(formatUnits(tokIs0 ? r0 : r1, 18));
+  const quoteUsd = x.n === 'WBNB' ? quoteRes * bnbUsd : quoteRes;
+  out.push({ symbol: x.t.symbol, ticker: x.t.ticker, quote: x.n, depthUsd: Math.round(quoteUsd * 2), tokens: tokRes, pair: x.pair, address: x.t.contractAddress });
+});
+out.sort((a, b) => b.depthUsd - a.depthUsd);
+console.log(JSON.stringify(out.slice(0, 25), null, 0).replace(/\},\{/g, '},\n{'));
+await (await import('node:fs')).promises.writeFile('/tmp/liquidity.json', JSON.stringify(out));

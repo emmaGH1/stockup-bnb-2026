@@ -6,6 +6,7 @@ export const COMPANIES: Company[] = [
   { ticker: 'SBUX', name: 'Starbucks Corporation', aliases: ['STARBUCKS', 'SBUX'], tokenSymbol: 'SBUXx' },
   { ticker: 'AAPL', name: 'Apple Inc.', aliases: ['APPLE STORE', 'APPLE', 'APPLE.COM'], tokenSymbol: 'AAPLon' },
   { ticker: 'JNJ', name: 'Johnson & Johnson', aliases: ['JOHNSON & JOHNSON', 'JNJ', 'NEUTROGENA', 'BAND-AID'], tokenSymbol: 'JNJon' },
+  { ticker: 'DIS', name: 'The Walt Disney Company', aliases: ['DISNEY', 'DISNEYLAND', 'DISNEY+', 'DISNEYPLUS', 'WALT DISNEY', 'DIS'] },
   { ticker: 'AMZN', name: 'Amazon.com, Inc.', aliases: ['AMAZON', 'AMZN', 'WHOLE FOODS'] }, // public, but no registered token
 ];
 

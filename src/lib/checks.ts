@@ -35,10 +35,11 @@ export function checkFees(f: FeeBreakdown, investUsd: number, maxFeePct = 5): Ch
   return { ...base, state: f.totalPct <= maxFeePct ? 'pass' : 'fail', detail: f.totalPct <= maxFeePct ? detail : `${detail} Exceeds ${maxFeePct}% limit.` };
 }
 
-export function checkQuoteValidity(i: { quotedAtMs: number; nowMs: number; simulated: boolean; minOut: number; quotedOut: number }): Check {
+export function checkQuoteValidity(i: { quotedAtMs: number; nowMs: number; simulated: boolean; skipped?: boolean; minOut: number; quotedOut: number }): Check {
   const base = { id: 'quote_validity', label: 'Quote validity', source: 'On-chain getAmountsOut + eth_call simulation at quote time', required: true };
   const age = i.nowMs - i.quotedAtMs;
-  if (!i.simulated) return { ...base, state: 'fail', detail: 'Simulation did not succeed.' };
+  if (i.skipped) return { ...base, state: 'unknown', detail: 'Not simulated because an earlier check already blocked the trade.' };
+  if (!i.simulated) return { ...base, state: 'fail', detail: 'Simulation ran and did not succeed.' };
   if (!(i.quotedOut > 0) || !(i.minOut > 0) || i.minOut > i.quotedOut) return { ...base, state: 'fail', detail: 'Quote amounts are inconsistent.' };
   if (age > QUOTE_TTL_MS) return { ...base, state: 'fail', detail: `Quote is ${(age / 1000).toFixed(0)}s old; expires after ${QUOTE_TTL_MS / 1000}s. Requote required.` };
   return { ...base, state: 'pass', detail: `Simulated OK; ${(age / 1000).toFixed(0)}s old; valid for ${((QUOTE_TTL_MS - age) / 1000).toFixed(0)}s more.` };

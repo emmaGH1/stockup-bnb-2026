@@ -28,6 +28,7 @@ describe('quote validity', () => {
     expect(checkQuoteValidity({ ...base, nowMs: 1_000_000 + 30_000 }).state).toBe('pass');
     expect(checkQuoteValidity({ ...base, nowMs: 1_000_000 + QUOTE_TTL_MS + 1 }).detail).toMatch(/Requote/);
     expect(checkQuoteValidity({ ...base, nowMs: 1_000_000, simulated: false }).state).toBe('fail');
+    expect(checkQuoteValidity({ ...base, nowMs: 1_000_000, simulated: false, skipped: true })).toMatchObject({ state: 'unknown' });
     expect(checkQuoteValidity({ ...base, nowMs: 1_000_000, minOut: 2 }).state).toBe('fail');
   });
 });

@@ -106,3 +106,11 @@ If concept arrives: write docs/PROJECT.md and build the core flow. If W3W keys a
 - BUG CAUGHT LIVE: first run issued a receipt for an unrelated meme-token swap (real mainnet tx 0xaee5...dd03) because nothing checked the token was a tokenized stock. Fixed: refuses unless listed; test added. 56/56 tests.
 - No receipt has been issued for a Stockup trade, because no Stockup trade has executed. The only live receipt run used someone else's transaction, before the fix, purely to test the pipeline.
 - Not browser-checked. Receipt is a web view only (no PDF/export/persistence; nothing stored server-side).
+
+## Update ~20:10 UTC: merchant/stock selection by verified route (full-list liquidity scan)
+- `scripts/scan-liquidity.ts` (read-only): all 458 BSC tokens on Binance's Ondo list x PancakeSwap V2 pairs vs WBNB/USDT/USDC via multicall. Only **48 pools exist; 7 hold >= $5k**: FXIon $25.2k, BILIon $10.5k, PDDon $10.4k, SGOVon $9.0k, TLTon $8.7k, AMZNon $6.6k, DISon $5.1k. Everything else is < $120 (AAPLon $2, NVDAon $3, MSFTon $2, JPMon $4, GOOGLon $3). Starbucks (SBUXon): no pool at all.
+- Live Binance status at scan time (weekend): **only AMZNon is open (offhours/TRADING)**; the other six liquid tokens are MARKET_CLOSED until Monday.
+- Issuer evidence: all checked tokens (DISon, AMZNon, AAPLon, PDDon) share byte-identical 824-byte bytecode (hash 0x439923c8...), i.e. one Ondo proxy template; names read "<Company> (Ondo Tokenized)"; Binance's RWA meta endpoint lists DISon with company info and attestation report links. This is evidence of consistency and Binance listing, NOT a cryptographic proof of issuer identity.
+- **Selected: Amazon / AMZNon** for any real run now (only open + liquid + guard-passing + simulation-OK). **Fallback: Disney / DISon** (pool 3.37 BNB, impact 0.19%, but market closed until Monday; flow correctly returns not eligible). Added Disney merchant aliases (DISNEY+, WALT DISNEY WORLD, DISNEYLAND) + tests; 57/57.
+- Small fix: quote_validity is now `unknown` (not a misleading `fail`) when the simulation was skipped because an earlier check blocked.
+- Starbucks remains unsupported on BSC (no pool; market closed). No tx sent.
