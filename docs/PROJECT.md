@@ -6,24 +6,32 @@
 Name: "STOCKUP 2.0 - SPEND TO OWN". Anything below beyond these two statements (reward rates, the reward-to-stock conversion mechanic, the merchant list) is the AGENT'S INTERPRETATION until the human confirms it.
 
 ## Binding product rules (from the human, 2026-10-10)
-1. The purchase is a **manually entered or simulated spending event**. Stockup does not connect to cards, banks or merchants.
-2. The investment is **user-funded** (the user's own wallet). It is **NOT merchant cashback**; there is no reward in this product.
-3. **Never claim a trade succeeded unless settlement was independently verified** from the chain. "Submitted" is not "settled"; receipts exist only for verified, final settlements.
-These rules are enforced by tests (`test/claims.test.ts`).
+1. The purchase is a receipt the user pastes or types. Stockup does not connect to cards, banks or merchants and cannot verify the receipt is real.
+2. The investment is the user's own money. There is no merchant cashback or reward.
+3. Never claim a trade succeeded unless settlement was independently verified from the chain.
+These are enforced by `test/claims.test.ts`.
+
+## Human product definition (verbatim)
+> Stockup is a consumer fintech application that connects everyday purchases to investments in tokenized shares of the companies people shop with.
+
+Product line: "Stockup converts a familiar shopping receipt into an investment journey."
+
+## Journey (as specified by the human)
+1. The user records a purchase (pasted receipt text, confirmed by the user).
+2. Stockup identifies the associated publicly traded company (curated alias table).
+3. The user invests a percentage of the spend from their own funds (default 5%).
+4. Stockup finds a genuinely supported tokenized-stock instrument (Binance's BSC list, verified on-chain).
+5. It retrieves live market data and, if available, an executable quote.
+6. It checks market status, fees, quote validity and execution eligibility.
+7. The user reviews and authorizes the transaction in their own wallet.
+8. A supported route executes on BSC mainnet, and Stockup verifies settlement.
+9. The user sees an ownership receipt linked to on-chain evidence.
 
 ## Implemented (dev/foundation)
-- `src/lib/spend.ts`: own-funds investment sizing from the manually entered spend (default 5%).
-- `POST /api/own`: spend -> company -> instrument -> live data -> checks -> reviewed unsigned tx.
-- Guard blocks conversion on closed/halted session, high price impact, thin pool. Nothing is signed or sent.
+See docs/IMPLEMENTATION.md for phase status and docs/CURRENT_STATE.md for verified results.
 
 ## Not implemented
-- Real card/merchant recognition, user accounts, wallet connect/signing UI, Binance W3W integration, live session data.
-- A designed UI. Real execution is blocked by thin liquidity (see CURRENT_STATE.md).
-
-## Journey as specified by the human (2026-10-10)
-1. User records a $100 Starbucks purchase. (built)
-2. Stockup identifies Starbucks as the associated publicly traded company. (built, curated alias table)
-3. User chooses to invest 5% of the spend ($5) using their OWN funds. (built: `computeInvestment`; independent of the merchant reward)
-Later steps: not yet received.
-
-Correction: earlier drafts had a merchant reward converted into stock. That concept was REMOVED; the investment is the user's own money and no reward exists.
+- Real card, bank or merchant data; receipt authenticity checks; OCR.
+- Binance signed REST API and the Agentic Wallet quote (needs credentials or sign-in).
+- A real Stockup transaction (needs the human's explicit approval, a funded wallet and a cap).
+- User accounts, persistence, notifications.

@@ -1,28 +1,26 @@
 # Current state
-Last updated: 2026-10-10 ~15:30 UTC (VPS clock). Branch dev/foundation.
+Last updated: 2026-10-10 ~18:45 UTC (VPS clock). Branch `dev/foundation`, in sync with origin. Latest commit: `3e74881`.
 
-## Verified (run this session)
-- `tsc --noEmit` clean; `vitest` 5/5 pass; `next build` passes.
-- Live BSC mainnet (chainId 56) reads via viem.
-- `GET /api/assets` returned live on-chain data for AAPLon, JNJon, USDon (all status ok). `GET /api/token?address=zzz` -> 400.
-- Asset registry src/lib/assets.ts: only addresses whose on-chain symbol() matched. Issuer authenticity NOT confirmed.
+## Summary (authoritative; older history below is kept for the record)
+- **Works, verified in this repo:** typecheck; 80 unit tests; production build; live BSC reads; Binance public RWA endpoints (list, per-asset status, dynamic data, meta); PancakeSwap V2 quote and `eth_call` simulation; pre-execution checks; calldata-decoded review; settlement verification validated on a real historical mainnet swap (not a Stockup swap); ownership-receipt pipeline (validated on the same historical swap, before the listing check was added, and refused after).
+- **Browser-checked:** desktop and 390px mobile screenshots of the receipt interface; the wallet connect and authorization path, using a **mock injected EIP-1193 provider** in headless Chromium. Results: mismatched account -> nothing sent, alert shown; matching account on wrong chain -> switch requested, then send; matching account on BSC -> send requested. No signature request is ever made.
+- **Not verified:** a real wallet extension; a real Stockup transaction; a Stockup ownership receipt; Binance signed APIs; Binance `baw` quote (NOT_LOGGED_IN).
+- **Not claimed:** that any trade succeeded. No Stockup trade has executed. No success state can appear without verified settlement.
+- **Market status now (weekend):** AMZNon is the only liquid token open for trading; Disney (DISon) is closed until Monday; Starbucks (SBUXon) has no pool.
+- **Binding rules:** manual or pasted spending event; user-funded investment; no cashback; no success claim without verified settlement.
 
-- Off-market gate `canTrade()` (src/lib/session.ts) unit-tested: blocks closed/halted/unknown. Home page renders live token reads plus a session column.
-- Session data is FIXTURE ONLY (src/lib/fixtures/w3w.ts, source:"fixture"); UI shows an amber banner saying so. 7/7 tests.
+## Blockers (owned by a human)
+1. Approval for one capped real purchase (about $5 of BNB plus gas), from a funded wallet connected by the user.
+2. Binance Agentic Wallet sign-in, if the official quote is wanted.
+3. Official judging-page check of the weights and the "2 transactions" requirement.
 
-- src/lib/price.ts: V2 reserve price math unit-tested (10/10 tests). Live pools checked: liquidity is dust, so price is NOT surfaced in the UI (see BLOCKERS.md).
+## Next actions
+1. Commit the docs (this change).
+2. Browser-check the copy at 390px and 1280px after the latest wording changes.
+3. Continue non-spending polish: wording, copy, and the "Settlement" and "You hold" states, tested with fixtures labelled as fixtures.
+4. Wait for phase 12 approval; do not send anything before it.
 
-## Unverified / not done
-- Live W3W tokenized-securities status is not implemented; fixture shapes are invented, not real response schemas.
-- W3W API: signing scheme from a search summary, never tested live (no keys). Unauthenticated calls return 401.
-- Dockerfile/docker-compose untested (docker not installed on VPS). CI workflow not yet observed running on GitHub.
-- No product concept/flows, no designed UI, no demo, no on-chain transactions (need approval and funds).
-
-## Blocked on human (details: docs/BLOCKERS.md)
-Concept + MVP scope; W3W keys in .env on VPS; approval to spend for on-chain txs.
-
-## Next action
-If concept arrives: write docs/PROJECT.md and build the core flow. If W3W keys arrive: run live signed call and log DevEx findings. Otherwise: check GitHub Actions result for the latest push.
+---
 
 ## Update (commit 7143fb9, 15:13 UTC on the VPS clock): guarded swap planner (new)
 - `POST /api/plan` builds an UNSIGNED PancakeSwap V2 BNB->token swap, runs a pre-trade guard (session, price impact, pool depth) and an eth_call simulation. Server holds no key, sends nothing, caps at 0.05 BNB.
