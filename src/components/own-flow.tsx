@@ -92,8 +92,7 @@ export function OwnFlow() {
     const w = eth();
     const st = await connectWallet(w);
     setWallet(st);
-    if (st.status === 'no_wallet') setErr('No browser wallet found.');
-    else if (st.status === 'disconnected') setErr('Wallet connection was declined.');
+    if (st.status === 'disconnected') setErr('Wallet connection was declined.');
     else if (st.status === 'connected' || st.status === 'wrong_chain') setRecipient(st.account);
   }
 
@@ -232,7 +231,8 @@ export function OwnFlow() {
                     I reviewed the amounts and addresses above and I am authorizing this exact transaction.</label>
                   <label className="flex items-start gap-2"><input type="checkbox" checked={confirm} onChange={e => setConfirm(e.target.checked)} className="mt-1" />
                     I understand this spends real BNB on BSC mainnet and cannot be undone.</label>
-                  <button type="button" disabled={!ack || !confirm || !!txHash || wallet.status === 'no_wallet'} onClick={sign} className="w-full bg-neutral-900 px-4 py-3 text-white disabled:opacity-40">Authorize in my wallet</button>
+                  <button type="button" disabled={!ack || !confirm || !!txHash || wallet.status !== 'connected'} onClick={sign} className="w-full bg-neutral-900 px-4 py-3 text-white disabled:opacity-40">Authorize in my wallet</button>
+                  {wallet.status !== 'connected' && <p className="text-xs text-neutral-600">Connect your wallet above to authorize. Stockup will check that the account matches the recipient and that the wallet is on BSC before anything is sent.</p>}
                   <p className="text-xs text-neutral-500">Your wallet will show its own confirmation. If the amounts there differ from this page, reject it.</p>
                   {txHash && (
                     <div className="space-y-2 border-t pt-3">
