@@ -54,6 +54,12 @@ Last updated: 2026-10-10 ~18:50 UTC (VPS clock). Branch `dev/foundation`. Latest
 - Demo script with honest claims and "do not show" list: docs/DEMO.md.
 - No transaction, no ownership receipt, no real wallet exists.
 
+## Binance signed API (2026-10-10, 22:50 UTC)
+- Authenticated read-only request blocked: HTTP 200 with body code 40304 (compliance restriction). Not integrated into the product. Details in docs/BLOCKERS.md.
+- Credential safety: no credential value in any working-tree file or in git history; the signed client is imported only by scripts and tests, never by the browser bundle; `.env` is git-ignored and excluded from the Vercel upload.
+- Preview: https://temporary-turbo-rowan-fk635uu.vercel.app now returns 307 to Vercel's deployment-expired page. Needs a redeploy or a Vercel login to restore.
+- Gates: typecheck OK; 84 tests pass; production build OK.
+
 ## Blockers (owned by a human)
 1. Approval for one capped real purchase (about $5 of BNB plus gas), from a funded wallet connected by the user.
 2. Binance Agentic Wallet sign-in, if the official quote is wanted.
