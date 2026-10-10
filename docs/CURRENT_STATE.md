@@ -86,3 +86,10 @@ If concept arrives: write docs/PROJECT.md and build the core flow. If W3W keys a
 - Quote validity: simulation OK + amounts consistent + age <= 120s (our own deadline). Requote required after expiry.
 - Live: Amazon $5 from a funded address -> all 5 PASS, eligible, fee $0.0203 (0.41%). Empty wallet -> `wallet_funds` FAIL, tx withheld. Starbucks -> market closed + no route. Apple -> guard + simulation FAIL.
 - Caveat: eligibility is evaluated at quote time; it does not re-check at signing. Not browser-checked; no tx sent.
+
+## Update ~18:25 UTC: journey step 7, review and authorize
+- `src/lib/review.ts` `verifyAndDescribe`: decodes the swap calldata itself and checks chain 56, router address, value, minOut, path (WBNB -> selected token), recipient == user, deadline window. 45/45 tests incl. 9 tamper cases (wrong recipient/minOut/path/router/value/deadline/selector/chain).
+- Server withholds the unsigned tx unless eligible AND the review verifies (`review`, `reviewProblems` in `/api/own`).
+- UI "Review before you authorize" panel built from the decoded calldata: BNB sent, minimum tokens, recipient, token contract, router, fees, expiry, calldata fingerprint. Two explicit checkboxes, then "Authorize in my wallet". `sign()` refuses if the quote is >100s old (client-side check at the moment of authorization). Shows BscScan link after submission, labeled "submitted, not yet confirmed".
+- Live: Amazon $5 -> review shows 0.00665368 BNB -> min 0.018808 AMZNon -> recipient = user; digest 0x6174590262be57b5; matches quote. Empty wallet -> no review, no tx.
+- NOT done: browser rendering check, an actual wallet signing run, receipt/confirmation tracking after submit. No tx sent.

@@ -13,6 +13,9 @@ interface Result {
   quote?: { dex: { tokensOut: number; minOut: number; simulated: boolean }; vsReferenceBps: number | null; binance: { available: boolean; reason: string } } | null;
   checks?: { id: string; label: string; state: 'pass' | 'fail' | 'unknown'; detail: string; source: string }[];
   eligibility?: { eligible: boolean; blockedBy: string[]; unknown: string[] };
+  fees?: { totalUsd: number | null };
+  review?: { contract: string; sendsBnb: string; minTokensOut: string; receivesToken: string; recipient: string; deadlineUtc: string; secondsLeft: number; calldataDigest: string } | null;
+  reviewProblems?: string[];
   investment?: { investUsd: number; investBps: number; fundedBy: string };
   calc: null | { merchant: { name: string; symbol: string; rewardBps: number }; spendUsd: number; rewardUsd: number; convertedUsd: number; keptUsd: number };
   bnbUsd?: number; convertedBnb?: string; outcome: 'ready_to_sign' | 'held' | 'not_eligible' | 'no_route' | 'unidentified' | 'no_token'; note: string;
@@ -32,6 +35,8 @@ export function OwnFlow() {
   const [busy, setBusy] = useState(false);
   const [confirm, setConfirm] = useState(false);
   const [txHash, setTxHash] = useState('');
+  const [quotedAt, setQuotedAt] = useState(0);
+  const [ack, setAck] = useState(false);
 
   async function connect() {
     setErr('');
@@ -42,10 +47,11 @@ export function OwnFlow() {
     } catch { setErr('Wallet connection was declined'); }
   }
 
-  // Only reachable when the guard passed AND the server simulation succeeded (tx non-null). User must tick confirm and approve in their wallet.
+  // Reachable only when the server released a tx (eligible AND calldata verified). Re-checks quote age at the moment of authorization.
   async function sign() {
     const tx = res?.plan?.tx; const w = eth();
-    if (!tx || !w || !confirm) return;
+    if (!tx || !res?.review || !w || !confirm || !ack) return;
+    if (Date.now() - quotedAt > 100_000) { setErr('This quote is too old to authorize. Run the check again.'); return; }
     setErr('');
     try {
       await w.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x38' }] });
@@ -60,7 +66,7 @@ export function OwnFlow() {
       const r = await fetch('/api/own', { method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ merchant, spendUsd: Number(spend), investBps: Math.round(Number(investPct) * 100), recipient }) });
       const j = await r.json();
-      if (!r.ok) setErr(j.error ?? 'request failed'); else setRes(j);
+      if (!r.ok) setErr(j.error ?? 'request failed'); else { setRes(j); setQuotedAt(Date.now()); setAck(false); }
     } catch { setErr('network error'); } finally { setBusy(false); }
   }
 
@@ -121,6 +127,31 @@ export function OwnFlow() {
                   {res.quote.vsReferenceBps != null && ` Versus Binance reference price: ${(res.quote.vsReferenceBps / 100).toFixed(2)}% ${res.quote.vsReferenceBps >= 0 ? 'fewer' : 'more'} tokens.`}</p>
                 <p className="mt-1 text-neutral-600">Binance swap quote: {res.quote.binance.available ? 'available' : `not available. ${res.quote.binance.reason}`}</p>
               </section>)}
+            {res.review && res.plan?.tx && (
+              <section aria-label="Review and authorize" className="border-2 border-neutral-900 p-4 text-sm">
+                <h2 className="text-base font-semibold">Review before you authorize</h2>
+                <p className="mt-1 text-neutral-600">Decoded from the transaction itself, not from this page&apos;s text.</p>
+                <dl className="mt-3 grid grid-cols-[9rem_1fr] gap-y-2">
+                  <dt className="text-neutral-500">You send</dt><dd><strong>{res.review.sendsBnb} BNB</strong> (about {money(res.investment?.investUsd ?? 0)}) from your own funds</dd>
+                  <dt className="text-neutral-500">You receive at least</dt><dd><strong>{Number(res.review.minTokensOut).toFixed(6)} {res.instrument?.symbol}</strong>, quoted {res.quote?.dex.tokensOut.toFixed(6)}</dd>
+                  <dt className="text-neutral-500">Tokens go to</dt><dd className="break-all font-mono text-xs">{res.review.recipient}</dd>
+                  <dt className="text-neutral-500">Token contract</dt><dd className="break-all font-mono text-xs">{res.review.receivesToken}</dd>
+                  <dt className="text-neutral-500">Executed by</dt><dd className="break-all font-mono text-xs">PancakeSwap V2 router {res.review.contract}</dd>
+                  <dt className="text-neutral-500">Network fees</dt><dd>{res.fees?.totalUsd != null ? `about ${money(res.fees.totalUsd)} (pool fee plus gas), shown above` : 'estimate unavailable'}</dd>
+                  <dt className="text-neutral-500">Expires</dt><dd>{res.review.deadlineUtc.slice(11, 19)} UTC (about {res.review.secondsLeft}s from quote)</dd>
+                  <dt className="text-neutral-500">Calldata fingerprint</dt><dd className="font-mono text-xs">{res.review.calldataDigest}</dd>
+                </dl>
+                <div className="mt-4 space-y-2">
+                  <label className="flex items-start gap-2"><input type="checkbox" checked={ack} onChange={e => setAck(e.target.checked)} className="mt-1" />
+                    I reviewed the amounts and addresses above and I am authorizing this exact transaction.</label>
+                  <label className="flex items-start gap-2"><input type="checkbox" checked={confirm} onChange={e => setConfirm(e.target.checked)} className="mt-1" />
+                    I understand this spends real BNB on BSC mainnet and cannot be undone.</label>
+                  <button type="button" disabled={!ack || !confirm || !!txHash} onClick={sign} className="w-full bg-neutral-900 px-4 py-3 text-white disabled:opacity-40">Authorize in my wallet</button>
+                  <p className="text-xs text-neutral-500">Your wallet will show its own confirmation. If the amounts there differ from this page, reject it.</p>
+                  {txHash && <p className="break-all font-mono text-xs">Submitted: <a className="underline" href={`https://bscscan.com/tx/${txHash}`} target="_blank" rel="noreferrer">{txHash}</a> (submitted, not yet confirmed on-chain)</p>}
+                </div>
+              </section>)}
+            {res.reviewProblems && res.reviewProblems.length > 0 && <section role="alert" className="border-l-4 border-red-700 bg-red-50 p-4 text-sm">Transaction failed verification and was withheld: {res.reviewProblems.join('; ')}.</section>}
             {res.checks && (
               <section aria-label="Pre-execution checks" className="border-b pb-4 text-sm">
                 <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Execution eligibility: {res.eligibility?.eligible ? 'eligible' : 'not eligible'}</h2>
@@ -147,14 +178,6 @@ export function OwnFlow() {
                   : res.plan!.guard.reasons.map(r => <li key={r}>{r}</li>)}
               </ul>
               <p className="mt-2 text-sm">{res.note}</p>
-              {res.plan?.tx && (
-                <div className="mt-3 space-y-2 text-sm">
-                  <label className="flex items-start gap-2"><input type="checkbox" checked={confirm} onChange={e => setConfirm(e.target.checked)} className="mt-1" />
-                    I understand this sends {res.convertedBnb} BNB from my wallet on BSC mainnet and cannot be undone.</label>
-                  <button type="button" disabled={!confirm || !!txHash} onClick={sign} className="bg-green-800 px-4 py-2 text-white disabled:opacity-40">Sign in my wallet</button>
-                  {txHash && <p className="break-all font-mono text-xs">Submitted: {txHash} (unverified until confirmed on-chain)</p>}
-                </div>
-              )}
             </section></>}
             {res.plan && <dl className="grid grid-cols-2 gap-y-1 text-xs text-neutral-600">
               <dt>Pool liquidity</dt><dd className="text-right">{res.plan!.pairLiquidityBnb.toFixed(6)} BNB</dd>

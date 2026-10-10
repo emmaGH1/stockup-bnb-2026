@@ -2,6 +2,7 @@ import { computeRewardByTicker, computeInvestment, usdToBnb } from './spend';
 import { findInstrument, fetchAssetStatus } from './instruments';
 import { fetchMarketData, dexVsReferenceBps } from './marketdata';
 import { client } from './bsc';
+import { verifyAndDescribe } from './review';
 import { getAddress } from 'viem';
 import { checkMarketStatus, estimateFees, checkFees, checkQuoteValidity, checkWalletFunds, executionEligibility, type Check } from './checks';
 import type { SecurityStatus } from './fixtures/w3w';
@@ -70,10 +71,17 @@ export async function spendToOwn(req: OwnRequest) {
     checkWalletFunds({ balanceBnb: balance, tradeBnb: Number(bnbStr), gasBnb: fees.gasBnb }),
   ];
   const eligibility = executionEligibility(checks);
-  const safePlan = { ...plan, tx: eligibility.eligible ? plan.tx : null }; // unsigned tx is released only when every required check passed
-  return { identification, discovery, instrument: inst, liveStatus: live, market, quote, checks, fees, eligibility, calc, investment, bnbUsd: price, convertedBnb: bnbStr, plan: safePlan,
-    outcome: eligibility.eligible ? 'ready_to_sign' as const : plan.guard.allowed ? 'not_eligible' as const : 'held' as const,
-    note: eligibility.eligible ? 'All required checks passed. Unsigned transaction ready for your wallet.'
+  // Step 7: decode the calldata ourselves and compare to the quote. The tx is released ONLY if eligible AND the review verifies.
+  const verified = eligibility.eligible && plan.tx
+    ? verifyAndDescribe(plan.tx, { token: inst.address, recipient: req.recipient, valueWei: BigInt(plan.valueWei), minOutWei: BigInt(plan.minOutWei), nowSec: Math.floor(Date.now() / 1000), maxTtlSec: 120 })
+    : null;
+  const review = verified?.ok ? verified.review : null;
+  const reviewProblems = verified && !verified.ok ? verified.problems : [];
+  const safePlan = { ...plan, tx: review ? plan.tx : null };
+  return { identification, discovery, instrument: inst, liveStatus: live, market, quote, checks, fees, eligibility, review, reviewProblems, calc, investment, bnbUsd: price, convertedBnb: bnbStr, plan: safePlan,
+    outcome: review ? 'ready_to_sign' as const : reviewProblems.length ? 'not_eligible' as const : plan.guard.allowed ? 'not_eligible' as const : 'held' as const,
+    note: review ? 'All checks passed and the transaction was decoded and verified. Review it, then authorize in your wallet.'
+      : reviewProblems.length ? `Transaction failed verification: ${reviewProblems.join('; ')}. Nothing was sent.`
       : plan.guard.allowed ? `Blocked by checks: ${[...eligibility.blockedBy, ...eligibility.unknown.map(u => `${u} (unknown)`)].join(', ')}. Nothing was sent.`
       : 'Guard blocked the investment. Your own funds were not touched. Nothing was sent.' };
 }
