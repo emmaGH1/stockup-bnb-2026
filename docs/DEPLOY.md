@@ -54,3 +54,8 @@ No secret is required for the current build. Binance public endpoints need no ke
 - Same preview URL: https://temporary-turbo-rowan-fk635uu.vercel.app (anonymous; expires after the latest deploy unless claimed).
 - Changes: empty alert regions no longer rendered; receipts drop the fixed minimum height on phones; shorter development notice (same obligations); on phones the review panel scrolls into view after a successful check; the wallet hint names the connect control.
 - Verified on the live URL: nine-step journey passes; six-section live audit clean (console, network, layout, wallet states).
+
+## Permanent deployment preparation (2026-10-10, 23:50 UTC)
+- `vercel.json` sets `"regions": ["iad1"]`: one region, the Vercel default. Vercel's docs state Hobby projects may use a single region, and a larger list fails the build before the build step.
+- Not deployed. Permanent deployment needs `vercel login`, which the CLI reports as logged out.
+- Repository visibility remains PRIVATE, per the human's instruction. NOTE: the hackathon's published rules (search summary; verify on the official page) require a public repository for submission. Making the repo public needs separate approval.
