@@ -1,0 +1,11 @@
+node_modules
+.env
+.env.*
+!.env.example
+HANDOFF.md
+.next
+dist
+*.log
+.pi
+*.pem
+*.key
