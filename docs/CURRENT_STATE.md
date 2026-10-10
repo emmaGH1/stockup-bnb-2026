@@ -1,5 +1,5 @@
 # Current state
-Last updated: 2026-10-10 ~18:45 UTC (VPS clock). Branch `dev/foundation`, in sync with origin. Latest commit: `3e74881`.
+Last updated: 2026-10-10 ~18:50 UTC (VPS clock). Branch `dev/foundation`. Latest commit: see `git log -1`.
 
 ## Summary (authoritative; older history below is kept for the record)
 - **Works, verified in this repo:** typecheck; 80 unit tests; production build; live BSC reads; Binance public RWA endpoints (list, per-asset status, dynamic data, meta); PancakeSwap V2 quote and `eth_call` simulation; pre-execution checks; calldata-decoded review; settlement verification validated on a real historical mainnet swap (not a Stockup swap); ownership-receipt pipeline (validated on the same historical swap, before the listing check was added, and refused after).
@@ -8,6 +8,11 @@ Last updated: 2026-10-10 ~18:45 UTC (VPS clock). Branch `dev/foundation`, in syn
 - **Not claimed:** that any trade succeeded. No Stockup trade has executed. No success state can appear without verified settlement.
 - **Market status now (weekend):** AMZNon is the only liquid token open for trading; Disney (DISon) is closed until Monday; Starbucks (SBUXon) has no pool.
 - **Binding rules:** manual or pasted spending event; user-funded investment; no cashback; no success claim without verified settlement.
+
+## Browser and integration checks (latest)
+- 9-step purchase-to-investment journey passes in headless Chromium on the production build (desktop + 390px). Fixed: authorize now stays disabled until a wallet is connected; duplicate no-wallet message removed.
+- `scripts/probe-binance-public.ts`: live Binance public endpoints (token list, asset status, market status, meta) return every field the code reads. Read-only, no credentials.
+- `docs/DEPLOY.md`: deployment notes only. Not deployed. Public deployment and making the repo public need approval.
 
 ## Blockers (owned by a human)
 1. Approval for one capped real purchase (about $5 of BNB plus gas), from a funded wallet connected by the user.
