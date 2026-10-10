@@ -38,7 +38,24 @@ export function OwnFlow() {
   const [txHash, setTxHash] = useState('');
   const [quotedAt, setQuotedAt] = useState(0);
   const [ack, setAck] = useState(false);
+  const [receipt, setReceipt] = useState<null | { ok: boolean; reason?: string; receipt?: {
+    receiptId: string; issuedAt: string; chain: string;
+    onChain: { txHash: string; blockNumber: string; confirmations: number; tokenSymbol: string; tokenAddress: string; holder: string; receivedTokens: string; authorizedMinimum: string; gasCostBnb: string; holderBalanceNow: string | null };
+    links: { tx: string; token: string; holderOnToken: string };
+    recordedByApp: { merchantInput: string; companyName: string; ticker: string; spendUsd: number; investUsd: number; rewardUsd: number | null; note: string };
+    exposure: { sharesApprox: number | null; basis: string }; verifyYourself: string[]; limits: string[] } }>(null);
   const [settle, setSettle] = useState<null | { state: string; detail?: string; problems?: string[]; receivedTokens?: string; minTokens?: string; confirmations?: number; blockNumber?: string; gasCostBnb?: string; vsQuotedBps?: number | null; error?: string }>(null);
+
+  async function getReceipt() {
+    if (!txHash || !res?.settleParams || !res.instrument || res.identification.status !== 'identified') return;
+    setReceipt(null);
+    try {
+      const r = await fetch('/api/receipt', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ txHash, ...res.settleParams,
+        context: { merchantInput: res.identification.input, companyName: res.identification.company?.name, ticker: res.identification.company?.ticker,
+          spendUsd: res.calc?.spendUsd, investUsd: res.investment?.investUsd, rewardUsd: res.calc?.rewardUsd, sharesPerToken: Number(res.instrument.multiplier) } }) });
+      setReceipt(await r.json());
+    } catch { setReceipt({ ok: false, reason: 'network error' }); }
+  }
 
   async function checkSettlement() {
     if (!txHash || !res?.settleParams) return;
@@ -162,7 +179,33 @@ export function OwnFlow() {
                   {txHash && (
                     <div className="space-y-2 border-t pt-3">
                       <p className="break-all font-mono text-xs">Submitted: <a className="underline" href={`https://bscscan.com/tx/${txHash}`} target="_blank" rel="noreferrer">{txHash}</a> (submitted is not the same as settled)</p>
-                      <button type="button" onClick={checkSettlement} className="border border-neutral-900 px-3 py-2">Verify settlement on-chain</button>
+                      <div className="flex gap-2">
+                        <button type="button" onClick={checkSettlement} className="border border-neutral-900 px-3 py-2">Verify settlement on-chain</button>
+                        <button type="button" onClick={getReceipt} className="bg-neutral-900 px-3 py-2 text-white">Get ownership receipt</button>
+                      </div>
+                      {receipt && !receipt.ok && <p role="status" className="border-l-4 border-amber-600 bg-amber-50 p-3">{receipt.reason}</p>}
+                      {receipt?.ok && receipt.receipt && (
+                        <article aria-label="Ownership receipt" className="border-2 border-neutral-900 bg-white p-4">
+                          <header className="flex items-baseline justify-between border-b pb-2"><h3 className="text-base font-semibold">Ownership receipt</h3><span className="font-mono text-xs">{receipt.receipt.receiptId}</span></header>
+                          <p className="mt-3 text-lg font-semibold">{Number(receipt.receipt.onChain.receivedTokens).toFixed(6)} {receipt.receipt.onChain.tokenSymbol}</p>
+                          <p className="text-xs text-neutral-600">≈ {receipt.receipt.exposure.sharesApprox?.toFixed(6) ?? 'n/a'} shares of {receipt.receipt.recordedByApp.companyName} ({receipt.receipt.exposure.basis})</p>
+                          <h4 className="mt-4 text-xs font-semibold uppercase tracking-wide text-green-800">Verified on-chain</h4>
+                          <dl className="mt-1 grid grid-cols-[8rem_1fr] gap-y-1 text-xs">
+                            <dt className="text-neutral-500">Holder</dt><dd className="break-all font-mono">{receipt.receipt.onChain.holder}</dd>
+                            <dt className="text-neutral-500">Token</dt><dd className="break-all font-mono">{receipt.receipt.onChain.tokenAddress}</dd>
+                            <dt className="text-neutral-500">Transaction</dt><dd className="break-all font-mono"><a className="underline" href={receipt.receipt.links.tx} target="_blank" rel="noreferrer">{receipt.receipt.onChain.txHash}</a></dd>
+                            <dt className="text-neutral-500">Block · confirmations</dt><dd>{receipt.receipt.onChain.blockNumber} · {receipt.receipt.onChain.confirmations}</dd>
+                            <dt className="text-neutral-500">Minimum authorized</dt><dd>{Number(receipt.receipt.onChain.authorizedMinimum).toFixed(6)}</dd>
+                            <dt className="text-neutral-500">Gas</dt><dd>{Number(receipt.receipt.onChain.gasCostBnb).toFixed(6)} BNB</dd>
+                            <dt className="text-neutral-500">Balance now</dt><dd>{receipt.receipt.onChain.holderBalanceNow ?? 'unavailable'}</dd>
+                          </dl>
+                          <h4 className="mt-4 text-xs font-semibold uppercase tracking-wide text-neutral-600">Recorded by Stockup (not on-chain)</h4>
+                          <p className="text-xs">{receipt.receipt.recordedByApp.merchantInput} → {receipt.receipt.recordedByApp.companyName} ({receipt.receipt.recordedByApp.ticker}); purchase {money(receipt.receipt.recordedByApp.spendUsd)}, invested {money(receipt.receipt.recordedByApp.investUsd)} of your own funds. {receipt.receipt.recordedByApp.note}</p>
+                          <h4 className="mt-4 text-xs font-semibold uppercase tracking-wide text-neutral-600">Check it yourself</h4>
+                          <ul className="list-disc pl-5 text-xs">{receipt.receipt.verifyYourself.map(v => <li key={v}>{v}</li>)}</ul>
+                          <p className="mt-2 text-xs"><a className="underline" href={receipt.receipt.links.token} target="_blank" rel="noreferrer">Token on BscScan</a> · <a className="underline" href={receipt.receipt.links.holderOnToken} target="_blank" rel="noreferrer">Your holding on BscScan</a></p>
+                          <ul className="mt-3 list-disc border-t pt-2 pl-5 text-xs text-neutral-600">{receipt.receipt.limits.map(l => <li key={l}>{l}</li>)}</ul>
+                        </article>)}
                       {settle && (
                         <div role="status" className={`border-l-4 p-3 ${settle.state === 'settled' ? 'border-green-700 bg-green-50' : settle.state === 'pending' ? 'border-amber-600 bg-amber-50' : 'border-red-700 bg-red-50'}`}>
                           <strong className="uppercase">{settle.state}</strong>

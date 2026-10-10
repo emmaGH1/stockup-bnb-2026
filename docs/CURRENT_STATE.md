@@ -99,3 +99,10 @@ If concept arrives: write docs/PROJECT.md and build the core flow. If W3W keys a
 - Validated against a REAL historical mainnet swap (tx 0xaee572a2...dd03, block 126853293, some other user's AMZN-unrelated token swap, found by scanning blocks via publicnode): correct expectations -> `settled` (received 1816.795 vs min 1762.291, 74 confirmations); wrong recipient -> mismatch; higher minOut -> mismatch; unknown hash -> not_found.
 - `POST /api/settle` (read-only) + UI "Verify settlement on-chain" after submission; UI says "submitted is not the same as settled".
 - **No Stockup swap has been executed.** The verifier has never seen a Stockup transaction. Execution still needs: your explicit approval, a funded wallet, a cap. Public BSC RPC bans getLogs (see BLOCKERS.md); publicnode.com works for block/tx reads.
+
+## Update ~19:35 UTC: journey step 9, ownership receipt (no Stockup receipt exists yet)
+- `src/lib/receipt.ts` `issueReceipt`: a receipt is issued ONLY for a `settled` + final (>=3 confirmations) swap whose token is on Binance's BSC tokenized-stock list with matching on-chain symbol. Ticker and shares multiplier come from the LIST, never from the client. Receipt separates "Verified on-chain" (holder, token, tx, block, received, gas, live balance) from "Recorded by Stockup (not on-chain)", gives BscScan links (tx/token/holding), "check it yourself" steps and honest limits (Ondo exposure != direct share ownership; not tax/advice). Deterministic id SU-<hash>.
+- `POST /api/receipt` re-verifies settlement from the chain on every call. UI: "Get ownership receipt" button after submission.
+- BUG CAUGHT LIVE: first run issued a receipt for an unrelated meme-token swap (real mainnet tx 0xaee5...dd03) because nothing checked the token was a tokenized stock. Fixed: refuses unless listed; test added. 56/56 tests.
+- No receipt has been issued for a Stockup trade, because no Stockup trade has executed. The only live receipt run used someone else's transaction, before the fix, purely to test the pipeline.
+- Not browser-checked. Receipt is a web view only (no PDF/export/persistence; nothing stored server-side).
