@@ -1,0 +1,9 @@
+HANDOFF.md
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+scripts/
+test/
+docs/
+.github/
