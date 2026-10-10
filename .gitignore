@@ -9,3 +9,5 @@ dist
 .pi
 *.pem
 *.key
+*.tsbuildinfo
+next-env.d.ts

@@ -1,7 +1,6 @@
-# Current state (Mode C restricted, started ~08:35 UTC 2026-10-10)
-Mode C lock: concept NOT provided, so only concept-independent work is allowed: harness, W3W client, probes, DevEx notes.
-Non-goals while unattended: no product concept, no UI, no deploy, no spending, no submission, no secrets.
-Verified: BSC RPC (chainId 56); sign() unit check; W3W unauth -> 401.
-Unverified: live W3W signing (no keys).
-Blocked on human: concept/scope, W3W keys in .env, GitHub remote, wallet funding approval.
-Next action: on return, supply the above; then run scripts/probe-w3w.mjs.
+# Current state (2026-10-10 ~09:10 UTC, restricted unattended)
+Verified: typecheck clean; 4 vitest tests pass; `next build` passes; live BSC USDT read works (chainId 56).
+Provisional (concept-neutral): src/lib/bsc.ts, src/lib/w3w.ts, minimal app shell.
+Unverified: W3W live signing (no keys); 401 seen only for unauthenticated calls.
+Not done: product concept/flows, designed UI, tokenized-stock address discovery, on-chain txs (need approval), GitHub remote, DevEx report content beyond early notes.
+Blocked on human: concept+scope, W3W keys, GitHub repo approval.
