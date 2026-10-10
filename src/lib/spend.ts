@@ -20,6 +20,9 @@ export function computeReward(merchantId: string, spendUsd: number, convertShare
   return { merchant, spendUsd, rewardUsd, convertedUsd, keptUsd: rewardUsd - convertedUsd };
 }
 
+/** Reward rate comes from the identified company's token symbol; placeholder product config. */
+export function ruleForSymbol(symbol: string): MerchantRule | undefined { return MERCHANTS.find(m => m.symbol === symbol); }
+
 export function usdToBnb(usd: number, bnbUsd: number): number {
   if (!(bnbUsd > 0)) throw new Error('invalid BNB price');
   return usd / bnbUsd;

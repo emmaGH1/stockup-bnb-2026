@@ -52,3 +52,9 @@ If concept arrives: write docs/PROJECT.md and build the core flow. If W3W keys a
 - Starbucks added (3% placeholder rate, SBUXx). $100 purchase -> $3 reward -> 0.0039928 BNB equivalent (live WBNB/USDT). Verified via /api/own.
 - SBUXx has NO Pancake V2 pool, so API returns outcome `no_route` with the reward intact and a plain explanation; UI shows an amber panel. Apple still `held_reward` (thin pool).
 - Page default merchant is now Starbucks. 18/18 tests. Still no transaction, no browser check, session data fixture.
+
+## Update ~16:25 UTC: journey step 2, company identification
+- `src/lib/company.ts`: raw merchant string -> public company/ticker. Whole-word alias matching on a HAND-CURATED table (4 companies); no fuzzy guessing; ambiguous and unknown inputs are reported, not guessed. Not backed by a card network or market-data vendor.
+- `/api/own` now takes `merchant` (free text) and returns `identification` + outcome (`identified` path continues; `unidentified`/`no_token` stop with nothing calculated or sent).
+- Verified live: "STARBUCKS #4411 SEATTLE WA" and "Sq *Starbucks" -> SBUX; "WHOLE FOODS MKT" -> AMZN (public, no token); unknown diner -> not_found; "APPLE AMAZON MARKETPLACE" -> ambiguous.
+- UI: free-text merchant field + "Identified company" panel. 25/25 tests. Not browser-checked. Conversion still `no_route` for SBUXx.

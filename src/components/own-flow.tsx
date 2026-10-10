@@ -4,18 +4,19 @@ import { useState } from 'react';
 interface Eip1193 { request(a: { method: string; params?: unknown[] }): Promise<unknown> }
 const eth = () => (typeof window === 'undefined' ? undefined : (window as unknown as { ethereum?: Eip1193 }).ethereum);
 
+interface Ident { status: 'identified' | 'ambiguous' | 'not_found'; input: string; matchedAlias?: string; company?: { ticker: string; name: string; tokenSymbol?: string }; candidates?: { ticker: string; name: string }[] }
 interface Result {
-  calc: { merchant: { name: string; symbol: string; rewardBps: number }; spendUsd: number; rewardUsd: number; convertedUsd: number; keptUsd: number };
-  bnbUsd: number; convertedBnb: string; outcome: 'ready_to_sign' | 'held_reward' | 'no_route'; note: string;
+  identification: Ident;
+  calc: null | { merchant: { name: string; symbol: string; rewardBps: number }; spendUsd: number; rewardUsd: number; convertedUsd: number; keptUsd: number };
+  bnbUsd?: number; convertedBnb?: string; outcome: 'ready_to_sign' | 'held_reward' | 'no_route' | 'unidentified' | 'no_token'; note: string;
   plan: null | { tx: { to: string; data: string; value: string; chainId: number } | null; quotedOut: string; minOut: string; impactBps: number; pairLiquidityBnb: number; guard: { allowed: boolean; reasons: string[] }; simulation: { ok: boolean; error?: string } };
   error?: string;
 }
 
-const MERCHANTS = [{ id: 'starbucks', name: 'Starbucks → SBUXx' }, { id: 'apple-store', name: 'Apple Store → AAPLon' }, { id: 'pharmacy', name: 'Neighborhood Pharmacy → JNJon' }];
 const money = (n: number) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 
 export function OwnFlow() {
-  const [merchantId, setMerchant] = useState('starbucks');
+  const [merchant, setMerchant] = useState('STARBUCKS #4411 SEATTLE WA');
   const [spend, setSpend] = useState('100');
   const [share, setShare] = useState(100);
   const [recipient, setRecipient] = useState('');
@@ -50,7 +51,7 @@ export function OwnFlow() {
     e.preventDefault(); setBusy(true); setErr(''); setRes(null); setConfirm(false); setTxHash('');
     try {
       const r = await fetch('/api/own', { method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ merchantId, spendUsd: Number(spend), convertShareBps: share * 100, recipient }) });
+        body: JSON.stringify({ merchant, spendUsd: Number(spend), convertShareBps: share * 100, recipient }) });
       const j = await r.json();
       if (!r.ok) setErr(j.error ?? 'request failed'); else setRes(j);
     } catch { setErr('network error'); } finally { setBusy(false); }
@@ -60,10 +61,8 @@ export function OwnFlow() {
   return (
     <div className="grid gap-10 md:grid-cols-[22rem_1fr]">
       <form onSubmit={run} className="space-y-4">
-        <label className="block text-sm font-medium">Merchant
-          <select className={field} value={merchantId} onChange={e => setMerchant(e.target.value)}>
-            {MERCHANTS.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-          </select></label>
+        <label className="block text-sm font-medium">Merchant (as it appears on the purchase)
+          <input className={field} value={merchant} onChange={e => setMerchant(e.target.value)} /></label>
         <label className="block text-sm font-medium">Purchase (USD)
           <input className={field} inputMode="decimal" value={spend} onChange={e => setSpend(e.target.value)} /></label>
         <label className="block text-sm font-medium">Reward converted to stock: {share}%
@@ -80,13 +79,22 @@ export function OwnFlow() {
         {!res && !err && <p className="text-sm text-neutral-500">Result appears here after a live check against BSC mainnet.</p>}
         {res && (
           <div className="space-y-6">
-            <dl className="grid grid-cols-2 gap-y-2 border-b pb-4 text-sm">
+            <section aria-label="Company identification" className="border-b pb-4 text-sm">
+              <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Identified company</h2>
+              {res.identification.status === 'identified' && res.identification.company && (
+                <p className="mt-1"><span className="text-base font-semibold">{res.identification.company.name}</span> <span className="font-mono">({res.identification.company.ticker})</span>
+                  <span className="block text-neutral-600">Matched “{res.identification.matchedAlias}” in “{res.identification.input}”. {res.identification.company.tokenSymbol ? `Token: ${res.identification.company.tokenSymbol}.` : 'No Stockup token registered.'}</span></p>)}
+              {res.identification.status === 'ambiguous' && <p className="mt-1">Matched more than one company: {res.identification.candidates?.map(c => c.name).join(', ')}.</p>}
+              {res.identification.status === 'not_found' && <p className="mt-1">No publicly traded company matched “{res.identification.input}”.</p>}
+            </section>
+            {(res.outcome === 'unidentified' || res.outcome === 'no_token') && <section className="border-l-4 border-amber-600 bg-amber-50 p-4 text-sm">{res.note}</section>}
+            {res.calc && <dl className="grid grid-cols-2 gap-y-2 border-b pb-4 text-sm">
               <dt className="text-neutral-500">Purchase</dt><dd className="text-right">{money(res.calc.spendUsd)}</dd>
               <dt className="text-neutral-500">Reward ({res.calc.merchant.rewardBps / 100}%)</dt><dd className="text-right">{money(res.calc.rewardUsd)}</dd>
               <dt className="text-neutral-500">Converting to {res.calc.merchant.symbol}</dt><dd className="text-right">{money(res.calc.convertedUsd)} ≈ {res.convertedBnb} BNB</dd>
               <dt className="text-neutral-500">Kept as plain reward</dt><dd className="text-right">{money(res.calc.keptUsd)}</dd>
-            </dl>
-            {res.outcome === 'no_route' && <section className="border-l-4 border-amber-600 bg-amber-50 p-4 text-sm"><h2 className="font-semibold">No on-chain route for {res.calc.merchant.symbol}</h2><p className="mt-1">{res.note}</p></section>}
+            </dl>}
+            {res.outcome === 'no_route' && res.calc && <section className="border-l-4 border-amber-600 bg-amber-50 p-4 text-sm"><h2 className="font-semibold">No on-chain route for {res.calc.merchant.symbol}</h2><p className="mt-1">{res.note}</p></section>}
             {res.plan && <>
             <section className={`border-l-4 p-4 ${res.outcome === 'ready_to_sign' ? 'border-green-700 bg-green-50' : 'border-amber-600 bg-amber-50'}`}>
               <h2 className="text-sm font-semibold">{res.outcome === 'ready_to_sign' ? 'Conversion cleared the guard' : 'Conversion held by the guard'}</h2>
@@ -108,7 +116,7 @@ export function OwnFlow() {
               <dt>Pool liquidity</dt><dd className="text-right">{res.plan!.pairLiquidityBnb.toFixed(6)} BNB</dd>
               <dt>Price impact</dt><dd className="text-right">{(res.plan!.impactBps / 100).toFixed(2)}%</dd>
               <dt>Quoted / minimum out</dt><dd className="text-right">{Number(res.plan!.quotedOut).toFixed(6)} / {Number(res.plan!.minOut).toFixed(6)}</dd>
-              <dt>BNB/USD (live PancakeSwap spot)</dt><dd className="text-right">{res.bnbUsd.toFixed(2)}</dd>
+              <dt>BNB/USD (live PancakeSwap spot)</dt><dd className="text-right">{res.bnbUsd?.toFixed(2)}</dd>
             </dl>}
           </div>
         )}
