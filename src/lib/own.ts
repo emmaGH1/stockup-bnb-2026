@@ -1,5 +1,6 @@
 import { computeRewardByTicker, computeInvestment, usdToBnb } from './spend';
 import { findInstrument, fetchAssetStatus } from './instruments';
+import { fetchMarketData, dexVsReferenceBps } from './marketdata';
 import type { SecurityStatus } from './fixtures/w3w';
 import { identifyCompany, type Identification } from './company';
 import { bnbUsd } from './bnbprice';
@@ -27,7 +28,7 @@ export async function spendToOwn(req: OwnRequest) {
   const price = await bnbUsd();
   const bnb = usdToBnb(investment.investUsd, price);
   const bnbStr = bnb.toFixed(8);
-  const live = await fetchAssetStatus(inst.address);
+  const [live, market] = await Promise.all([fetchAssetStatus(inst.address), fetchMarketData(inst.address)]);
   const status: SecurityStatus | undefined = live ? {
     symbol: inst.symbol, source: 'live',
     session: live.reasonCode === 'ASSET_PAUSED' || live.reasonCode === 'MARKET_PAUSED' ? 'halted' : live.openState ? 'open' : 'closed',
@@ -37,10 +38,17 @@ export async function spendToOwn(req: OwnRequest) {
   catch (e) {
     const why = e instanceof Error ? e.message : 'route unavailable';
     // Purchase and reward are still recorded; only the on-chain conversion is unavailable.
-    return { identification, discovery, instrument: inst, liveStatus: live, calc, investment, bnbUsd: price, convertedBnb: bnbStr, plan: null, outcome: 'no_route' as const,
+    return { identification, discovery, instrument: inst, liveStatus: live, market, quote: null, calc, investment, bnbUsd: price, convertedBnb: bnbStr, plan: null, outcome: 'no_route' as const,
       note: `Purchase recorded and reward calculated. Investment unavailable: ${why}. Your own funds were not touched. Nothing was sent.` };
   }
-  return { identification, discovery, instrument: inst, liveStatus: live, calc, investment, bnbUsd: price, convertedBnb: bnbStr, plan,
+  const quote = {
+    // Executable quote = PancakeSwap V2 router getAmountsOut + eth_call simulation, computed by US from BSC mainnet.
+    dex: { source: 'pancakeswap-v2-onchain', tokensOut: Number(plan.quotedOut), minOut: Number(plan.minOut), simulated: plan.simulation.ok },
+    vsReferenceBps: market?.tokenPriceUsd ? dexVsReferenceBps(investment.investUsd, Number(plan.quotedOut), market.tokenPriceUsd) : null,
+    // Binance's own executable quote (baw market-order quote) exists but requires a signed-in Binance Agentic Wallet session (human action).
+    binance: { available: false as const, reason: 'Requires Binance Agentic Wallet sign-in (baw auth signin); returned NOT_LOGGED_IN. Not attempted on your behalf.' },
+  };
+  return { identification, discovery, instrument: inst, liveStatus: live, market, quote, calc, investment, bnbUsd: price, convertedBnb: bnbStr, plan,
     outcome: plan.tx ? 'ready_to_sign' : 'held',
     note: plan.tx ? 'Unsigned transaction ready for your wallet.' : 'Guard blocked the investment. Your own funds were not touched. Nothing was sent.' };
 }

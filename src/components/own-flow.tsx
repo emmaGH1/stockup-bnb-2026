@@ -9,6 +9,8 @@ interface Result {
   identification: Ident;
   instrument?: { symbol: string; address: string; multiplier: string; verifiedOnChain: boolean };
   liveStatus?: { openState: boolean; marketStatus: string; reasonCode: string; reasonMsg: string | null } | null;
+  market?: { tokenPriceUsd: number | null; stockPriceUsd: number | null; changePct24h: number | null; holders: number | null; high52w: number | null; low52w: number | null; pe: number | null; fetchedAt: string } | null;
+  quote?: { dex: { tokensOut: number; minOut: number; simulated: boolean }; vsReferenceBps: number | null; binance: { available: boolean; reason: string } } | null;
   investment?: { investUsd: number; investBps: number; fundedBy: string };
   calc: null | { merchant: { name: string; symbol: string; rewardBps: number }; spendUsd: number; rewardUsd: number; convertedUsd: number; keptUsd: number };
   bnbUsd?: number; convertedBnb?: string; outcome: 'ready_to_sign' | 'held' | 'no_route' | 'unidentified' | 'no_token'; note: string;
@@ -98,6 +100,24 @@ export function OwnFlow() {
                 <p className="break-all font-mono text-xs text-neutral-600">{res.instrument.address}</p>
                 <p className="mt-1 text-neutral-600">Listed by Binance Web3 (Ondo) and symbol confirmed on-chain: {res.instrument.verifiedOnChain ? 'yes' : 'no'}.
                   {' '}Trading status: {res.liveStatus ? `${res.liveStatus.openState ? 'open' : 'closed'} (${res.liveStatus.reasonCode}${res.liveStatus.reasonMsg ? `, ${res.liveStatus.reasonMsg}` : ''})` : 'unavailable, treated as not tradable'}.</p>
+              </section>)}
+            {res.market && (
+              <section aria-label="Live market information" className="border-b pb-4 text-sm">
+                <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Live market information (Binance Web3)</h2>
+                <dl className="mt-1 grid grid-cols-2 gap-y-1">
+                  <dt className="text-neutral-500">Token price</dt><dd className="text-right">{res.market.tokenPriceUsd != null ? money(res.market.tokenPriceUsd) : 'n/a'}{res.market.changePct24h != null && ` (${res.market.changePct24h.toFixed(2)}% 24h)`}</dd>
+                  <dt className="text-neutral-500">US stock price</dt><dd className="text-right">{res.market.stockPriceUsd != null ? money(res.market.stockPriceUsd) : 'not reported'}</dd>
+                  <dt className="text-neutral-500">52-week range</dt><dd className="text-right">{res.market.low52w ?? 'n/a'} – {res.market.high52w ?? 'n/a'}</dd>
+                  <dt className="text-neutral-500">P/E · holders</dt><dd className="text-right">{res.market.pe ?? 'n/a'} · {res.market.holders ?? 'n/a'}</dd>
+                </dl>
+                <p className="mt-1 text-xs text-neutral-500">Fetched {new Date(res.market.fetchedAt).toISOString().slice(11, 19)} UTC</p>
+              </section>)}
+            {res.quote && (
+              <section aria-label="Executable quote" className="border-b pb-4 text-sm">
+                <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Executable quote</h2>
+                <p className="mt-1">PancakeSwap on-chain quote: <strong>{res.quote.dex.tokensOut.toFixed(6)}</strong> tokens (min {res.quote.dex.minOut.toFixed(6)}), simulation {res.quote.dex.simulated ? 'passed' : 'not run or failed'}.
+                  {res.quote.vsReferenceBps != null && ` Versus Binance reference price: ${(res.quote.vsReferenceBps / 100).toFixed(2)}% ${res.quote.vsReferenceBps >= 0 ? 'fewer' : 'more'} tokens.`}</p>
+                <p className="mt-1 text-neutral-600">Binance swap quote: {res.quote.binance.available ? 'available' : `not available. ${res.quote.binance.reason}`}</p>
               </section>)}
             {(res.outcome === 'unidentified' || res.outcome === 'no_token') && <section className="border-l-4 border-amber-600 bg-amber-50 p-4 text-sm">{res.note}</section>}
             {res.calc && <dl className="grid grid-cols-2 gap-y-2 border-b pb-4 text-sm">

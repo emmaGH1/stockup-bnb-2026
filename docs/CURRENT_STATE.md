@@ -71,3 +71,10 @@ If concept arrives: write docs/PROJECT.md and build the core flow. If W3W keys a
 - Live results ($100 purchase, $5 own funds): Starbucks -> SBUXon, market CLOSED (weekend), no PancakeSwap V2 pool -> `no_route`. Apple -> AAPLon TRADING but pool 0.00057 BNB -> `held`. **Amazon -> AMZNon, pool 4.36 BNB, impact 0.15%, live status TRADING, eth_call simulation OK -> `ready_to_sign`** (first full pass of guard+simulation). Nothing was sent.
 - 33/33 tests, build passes. W3W keyed API still unused/unverified; the public endpoints are not the signed W3W API.
 - Starbucks still blocked: no PancakeSwap liquidity for SBUXon; need another venue (e.g. Ondo/Binance route).
+
+## Update ~17:35 UTC: journey step 5, live market info + executable quote
+- `src/lib/marketdata.ts`: live market info from Binance Web3 PUBLIC RWA "dynamic" endpoint (no key): token price, US stock price (null off-hours), 24h change, 52w range, P/E, holders, order limits. Parser is pure and tested (37/37 tests).
+- Executable quote in `/api/own` -> `quote.dex`: PancakeSwap V2 on-chain quote + eth_call simulation, plus `vsReferenceBps` (our DEX output vs Binance reference price).
+- Live: AMZNon $5 -> 0.018999 tokens (min 0.018809), simulation OK, 30 bps worse than Binance reference (consistent with 0.25% pool fee + 0.15% impact). SBUXon: market data returned ($92.42 token / $90.80 stock, -2.02%), but no DEX quote (no pool).
+- **Binance's own swap quote (`baw market-order quote`) is NOT available.** Installed @binance/agentic-wallet 1.10.0 in /tmp (not in repo); quote returned `NOT_LOGGED_IN` (code 10003000). Sign-in is a human step (pairing code confirmed in the Binance app). Not attempted on your behalf. UI and API state this explicitly (`quote.binance.available=false` + reason).
+- Still: no tx sent, page not browser-checked, sign path never run.
