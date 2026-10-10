@@ -15,3 +15,6 @@
 | 4 | Liquidity | AAPLon PancakeSwap pools hold ~$2-25; DEX price is unusable, an official price endpoint is needed. | High |
 | 5 | Token behavior | Tokenized stocks are 18-decimal ERC-20s with symbols like AAPLon; market sessions/halts are not visible on-chain, so an off-chain status source is required. | Medium |
 | 6 | Docs | Response schemas for tokenized-securities status were not discoverable without credentials. | Medium |
+| 7 | Discovery (resolved) | Binance publishes keyless public RWA endpoints (token list, per-asset status w/ corporate-action codes) in binance/binance-skills-hub. This solved the address-discovery pain (#3), but it is only discoverable via the skills repo, not the main docs I searched first. Search summaries had given a WRONG Starbucks token (SBUXx); the official list says SBUXon. | High (positive) |
+| 8 | Liquidity | Of 458 BSC Ondo tokens, liquidity varies wildly on PancakeSwap V2: AMZNon 4.36 BNB (tradable), AAPLon 0.0006 BNB, SBUXon no pool. | High |
+| 9 | Docs/API | `assetType`, `d`, `lastUpdateTime` fields appear in the live list but not in the skill doc's response table. Market status response includes an `offhours` object not in the doc. | Low |

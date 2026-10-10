@@ -7,6 +7,8 @@ const eth = () => (typeof window === 'undefined' ? undefined : (window as unknow
 interface Ident { status: 'identified' | 'ambiguous' | 'not_found'; input: string; matchedAlias?: string; company?: { ticker: string; name: string; tokenSymbol?: string }; candidates?: { ticker: string; name: string }[] }
 interface Result {
   identification: Ident;
+  instrument?: { symbol: string; address: string; multiplier: string; verifiedOnChain: boolean };
+  liveStatus?: { openState: boolean; marketStatus: string; reasonCode: string; reasonMsg: string | null } | null;
   investment?: { investUsd: number; investBps: number; fundedBy: string };
   calc: null | { merchant: { name: string; symbol: string; rewardBps: number }; spendUsd: number; rewardUsd: number; convertedUsd: number; keptUsd: number };
   bnbUsd?: number; convertedBnb?: string; outcome: 'ready_to_sign' | 'held' | 'no_route' | 'unidentified' | 'no_token'; note: string;
@@ -89,6 +91,14 @@ export function OwnFlow() {
               {res.identification.status === 'ambiguous' && <p className="mt-1">Matched more than one company: {res.identification.candidates?.map(c => c.name).join(', ')}.</p>}
               {res.identification.status === 'not_found' && <p className="mt-1">No publicly traded company matched “{res.identification.input}”.</p>}
             </section>
+            {res.instrument && (
+              <section aria-label="Tokenized instrument" className="border-b pb-4 text-sm">
+                <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Supported instrument</h2>
+                <p className="mt-1"><span className="text-base font-semibold">{res.instrument.symbol}</span> on BNB Chain · 1 token = {Number(res.instrument.multiplier).toFixed(4)} share(s)</p>
+                <p className="break-all font-mono text-xs text-neutral-600">{res.instrument.address}</p>
+                <p className="mt-1 text-neutral-600">Listed by Binance Web3 (Ondo) and symbol confirmed on-chain: {res.instrument.verifiedOnChain ? 'yes' : 'no'}.
+                  {' '}Trading status: {res.liveStatus ? `${res.liveStatus.openState ? 'open' : 'closed'} (${res.liveStatus.reasonCode}${res.liveStatus.reasonMsg ? `, ${res.liveStatus.reasonMsg}` : ''})` : 'unavailable, treated as not tradable'}.</p>
+              </section>)}
             {(res.outcome === 'unidentified' || res.outcome === 'no_token') && <section className="border-l-4 border-amber-600 bg-amber-50 p-4 text-sm">{res.note}</section>}
             {res.calc && <dl className="grid grid-cols-2 gap-y-2 border-b pb-4 text-sm">
               <dt className="text-neutral-500">Purchase</dt><dd className="text-right">{money(res.calc.spendUsd)}</dd>

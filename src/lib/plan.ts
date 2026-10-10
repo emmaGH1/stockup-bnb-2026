@@ -1,7 +1,6 @@
 import { getAddress, isAddress, parseEther, parseAbi, formatUnits } from 'viem';
 import { client } from './bsc';
-import { VERIFIED_ASSETS } from './assets';
-import { getStatuses } from './status';
+import type { SecurityStatus } from './fixtures/w3w';
 import { evaluateGuard } from './guard';
 import { planBnbBuy, simulate, impactBps, WBNB } from './swap';
 
@@ -10,11 +9,11 @@ const FACTORY = getAddress('0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73');
 const fAbi = parseAbi(['function getPair(address,address) view returns (address)']);
 const pAbi = parseAbi(['function getReserves() view returns (uint112,uint112,uint32)', 'function token0() view returns (address)']);
 
-export interface PlanRequest { symbol: string; bnb: string; recipient: string; slippageBps?: number; maxImpactBps?: number }
+export interface PlanRequest { symbol: string; tokenAddress: string; status: SecurityStatus | undefined; bnb: string; recipient: string; slippageBps?: number; maxImpactBps?: number }
 
 export async function buildPlan(req: PlanRequest) {
-  const asset = VERIFIED_ASSETS.find(a => a.symbol === req.symbol && a.symbol !== 'USDon');
-  if (!asset) throw new Error('unsupported asset');
+  if (!isAddress(req.tokenAddress)) throw new Error('invalid token address');
+  const asset = { symbol: req.symbol, address: req.tokenAddress };
   if (!isAddress(req.recipient)) throw new Error('invalid recipient');
   const amount = Number(req.bnb);
   if (!(amount > 0) || amount > MAX_BNB_PER_TRADE) throw new Error(`amount must be >0 and <= ${MAX_BNB_PER_TRADE} BNB`);
@@ -29,7 +28,7 @@ export async function buildPlan(req: PlanRequest) {
   const reserveBnb = t0 === WBNB ? r0 : r1, reserveTok = t0 === WBNB ? r1 : r0;
   const plan = await planBnbBuy(asset.address, bnbIn, req.recipient, req.slippageBps ?? 100, 120, c);
   const impact = impactBps(bnbIn, reserveBnb, reserveTok);
-  const status = getStatuses().statuses.find(s => s.symbol === asset.symbol);
+  const status = req.status;
   const guard = evaluateGuard({ status, impactBps: impact, maxImpactBps: req.maxImpactBps ?? 300, quotedOut: plan.quotedOut,
     poolDepthBnb: Number(formatUnits(reserveBnb, 18)), amountBnb: amount });
   let simulation: { ok: boolean; error?: string } = { ok: false, error: 'skipped: guard blocked' };
@@ -43,6 +42,6 @@ export async function buildPlan(req: PlanRequest) {
     guard, simulation,
     // Unsigned tx for the USER'S wallet to sign. Only offered when guard passed and simulation succeeded.
     tx: guard.allowed && simulation.ok ? { to: plan.to, data: plan.data, value: '0x' + plan.value.toString(16), chainId: 56 } : null,
-    notes: ['Session status is development fixture data, not Binance.', 'Server holds no key and never sends transactions.'],
+    notes: [(status?.source === 'live' ? 'Session status is live from Binance Web3 public RWA endpoint.' : 'Session status unavailable; treated as not tradable.'), 'Server holds no key and never sends transactions.'],
   };
 }

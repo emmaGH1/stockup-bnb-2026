@@ -63,3 +63,11 @@ If concept arrives: write docs/PROJECT.md and build the core flow. If W3W keys a
 - `computeInvestment(spend, investBps=500)`: $100 -> $5 own funds, tested (27/27). Reward ($3 Starbucks, placeholder) is now display-only, NOT converted. `/api/own` takes `investBps` (0.01-20%); sizes the swap from the $5 using live WBNB/USDT ($751.41 -> 0.00665416 BNB).
 - Live: Starbucks -> `no_route` (no Pancake pool for SBUXx); Apple -> `held` (impact 92%, pool 0.00057 BNB). Nothing sent; own funds untouched.
 - UI field: "Invest from my own funds (% of purchase)" defaulting to 5 with a live dollar readout. Not browser-checked.
+
+## Update ~17:10 UTC: journey step 4, real instrument discovery (BIG UNBLOCK)
+- Found Binance's PUBLIC, keyless RWA endpoints (binance/binance-skills-hub, binance-tokenized-securities-info). No API key needed for: token list (1,366 entries, 458 on BSC), per-asset trading status, market status.
+- `src/lib/instruments.ts`: `findInstrument(ticker)` -> `supported` only if listed on BSC AND on-chain `symbol()` matches; else `not_listed`/`unavailable`. `fetchAssetStatus` = LIVE session/halt status (replaces fixtures in the flow; unreachable => not tradable).
+- Correct Starbucks instrument is **SBUXon 0x94d7...490D** (Ondo, listed by Binance, symbol verified on-chain), NOT the earlier SBUXx from a search result. SBUXx removed from use by the flow.
+- Live results ($100 purchase, $5 own funds): Starbucks -> SBUXon, market CLOSED (weekend), no PancakeSwap V2 pool -> `no_route`. Apple -> AAPLon TRADING but pool 0.00057 BNB -> `held`. **Amazon -> AMZNon, pool 4.36 BNB, impact 0.15%, live status TRADING, eth_call simulation OK -> `ready_to_sign`** (first full pass of guard+simulation). Nothing was sent.
+- 33/33 tests, build passes. W3W keyed API still unused/unverified; the public endpoints are not the signed W3W API.
+- Starbucks still blocked: no PancakeSwap liquidity for SBUXon; need another venue (e.g. Ondo/Binance route).
