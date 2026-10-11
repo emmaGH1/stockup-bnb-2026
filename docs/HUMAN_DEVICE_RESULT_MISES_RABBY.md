@@ -22,7 +22,7 @@ Preview: `https://stockup-bnb-preview-8mpsn4qvo-emmagh1s-projects.vercel.app` (r
 
 - The connected text appears only when the wallet reports chain `0x38` and returns an account. The app shows the first 8 and last 4 characters of that account.
 - It does **not** show which wallet provider is active. The app reads `window.ethereum` only, so provider identity (`isRabby`, `io.rabby`) is **UNVERIFIED** until a console run reports it.
-- No signature, typed-data, approval or transaction prompt has been reported.
+- Operator confirms: **no transaction or signature was requested or approved.** Only the account-access prompt and the BSC switch are reported.
 
 ## Not covered
 
