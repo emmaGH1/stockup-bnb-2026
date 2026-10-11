@@ -183,3 +183,12 @@ Last updated: 2026-10-10 ~18:50 UTC (VPS clock). Branch `dev/foundation`. Latest
 - A previous agent session stopped because its model-gateway daily budget was exhausted. This is a billing limit on the provider side; the repo, tests and CI were unaffected.
 - Last commit de4afbe: CI passed; branch in sync with origin/dev/foundation.
 - Resumed work does not spend funds, sign, merge, deploy or submit.
+
+## Design probe (dev/design-probe, 2026-10-11 ~00:30 UTC VPS clock)
+- Branch `dev/design-probe` (feature branch; `main` untouched; not merged).
+- Scope: first fold (product statement on a 12-column grid) and the investment workspace restyled with provisional tokens (paper #F4F3F0, ink #171917, mist #DADBD6, vermilion #F26438). Workspace logic, Binance integrations, wallet checks and API routes are unchanged.
+- Copy changed on the fold: headline now states the product definition, not receipt scanning. The footer no longer says the page never sends a transaction; it says a transaction is sent only after the user authorizes it in their own wallet.
+- Gates: typecheck OK; 86/86 tests pass; production build OK.
+- Browser: desktop 1280px and mobile 390px, no horizontal overflow, no console or page errors. Screenshots show the first fold only: docs/evidence/design-probe/.
+- NOT done: propagation of the design to other screens; the workspace below the fold was not screenshotted. Awaiting human visual approval before any propagation.
+- No funds spent, nothing deployed, repo still private, nothing merged or submitted.

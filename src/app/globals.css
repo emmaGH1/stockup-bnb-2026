@@ -1,1 +1,9 @@
 @import "tailwindcss";
+
+/* Provisional palette (owner-supplied). Provisional: revisit after first visual review. */
+@theme {
+  --color-paper: #F4F3F0;   /* off-white surface */
+  --color-ink: #171917;     /* primary text and rules */
+  --color-mist: #DADBD6;    /* subtle grey: dividers, quiet fills */
+  --color-vermilion: #F26438; /* single accent: active states, emphasis */
+}

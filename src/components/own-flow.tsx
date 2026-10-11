@@ -129,7 +129,7 @@ export function OwnFlow() {
     } catch { setErr('network error'); } finally { setBusy(false); }
   }
 
-  const field = 'mt-1 w-full border border-neutral-400 bg-white px-3 py-2 text-sm';
+  const field = 'mt-1 w-full border border-ink/40 bg-white px-3 py-2 text-sm focus:outline-2 focus:outline-vermilion';
   const paper = { res, txHash, settle, receipt };
   const issued = isIssued(paper);
   return (
@@ -163,7 +163,7 @@ export function OwnFlow() {
           <input className={`${field} font-mono`} placeholder="0x…" value={recipient} onChange={e => setRecipient(e.target.value)} /></label>
         <button type="button" onClick={connect} className="w-full border border-neutral-900 px-4 py-2 text-sm">Connect my browser wallet</button>
         <p role="status" className="text-xs text-neutral-600">{walletLine(wallet)}</p>
-        <button disabled={busy || !merchant.trim() || !(Number(spend) > 0)} className="w-full bg-neutral-900 px-4 py-3 text-sm font-medium text-white disabled:opacity-50">
+        <button disabled={busy || !merchant.trim() || !(Number(spend) > 0)} className="w-full bg-vermilion px-4 py-3 text-sm font-semibold text-ink disabled:opacity-50">
           {busy ? 'Checking live BSC…' : 'Check and prepare my investment'}</button>
         {err ? <p role="alert" className="text-sm text-red-700">{err}</p> : null}
       </form>
