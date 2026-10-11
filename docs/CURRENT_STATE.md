@@ -192,3 +192,13 @@ Last updated: 2026-10-10 ~18:50 UTC (VPS clock). Branch `dev/foundation`. Latest
 - Browser: desktop 1280px and mobile 390px, no horizontal overflow, no console or page errors. Screenshots show the first fold only: docs/evidence/design-probe/.
 - NOT done: propagation of the design to other screens; the workspace below the fold was not screenshotted. Awaiting human visual approval before any propagation.
 - No funds spent, nothing deployed, repo still private, nothing merged or submitted.
+
+## Design probe v2 (dev/design-probe, 2026-10-11 ~00:55 UTC VPS clock)
+- Approved direction implemented as a probe: Industrial Editorial x Expressive Consumer Finance. Palette tokens as given: paper #F4F3F0, ink #171917, mist #DADBD6, vermilion #F26438 (+white). NOT propagated beyond the two probe surfaces (STOP GATE: awaiting human approval).
+- First fold: numbered grid modules (01 What Stockup does / 02 Investment workspace), Archivo headline with a Source Serif 4 italic accent, vermilion CTA ("Run the investment check"), original SVG flow diagram (spending event -> your own-funds allocation -> tokenized stock), mono micro-labels. Label/arrow collision in the diagram found on screenshots and fixed.
+- Fonts: @fontsource-variable/archivo + @fontsource/source-serif-4, SIL OFL 1.1, bundled locally, no runtime fetch.
+- Workspace: composition pass only (ruled white panels, mono legends, sticky form on desktop). All strings, logic, API routes, wallet checks unchanged.
+- Evidence: docs/evidence/design-probe/probe-{desktop-1280,mobile-390}-full.png (full page, 1280px / 390px). No horizontal overflow, no console/page errors, #invest anchor present.
+- AI-slop lint (playbook 4.5G): no gradients, no blue/purple defaults, no status pills, no fake live indicators, no fabricated metrics (diagram 5% = real default input; AMZNon labeled example), no card-everything.
+- Gates: typecheck OK; 86/86 tests; production build OK. No funds spent, nothing deployed, repo private, main untouched.
+- Reference provenance (playbook 4.5E), per DESIGN_REFERENCES.md: 01 grid/markers/numbered modules (not their brand/robot imagery); 04 product-as-hero staging adapted to the flow diagram (no scooter); 06 grotesk+serif pairing via OFL fonts (no ID Grotesk/Times binaries); 03 data readability as guardrail only (their fabricated stats rejected); 05 principle: dotted-leader + square-marker motif reusable site-wide (no purple 3D forms); 02 one-accent restraint (vermilion only); 07 poster type deliberately unused so far.

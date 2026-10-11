@@ -136,9 +136,9 @@ export function OwnFlow() {
     <div className="space-y-10">
     <PaperPair pasted={pasted} parsed={parsed} rows={ownershipRows(paper)} issued={issued} receiptId={receipt?.receipt?.receiptId} reason={receipt && !receipt.ok ? receipt.reason : undefined} />
     <div className="grid gap-10 md:grid-cols-[22rem_1fr]">
-      <form onSubmit={run} className="space-y-4">
-        <fieldset className="space-y-2 border border-neutral-300 p-3">
-          <legend className="px-1 text-sm font-medium">1. Paste a shopping receipt</legend>
+      <form onSubmit={run} className="space-y-4 md:sticky md:top-6 md:self-start">
+        <fieldset className="space-y-2 border border-ink/30 bg-white p-4">
+          <legend className="px-1 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-ink/70">1. Paste a shopping receipt</legend>
           <textarea aria-label="Shopping receipt text" className="h-32 w-full border border-neutral-400 bg-white p-2 font-mono text-xs" placeholder="Paste receipt text here" value={pasted} onChange={e => setPasted(e.target.value)} />
           <div className="flex gap-2">
             <button type="button" onClick={readReceipt} disabled={!pasted.trim()} className="min-h-11 border border-neutral-900 px-4 text-sm disabled:opacity-40">Read receipt</button>
@@ -168,7 +168,7 @@ export function OwnFlow() {
         {err ? <p role="alert" className="text-sm text-red-700">{err}</p> : null}
       </form>
 
-      <div aria-live="polite">
+      <div aria-live="polite" className="border border-ink/30 bg-white p-4 md:p-6">
         {!res && !err && <p className="text-sm text-neutral-500">Result appears here after a live check against BSC mainnet.</p>}
         {res && (
           <div className="space-y-6">

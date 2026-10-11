@@ -1,9 +1,12 @@
 @import "tailwindcss";
 
-/* Provisional palette (owner-supplied). Provisional: revisit after first visual review. */
+/* Approved probe direction: paper/ink/mist + vermilion accent; grotesk UI with editorial serif accents.
+   Fonts bundled locally via @fontsource, SIL OFL 1.1. Revisit after probe review. */
 @theme {
-  --color-paper: #F4F3F0;   /* off-white surface */
-  --color-ink: #171917;     /* primary text and rules */
-  --color-mist: #DADBD6;    /* subtle grey: dividers, quiet fills */
-  --color-vermilion: #F26438; /* single accent: active states, emphasis */
+  --color-paper: #F4F3F0;
+  --color-ink: #171917;
+  --color-mist: #DADBD6;
+  --color-vermilion: #F26438;
+  --font-sans: "Archivo Variable", ui-sans-serif, system-ui, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
 }

@@ -13,6 +13,8 @@
     "probe:bsc": "tsx scripts/probe-bsc-live.ts"
   },
   "dependencies": {
+    "@fontsource-variable/archivo": "^5.3.0",
+    "@fontsource/source-serif-4": "^5.3.0",
     "next": "^16.4.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
