@@ -3,7 +3,7 @@
 Stockup turns a shopping receipt into an investment journey: the user's own money buys a
 tokenized stock on BNB Smart Chain, after live checks and a review of exactly what their wallet will sign.
 
-**Status: pre-submission, not deployed, no real trade executed.** Everything below is either verified in this repo
+**Status: pre-submission. A Vercel preview exists but sits behind login, so it is not public. No real-money trade has been executed.** Everything below is either verified in this repo
 or labelled as not verified. No ownership receipt exists yet. See [docs/CURRENT_STATE.md](docs/CURRENT_STATE.md) for the
 dated record.
 
@@ -21,7 +21,7 @@ Short version:
 ```bash
 npm ci
 npm run typecheck     # passes
-npm test              # 144 tests pass (25 files)
+npm test              # 171 tests pass (28 files, at 1c83a01)
 npm run build         # production build passes
 npm start             # serves on http://localhost:3000
 ```
@@ -66,5 +66,5 @@ Never commit `.env`. It is git-ignored.
 - `src/app/api/`: `/api/own` (whole journey), `/api/plan`, `/api/settle`, `/api/receipt`, `/api/assets`, `/api/token`. All read-only; none sends a transaction.
 - `src/components/own-flow.tsx`: the browser flow. It asks the user's wallet to sign; the app holds no key.
 - `scripts/`: read-only integration probes and audits.
-- `test/`: 105 unit tests.
+- `test/`: unit and route tests, 171 across 28 files (at 1c83a01).
 - `docs/`: `ARCHITECTURE.md`, `JUDGE_FLOW.md`, `CURRENT_STATE.md`, `BLOCKERS.md`, `DEVEX_REPORT.md`, `MAINNET_TEST_PROCEDURE.md` (draft, not approved), `DEPLOY.md`.
