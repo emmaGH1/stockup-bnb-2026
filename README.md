@@ -14,7 +14,7 @@ Source: `cd066cb` (on `main`). Vercel records no git provenance for this deploym
 
 - Typecheck and production build pass on a clean install. 199 tests pass across 31 files.
 - Rabby, as a browser extension in Mises Browser on Android, connected to Stockup on BNB Smart Chain (chain 56). This is human-reported. No transaction or signature was requested or approved.
-- No real-money transaction has been executed. No ownership receipt exists.
+- One real-money swap has been executed and verified on chain (see On-chain evidence). It was made on 2026-10-11 by the project owner's own wallet, after the Vercel-recorded commit. No ownership receipt has been issued yet.
 
 ## What Stockup does not do
 
@@ -45,6 +45,17 @@ Source: `cd066cb` (on `main`). Vercel records no git provenance for this deploym
 
 A token is an Ondo tokenized exposure to the stock, listed by Binance. It is not a direct share and carries no shareholder rights. The share figure on a receipt is an approximation, computed from Binance's listed multiplier. Ondo and Binance terms, and any regional restrictions, apply. This project does not verify those terms.
 
+## On-chain evidence
+
+One real BNB to AMZNon swap on BNB Smart Chain, signed by the project owner's own wallet through the PancakeSwap V2 router:
+
+- Transaction: `0x7028edb828c79b924aaf7b577ee86225e3fd9323430c27f812f8ceeb8d9be8b6` ([BscScan](https://bscscan.com/tx/0x7028edb828c79b924aaf7b577ee86225e3fd9323430c27f812f8ceeb8d9be8b6))
+- Block 127014828. Sender and recipient: `0x9202B786dc0f1D0B1ce7314DbFBFC21283d32dD2`. Token: AMZNon `0x4553cFe1C09f37f38b12dC509F676964e392F8Fc`.
+- Sent 0.00667905 BNB. Received 0.018924097 AMZNon (minimum accepted 0.018734856). Gas 0.0000104 BNB.
+- Verified read-only through the deployed `/api/settle` route: state `settled`, 594 confirmations at check time (2026-10-11 ~11:56 UTC). It matched the router, path, recipient and amounts.
+- This is one transaction, not two. Whether it meets any judging requirement is for the judges to decide. It was made after the form was submitted.
+- Exposure is to Ondo's tokenized Amazon stock, not direct share ownership. Not financial advice.
+
 ## Verified
 
 - Binance public RWA endpoints return the fields the code reads.
@@ -54,7 +65,7 @@ A token is an Ondo tokenized exposure to the stock, listed by Binance. It is not
 
 ## Not verified
 
-- No real-money trade has been executed or settled.
+- Only one real trade exists (above). Further trades, and an ownership receipt for it, have not been done.
 - No device run has covered a signature, a transaction or a balance check.
 - Vercel does not record the source commit of the production deployment.
 - Binance trading fees are not included in the fee figure.
