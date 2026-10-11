@@ -253,3 +253,8 @@ Last updated: 2026-10-10 ~18:50 UTC (VPS clock). Branch `dev/foundation`. Latest
 
 ## Outstanding release issue recorded: reviewToken reload limitation (2026-10-11 ~07:20 UTC VPS clock)
 - Documentation only, no code or contract change. Full entry: docs/BLOCKERS.md ("OUTSTANDING RELEASE ISSUE: reviewToken does not survive a page reload"). Summary: the token lives in component state only, by the contract's own rule; under REVIEW_TOKEN_REQUIRED=1 a reload after sending makes settle and receipt unrecoverable. Keep enforcement off for this release unless the owner picks another option. The contract also contradicts itself on this point (line 45 versus verification step 3).
+
+## Evidence and test artifacts committed (dev/design-probe, 2026-10-11 ~07:35 UTC VPS clock)
+- docs/evidence/release-checks/: mobile authorization screenshots, results table, limits. scripts/release-checks/: the three Playwright scripts used (mock wallet, placeholder address, never presses Authorize, never sends).
+- This branch itself: typecheck OK; 101/101 tests; production build OK (the release candidate has 186 tests because it includes the core agent's backend tests).
+- Design still NOT approved by the human. Nothing deployed, merged to main, or submitted. No transaction sent.
