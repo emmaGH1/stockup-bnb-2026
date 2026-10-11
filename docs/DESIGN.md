@@ -1,8 +1,10 @@
-# Stockup 2.0 — design system (locked after probe approval, 2026-10-11)
+# Stockup 2.0 — design system (DRAFT, NOT APPROVED)
 
-Probe: `dev/design-probe` (fold + workspace), evidence in `docs/evidence/design-probe/`. Direction: Industrial Editorial × Expressive Consumer Finance.
+**Status: not approved.** The human reviewed the desktop and mobile contact sheets and did NOT approve the design probe. This document describes the current probe for reference only. It is not a locked design system, and nothing here should be treated as approved or propagated further until the human approves a revision. An earlier version of this file wrongly said "locked after probe approval"; that was incorrect and has been corrected.
 
-## Palette (owner-confirmed)
+Probe: `dev/design-probe` (fold + workspace), evidence in `docs/evidence/design-probe/`. Direction (human-stated): Industrial Editorial × Expressive Consumer Finance. Revision is targeted to the two probe surfaces; it is not authorization to rebuild the application.
+
+## Palette (owner-supplied, provisional)
 | Token | Value | Use |
 |---|---|---|
 | paper | #F4F3F0 | page background |
@@ -13,7 +15,7 @@ Probe: `dev/design-probe` (fold + workspace), evidence in `docs/evidence/design-
 
 Semantic states keep green/red/amber for pass/fail/unknown only — never decorative.
 
-## Type (SIL OFL, bundled via @fontsource — no runtime fetch)
+## Type (exploratory, not approved; SIL OFL, bundled via @fontsource — no runtime fetch)
 - Grotesk (UI + display): Space Grotesk Variable — `font-sans`.
 - Editorial accent: Instrument Serif 400 + italic — `font-serif`, display moments and receipt headers only.
 - Micro-labels: monospace, uppercase, tracking ~0.12–0.14em, 10–11px, ink/60.

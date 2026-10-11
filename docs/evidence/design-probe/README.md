@@ -1,5 +1,7 @@
 # Design probe evidence (dev/design-probe)
 
+**Status: probe NOT approved by the human.** These captures show the current draft for review and revision, not an approved design.
+
 Captured from the production build served locally (`next start`). Desktop 1440px (judging-video width) and mobile 390px. Zero horizontal overflow, no console/page errors at both widths.
 
 - `probe-landing-desktop-1440-full.png` — first fold + empty workspace, full page.

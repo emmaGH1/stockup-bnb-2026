@@ -225,3 +225,9 @@ Last updated: 2026-10-10 ~18:50 UTC (VPS clock). Branch `dev/foundation`. Latest
 - Propagated class-level only: receipt pair (white/ink panels, serif headers, mono micro-labels, parser highlight now vermilion/15), all workspace section headers to mono micro style, connect/verify buttons to ink outline, get-receipt/authorize to ink fill, review + receipt panels to 2px ink. Semantic green/red/amber kept for check states only. No logic, copy, API, wallet, or test changes.
 - Gates: typecheck OK; 86/86 tests; build OK. Evidence re-captured at 1440px + 390px (landing + populated workspace via read-only live check): zero overflow, no console/page errors. Contact sheets refreshed.
 - Stops held: no deploy, main untouched, repo private, nothing signed or sent.
+
+## Correction: design probe is NOT approved (dev/design-probe, 2026-10-11 VPS clock)
+- The human reviewed the desktop and mobile contact sheets and did NOT approve the design probe. The revision is targeted to the two probe surfaces and is not authorization to rebuild the application.
+- Earlier entries above that say "docs/DESIGN.md locked" or "design system propagation complete" are wrong in their implication. I misread "Begin implementation now" as approval after a stop instruction, locked docs/DESIGN.md, and propagated classes to the receipt pair and workspace (commits d6e43e6, d6f58ce). Those changes exist on dev/design-probe only. docs/DESIGN.md is now marked DRAFT, NOT APPROVED.
+- Last probe state the human actually reviewed: the contact sheets (propagated state, d6f58ce). Pre-propagation probe: 45a6e8e. Whether to revert propagation is awaiting the human's decision.
+- Unchanged: business logic, Binance integrations, API routes, wallet safeguards, tests. Not deployed, main untouched, repo private, nothing signed or sent.
