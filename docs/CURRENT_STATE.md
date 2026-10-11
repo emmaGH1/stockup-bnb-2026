@@ -246,3 +246,10 @@ Local only. Not pushed. Base `c2dc503`.
 - `docs/WALLET_TEST.md`: nine cases (detection, read without connecting, explicit connect, wrong network, account mismatch, quote expiry, review-versus-prompt, rejection, mobile layout), with stop conditions and evidence rules.
 - Checked against code: the complete JSON-RPC method list is `eth_accounts`, `eth_chainId`, `eth_requestAccounts`, `eth_sendTransaction`, `wallet_switchEthereumChain`; no signing methods exist; the UI strings and the 100 s rule match; the router address is the one in `swap.ts`.
 - Status: NOT EXECUTED. No real wallet has been tested. Mobile in-app browsers and EIP-6963 discovery are untested.
+
+### Update: security hardening proposal (dev/core-engineering)
+- `docs/SECURITY_HARDENING.md` written. Proposal only; nothing applied to `next.config.ts` or any route.
+- Verified by building and reading the HTML: the page has three inline `<script>` blocks that are Next.js bootstrap (`globalThis["TURBOPACK"]`, `self.__next_f`), so `'unsafe-inline'` for scripts is still needed until a nonce is wired in. The home page has 9 inline `style` attributes from React components, so style handling needs its own decision.
+- The bundled Next 16.4 docs name `proxy.ts` (not `middleware.ts`) as the nonce location. Recorded as the proposed file.
+- No rate limiting exists. Options and a proposed limit (30/min per IP on `/api/own` and `/api/plan`, 60/min on settle and receipt) are in the proposal, not applied; the store and the trusted IP header need a human decision.
+- Not verified: the nonce setup in a browser, and any live CSP violations.
