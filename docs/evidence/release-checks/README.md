@@ -1,6 +1,6 @@
 # Release-candidate checks (run from dev/design-probe on 2026-10-11 ~07:00-07:30 UTC VPS clock)
 
-Target: release candidate `dev/release-candidate` @ `901e2c1` (UI by the core agent), tested on a throwaway `git archive` copy under /tmp. Nothing was deployed; no transaction was signed or sent; the design is NOT approved by the human.
+Target: release candidate `dev/release-candidate` @ `901e2c1` (UI by the core agent), tested on a throwaway `git archive` copy under /tmp. Nothing was deployed; no transaction was signed or sent; the design (Revision 2) was formally approved by the human on 2026-10-11 ~07:49 UTC (VPS clock).
 
 ## Screenshots (390px, 2x then halved)
 - `auth-mobile-390-acknowledgements-rc-901e2c1.png` - the two confirmation warnings, "Connect wallet to authorize", the disabled Authorize button, and the "your wallet will show its own confirmation" note.

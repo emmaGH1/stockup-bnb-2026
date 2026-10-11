@@ -262,3 +262,9 @@ Last updated: 2026-10-10 ~18:50 UTC (VPS clock). Branch `dev/foundation`. Latest
 ## Final polish pass (dev/design-probe, 2026-10-11 ~07:50 UTC VPS clock) — design still NOT approved
 - Targeted fixes only: desktop scroll-to-result, guard-line contradiction in the not-eligible state, larger acknowledgement checkboxes, one connect button at a time around the review panel, notice and empty-receipt wording for typed purchases. No change to src/lib, API routes, dependencies, hero, palette or typography. Gates: typecheck OK; 107/107 tests; build OK. Evidence: docs/evidence/release-checks/.
 - Not done: owner sign-off; real-wallet test; reviewToken reload decision (docs/BLOCKERS.md). Nothing deployed, merged to main or submitted; no transaction sent.
+
+## APPROVAL RECORDED: UI Revision 2 is the final hackathon design baseline (2026-10-11 ~07:49 UTC (VPS clock))
+- The human formally approved Stockup UI Revision 2 (design-probe `a688418`) as the final hackathon design baseline. This supersedes every earlier "NOT approved" line in this file; those lines are kept as history.
+- Not covered by that approval, each still needing its own explicit approval: merge to `main`, public deployment or any production release, any transaction, making the repository public, the hackathon submission. `REVIEW_TOKEN_REQUIRED` stays off. The reviewToken reload limitation (docs/BLOCKERS.md) stays an open release issue.
+- Post-baseline commit `3861cdc` (targeted polish the human authorized) sits on top of `a688418`. It changed no hero, palette, typography or layout. As far as I know the human has not separately viewed it.
+- Handoff for the release integration agent: docs/HANDOFF_UI_TO_RELEASE.md.

@@ -1,6 +1,6 @@
-# Stockup 2.0 — design system (DRAFT, NOT APPROVED)
+# Stockup 2.0 — design system (APPROVED BASELINE: UI Revision 2)
 
-**Status: not approved.** The human reviewed the desktop and mobile contact sheets and did NOT approve the design probe. This document describes the current probe for reference only. It is not a locked design system, and nothing here should be treated as approved or propagated further until the human approves a revision. An earlier version of this file wrongly said "locked after probe approval"; that was incorrect and has been corrected.
+**Status: approved.** On 2026-10-11 ~07:49 UTC (VPS clock) the human formally approved Stockup UI Revision 2 (design-probe commit `a688418`) as the final hackathon design baseline. Earlier versions of this file said "not approved"; that was correct at the time and is superseded by this approval. Scope of the approval: the visual design shown in Revision 2. It does NOT approve a merge to `main`, a deployment, any transaction, making the repository public, or the hackathon submission; each of those still needs its own explicit approval. Small targeted fixes made after Revision 2 (commit `3861cdc`: desktop scroll-to-result, guard-line wording, larger acknowledgement checkboxes, one connect control near the review panel, typed-purchase wording) were requested separately and sit on top of the approved baseline; no hero, palette, typography or layout change was made in them.
 
 Probe: `dev/design-probe` (fold + workspace), evidence in `docs/evidence/design-probe/`. Direction (human-stated): Industrial Editorial × Expressive Consumer Finance. Revision is targeted to the two probe surfaces; it is not authorization to rebuild the application.
 
@@ -15,7 +15,7 @@ Probe: `dev/design-probe` (fold + workspace), evidence in `docs/evidence/design-
 
 Semantic states keep green/red/amber for pass/fail/unknown only — never decorative.
 
-## Type (exploratory, not approved; SIL OFL, bundled via @fontsource — no runtime fetch)
+## Type (SIL OFL, bundled via @fontsource — no runtime fetch)
 - Grotesk (UI + display): Space Grotesk Variable — `font-sans`.
 - Editorial accent: Instrument Serif 400 + italic — `font-serif`, display moments and receipt headers only.
 - Micro-labels: monospace, uppercase, tracking ~0.12–0.14em, 10–11px, ink/60.
