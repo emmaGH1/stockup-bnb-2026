@@ -39,6 +39,17 @@ describe('issueReceipt', () => {
     expect(b.ok).toBe(false); if (!b.ok) expect(b.reason).toMatch(/could not confirm/);
     expect((await issueReceipt(settled(), TOKEN, ctx, { ...deps, listing: async () => ({ ticker: 'AMZN', symbol: 'OTHER', multiplier: 1 }) })).ok).toBe(false);
   });
+  it('refuses a non-settled state even when it has enough confirmations (state guard tested on its own)', async () => {
+    const finalButNotSettled = [
+      { state: 'mismatch', txHash: '0x' + 'ab'.repeat(32), problems: ['x'] },
+      { state: 'reverted', txHash: '0x' + 'ab'.repeat(32), blockNumber: '100', detail: '' },
+    ] as unknown as Settlement[];
+    for (const s of finalButNotSettled) {
+      const r = await issueReceipt({ ...s, confirmations: 10 } as unknown as Settlement, TOKEN, ctx, deps);
+      expect(r.ok).toBe(false);
+      if (!r.ok) expect(r.reason).toMatch(/not settled/);
+    }
+  });
   it('uses the list multiplier and ticker, ignoring client-supplied values', async () => {
     const r = await issueReceipt(settled(), TOKEN, { ...ctx, ticker: 'FAKE', sharesPerToken: 999 }, { ...deps, listing: async () => ({ ticker: 'AMZN', symbol: 'AMZNon', multiplier: 2 }) });
     expect(r.ok && r.receipt.recordedByApp.ticker).toBe('AMZN'); expect(r.ok && r.receipt.exposure.sharesApprox).toBeCloseTo(0.038);

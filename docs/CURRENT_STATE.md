@@ -203,3 +203,8 @@ Local only. Not pushed. Base `c2dc503`.
 - `scripts/audit-live.mjs` now takes its mock account from `AUDIT_ACCOUNT` and no longer uses the fixed address `0x1234…7890` (holds real BNB on mainnet).
 - Gates: 88 tests pass; typecheck passes.
 - Still not pushed.
+
+### Update: receipt guard mutation check (dev/core-engineering, local)
+- Mutants on `issueReceipt`: removing the finality, listing, or symbol check each fails a test. Using the client's multiplier, or computing shares from the wrong field, also fails.
+- Removing only the settled-state guard is equivalent: `isFinal()` already requires `state === 'settled'`. Removing both guards and the finality check was a real gap; a new test (mismatch/reverted with 10 confirmations must be refused) now catches it.
+- Gates: 89 tests pass; typecheck passes. Not pushed.
