@@ -71,7 +71,7 @@ describe('workspace safety wording and gating', () => {
     const flat = (x: string) => x.replace(/\s+/g, ' ');
     const ws = flat(page.slice(page.indexOf('aria-label="Investment workspace"')));
     expect(ws).toMatch(/Development build/);
-    expect(ws).toMatch(/cannot verify it/);
+    expect(ws).toMatch(/cannot verify the purchase you type or paste/);
     expect(ws).toMatch(/there is no merchant cashback/);
     expect(ws).toMatch(/Nothing is a confirmed trade until on-chain settlement is verified/);
     expect(ws).toMatch(/Stockup never signs for you/);
@@ -91,5 +91,39 @@ describe('workspace safety wording and gating', () => {
 
   it('the reference-price comparison shows a magnitude with fewer/more, never a minus sign next to the word', () => {
     expect(ui).toMatch(/Math\.abs\(res\.quote\.vsReferenceBps\) \/ 100/);
+  });
+
+  it('the result scrolls into view on every screen size, and respects reduced motion', () => {
+    const start = ui.indexOf('const resultRef');
+    const effect = ui.slice(start, ui.indexOf('[res]);', start) + 7);
+    expect(effect).toMatch(/resultRef\.current\?\.scrollIntoView/);
+    expect(effect).toMatch(/prefers-reduced-motion/);
+    expect(effect).not.toMatch(/max-width/);
+  });
+
+  it('the development notice covers typed purchases, not only pasted receipts', () => {
+    const page = readFileSync('src/app/page.tsx', 'utf8').replace(/\s+/g, ' ');
+    expect(page).toMatch(/uses the merchant and amount exactly as you enter them/);
+    expect(page).not.toMatch(/reads the receipt text you paste/);
+  });
+  it('the empty receipt panel no longer tells a manual user to paste', () => {
+    const pp = readFileSync('src/components/paper-pair.tsx', 'utf8');
+    expect(pp).toMatch(/typing the purchase into the form works too/);
+    expect(pp).not.toMatch(/No receipt yet\. Paste text or use the sample/);
+  });
+  it('the guard line cannot contradict a blocked verdict (it speaks only about price impact and pool depth)', () => {
+    expect(ui).not.toMatch(/All pre-trade checks passed/);
+    expect(ui).toMatch(/Price impact and pool depth are within limits/);
+  });
+  it('both acknowledgement checkboxes are large, and each whole label is at least 44px tall', () => {
+    expect(ui.split('\n').filter(l => l.includes('type="checkbox"') && l.includes('size-6')).length).toBe(2);
+    expect((ui.match(/<label className="flex min-h-11 cursor-pointer items-start gap-3 py-1">/g) ?? []).length).toBe(2);
+  });
+  it('the form connect button is hidden only while the review panel shows its own connect button', () => {
+    expect(ui).toMatch(/const reviewConnectShown = !!\(res\?\.review && res\.plan\?\.tx\) && wallet\.status !== 'connected'/);
+    expect(ui).toMatch(/\{!reviewConnectShown && <button type="button" onClick=\{connect\}/);
+    // the wallet logic itself is untouched: one connect(), one sign(), authorize gating unchanged
+    expect((ui.match(/async function connect\(\)/g) ?? []).length).toBe(1);
+    expect(ui).toMatch(/disabled=\{!ack \|\| !confirm \|\| !!txHash \|\| wallet\.status !== 'connected'\}/);
   });
 });

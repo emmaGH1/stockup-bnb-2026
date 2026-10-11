@@ -144,9 +144,12 @@ export function OwnFlow() {
 
   const reviewRef = useRef<HTMLElement | null>(null);
   const resultRef = useRef<HTMLElement | null>(null);
-  // Phones: after a check, bring the investment result to the top instead of leaving the user below the form.
+  // After a check, bring the investment result into view on every screen size (it used to run on phones only).
+  // Users who prefer reduced motion get an instant jump instead of a smooth scroll.
   useEffect(() => {
-    if (res && window.matchMedia('(max-width: 767px)').matches) resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (!res) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    resultRef.current?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
   }, [res]);
 
   async function run(e: React.FormEvent) {
@@ -163,6 +166,8 @@ export function OwnFlow() {
   const paper = { res, txHash, settle, receipt };
   const issued = isIssued(paper);
   const quoteFresh = res?.checks?.find(c => c.id === 'quote_validity')?.detail;
+  // The review panel carries its own connect button next to Authorize. Hide the form's duplicate only while that one is on screen.
+  const reviewConnectShown = !!(res?.review && res.plan?.tx) && wallet.status !== 'connected';
   return (
     <div className="space-y-10">
     <div className="grid gap-8 md:grid-cols-[22rem_1fr] md:gap-10">
@@ -189,7 +194,7 @@ export function OwnFlow() {
           <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-ink/70">3 · Your wallet</p>
           <label className="block text-sm font-medium">Your BSC address (receives the stock)
             <input ref={recipientRef} className={`${field} font-mono`} placeholder="0x…" value={recipient} onChange={e => setRecipient(e.target.value)} /></label>
-          <button type="button" onClick={connect} className="min-h-11 w-full border border-ink px-4 text-sm">Connect my browser wallet</button>
+          {!reviewConnectShown && <button type="button" onClick={connect} className="min-h-11 w-full border border-ink px-4 text-sm">Connect my browser wallet</button>}
           <p role="status" className="text-xs text-neutral-600">{walletLine(wallet)}</p>
         </div>
         <button disabled={busy || !merchant.trim() || !(Number(spend) > 0)} className="min-h-12 w-full bg-vermilion px-4 py-3 text-base font-semibold text-ink disabled:opacity-50">
@@ -238,7 +243,7 @@ export function OwnFlow() {
             <section className="border-l-4 border-amber-600 bg-amber-50 p-4">
               <h2 className="text-sm font-semibold">{res.outcome === 'not_eligible' ? 'Not eligible to execute' : 'Investment held by the guard'}</h2>
               <ul className="mt-2 list-disc pl-5 text-sm">
-                {res.plan!.guard.allowed ? <li>All pre-trade checks passed; simulation {res.plan!.simulation.ok ? 'succeeded' : 'failed'}.</li>
+                {res.plan!.guard.allowed ? <li>Price impact and pool depth are within limits; simulation {res.plan!.simulation.ok ? 'succeeded' : 'failed'}.</li>
                   : res.plan!.guard.reasons.map(r => <li key={r}>{r}</li>)}
               </ul>
               <p className="mt-2 text-sm">{res.note}</p>
@@ -297,9 +302,9 @@ export function OwnFlow() {
                   <dt className="text-neutral-500">Calldata fingerprint</dt><dd className="font-mono text-xs">{res.review.calldataDigest}</dd>
                 </dl>
                 <div className="mt-4 space-y-2">
-                  <label className="flex items-start gap-2"><input type="checkbox" checked={ack} onChange={e => setAck(e.target.checked)} className="mt-1" />
+                  <label className="flex min-h-11 cursor-pointer items-start gap-3 py-1"><input type="checkbox" checked={ack} onChange={e => setAck(e.target.checked)} className="mt-0.5 size-6 shrink-0 cursor-pointer accent-ink" />
                     I reviewed the amounts and addresses above and I am authorizing this exact transaction.</label>
-                  <label className="flex items-start gap-2"><input type="checkbox" checked={confirm} onChange={e => setConfirm(e.target.checked)} className="mt-1" />
+                  <label className="flex min-h-11 cursor-pointer items-start gap-3 py-1"><input type="checkbox" checked={confirm} onChange={e => setConfirm(e.target.checked)} className="mt-0.5 size-6 shrink-0 cursor-pointer accent-ink" />
                     I understand this spends real BNB on BSC mainnet and cannot be undone.</label>
                   {wallet.status !== 'connected' && (
                     <div className="space-y-2">

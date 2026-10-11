@@ -52,8 +52,8 @@ export default function Home() {
           unsigned until your own wallet authorizes it.
         </p>
         <p role="note" className="mt-4 max-w-2xl border-l-4 border-vermilion bg-mist/50 p-3 text-[13px] leading-5 md:p-4 md:text-sm md:leading-6">
-          Development build. Stockup reads the receipt text you paste and cannot verify it. The investment is your
-          own money; there is no merchant cashback. Nothing is a confirmed trade until on-chain settlement is
+          Development build. Stockup cannot verify the purchase you type or paste, so it uses the merchant and
+          amount exactly as you enter them. The investment is your own money; there is no merchant cashback. Nothing is a confirmed trade until on-chain settlement is
           verified. Stockup never signs for you: a transaction is sent only after you authorize it in your own wallet.
         </p>
         <div className="mt-6 md:mt-8">

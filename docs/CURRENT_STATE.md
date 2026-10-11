@@ -258,3 +258,7 @@ Last updated: 2026-10-10 ~18:50 UTC (VPS clock). Branch `dev/foundation`. Latest
 - docs/evidence/release-checks/: mobile authorization screenshots, results table, limits. scripts/release-checks/: the three Playwright scripts used (mock wallet, placeholder address, never presses Authorize, never sends).
 - This branch itself: typecheck OK; 101/101 tests; production build OK (the release candidate has 186 tests because it includes the core agent's backend tests).
 - Design still NOT approved by the human. Nothing deployed, merged to main, or submitted. No transaction sent.
+
+## Final polish pass (dev/design-probe, 2026-10-11 ~07:50 UTC VPS clock) — design still NOT approved
+- Targeted fixes only: desktop scroll-to-result, guard-line contradiction in the not-eligible state, larger acknowledgement checkboxes, one connect button at a time around the review panel, notice and empty-receipt wording for typed purchases. No change to src/lib, API routes, dependencies, hero, palette or typography. Gates: typecheck OK; 107/107 tests; build OK. Evidence: docs/evidence/release-checks/.
+- Not done: owner sign-off; real-wallet test; reviewToken reload decision (docs/BLOCKERS.md). Nothing deployed, merged to main or submitted; no transaction sent.
