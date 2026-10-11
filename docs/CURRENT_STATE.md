@@ -219,3 +219,9 @@ Last updated: 2026-10-10 ~18:50 UTC (VPS clock). Branch `dev/foundation`. Latest
 
 ## Design probe evidence set (dev/design-probe, 2026-10-11 ~01:10 UTC VPS clock)
 - Re-captured at 1440px (judging-video width) + 390px: landing fold and populated workspace. Superseded 1280px captures removed from HEAD (history keeps them). Zero overflow, no errors at all four widths/2 viewports. Commit follows.
+
+## Design system propagation complete (dev/design-probe, 2026-10-11 ~01:15 UTC VPS clock)
+- docs/DESIGN.md locked: palette (paper/ink/mist/vermilion/white), Space Grotesk Variable + Instrument Serif (OFL, bundled), dotted-leader + square-station motif, component rules, reference provenance, standing slop-lint rules.
+- Propagated class-level only: receipt pair (white/ink panels, serif headers, mono micro-labels, parser highlight now vermilion/15), all workspace section headers to mono micro style, connect/verify buttons to ink outline, get-receipt/authorize to ink fill, review + receipt panels to 2px ink. Semantic green/red/amber kept for check states only. No logic, copy, API, wallet, or test changes.
+- Gates: typecheck OK; 86/86 tests; build OK. Evidence re-captured at 1440px + 390px (landing + populated workspace via read-only live check): zero overflow, no console/page errors. Contact sheets refreshed.
+- Stops held: no deploy, main untouched, repo private, nothing signed or sent.
