@@ -235,3 +235,9 @@ Local only. Not pushed. Base `c2dc503`.
 - `docs/JUDGE_FLOW.md` added: a six-section reproduction path. Each expected result was run against the live server before it was written down.
 - **Finding during verification:** the first judge-flow draft used `0x…dEaD` as a placeholder recipient and expected `not_eligible`. The command returned `ready_to_sign` with a transaction released. The burn address holds about 16.5 million BNB, and `0x…0001` holds 35 BNB. Both are funded. The draft was corrected to require an unfunded address and to warn against well-known addresses. The server behaved correctly; the draft's expectation was wrong.
 - Not done: no change to the server. A recipient check that rejects "well-known" addresses is not a sound safety rule and was not added.
+
+### Update: server-held review proposal (dev/core-engineering)
+- `docs/PROPOSAL_SERVER_REVIEW_STORE.md` written. Proposal only; nothing implemented.
+- Verified against code: `receiptId` is deterministic (same tx gives the same ID), the quote lifetime is 120 s, and the review carries `secondsLeft` and `calldataDigest`. The 15-minute review window is a proposed value for the human to confirm.
+- Needs the design agent for the request-shape change (`own-flow.tsx` sends `reviewId` instead of the full `settleParams`). Not edited by me.
+- Needs a human decision: signed token with a host secret (`REVIEW_HMAC_SECRET`) or a KV store (needs an account).
