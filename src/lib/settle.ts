@@ -28,6 +28,8 @@ export async function verifySettlement(hash: string, exp: SettleExpected, c: Pub
 
   const problems: string[] = [];
   if (!tx.to || getAddress(tx.to) !== ROUTER_V2) problems.push('transaction was not sent to the PancakeSwap V2 router');
+  // The app only authorizes from the connected account equal to the recipient (own-flow sign path). Anything else is not this user's swap.
+  if (getAddress(tx.from) !== getAddress(exp.recipient)) problems.push('transaction was not sent from the recipient\'s own wallet');
   if (tx.value !== exp.valueWei) problems.push(`value ${formatUnits(tx.value, 18)} BNB differs from the authorized ${formatUnits(exp.valueWei, 18)} BNB`);
   try {
     const d = decodeFunctionData({ abi: swapAbi, data: tx.input });

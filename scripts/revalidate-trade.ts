@@ -8,7 +8,9 @@ import { fetchTokenList } from '../src/lib/instruments';
 import { fetchMarketData } from '../src/lib/marketdata';
 
 const SERVER = process.env.SERVER ?? 'http://localhost:3240';
-const RECIPIENT = getAddress('0x1234567890123456789012345678901234567890');
+// The recipient must be the user's own wallet. No default: the old fixed test address holds real BNB on mainnet.
+if (!process.env.RECIPIENT) throw new Error('set RECIPIENT=<your own wallet address> (read-only; nothing is signed or sent)');
+const RECIPIENT = getAddress(process.env.RECIPIENT);
 const ROUTER = getAddress('0x10ED43C718714eb63d5aA57B78B54704E256024E');
 const WBNB = getAddress('0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c');
 const FACTORY = getAddress('0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73');

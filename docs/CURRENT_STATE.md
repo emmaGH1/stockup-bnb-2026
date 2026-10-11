@@ -183,3 +183,17 @@ Last updated: 2026-10-10 ~18:50 UTC (VPS clock). Branch `dev/foundation`. Latest
 - A previous agent session stopped because its model-gateway daily budget was exhausted. This is a billing limit on the provider side; the repo, tests and CI were unaffected.
 - Last commit de4afbe: CI passed; branch in sync with origin/dev/foundation.
 - Resumed work does not spend funds, sign, merge, deploy or submit.
+
+---
+
+## Core engineering update (branch `dev/core-engineering`, 2026-10-11 ~00:50 UTC)
+Local only. Not pushed. Base `c2dc503`.
+
+- **Gates:** typecheck passes; 87 tests pass (86 + 1 new: settlement from a non-recipient wallet is a mismatch); production build passes.
+- **Fix:** `verifySettlement` now requires `tx.from` to equal the recipient. Before, a swap sent by another wallet to a client-named recipient could be reported as settled and receive a receipt. The sign path already required the connected account to equal the recipient; the settlement check now enforces the same rule.
+- **Revalidation (read-only, live):** AMZNon is on the Binance BSC list, the on-chain symbol matches, calldata targets the V2 router and the recipient, the 120 s deadline is within policy, the simulation passes, and the Binance reference deviation is 17 bps. Impact is 15 bps excluding the fee and 40 bps including it. Estimated gas is about 0.0000104 BNB. The server returned `ready_to_sign`.
+- **Placeholder recipient problem:** the revalidation script's fixed recipient `0x1234…7890` holds 4.27 BNB on mainnet and has no code. Its "wallet funds: pass" result was against someone else's balance. The script now requires `RECIPIENT=<your own wallet>` and has no default.
+- **Not verified:** a real wallet extension or mobile wallet browser; any transaction send; Binance signed API (code 40304, not bypassed); Binance `baw` quote (NOT_LOGGED_IN); Binance Web3 trading fees.
+- **Open:** `/api/settle` and `/api/receipt` still take the expected value, minOut and recipient from the client. The UI passes them from the verified review. A server-side fix (storing the review server-side) is not done.
+- **Known limits (unchanged):** no rate limiting; `'unsafe-inline'` in the CSP; temporary Vercel preview has expired.
+- **Blockers needing a human:** approval for a capped real purchase; Binance sign-in if the official quote is wanted; confirming the hackathon's public-repo rule on the official page.

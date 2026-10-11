@@ -45,4 +45,10 @@ describe('verifySettlement', () => {
     expect(await m({ tx: { to: '0x000000000000000000000000000000000000dEaD', value: VALUE, input, from: ME } })).toMatch(/router/);
     expect(await m({ tx: { to: ROUTER_V2, value: 1n, input, from: ME } })).toMatch(/differs from the authorized/);
   });
+  it('mismatch: a swap sent from someone else\'s wallet is not reported as this user\'s settlement', async () => {
+    const OTHER = getAddress('0x000000000000000000000000000000000000bEEF');
+    const s = await verifySettlement(H, exp, fake({ tx: { to: ROUTER_V2, value: VALUE, input, from: OTHER } }));
+    expect(s.state).toBe('mismatch');
+    if (s.state === 'mismatch') expect(s.problems.join()).toMatch(/not sent from the recipient/);
+  });
 });
