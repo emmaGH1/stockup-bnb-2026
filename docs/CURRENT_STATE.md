@@ -352,3 +352,11 @@ Local only. Not pushed. Base `c2dc503`.
 - typecheck OK; 101/101 tests; production build OK.
 - scripts/audit-live.mjs against the local production build (1280/390 layout, console, network, four wallet scenarios; never clicks Authorize): no layout problems, no console errors, no failed or 4xx/5xx requests. No wallet: Authorize disabled. Wallet rejects connect: honest message, Authorize disabled. Wrong chain: Authorize disabled. Matching account on BSC: connected, Authorize disabled until both acknowledgements. Methods requested by the page: eth_requestAccounts and eth_chainId only; no unsafe method in any scenario.
 - Known gaps, not fixed: on desktop the page does not scroll to the investment result after a check (it scrolls on phones only), so the result card can sit above the viewport; the full-page screenshots were not all inspected by eye after the last changes (mobile review panel image was not viewed).
+
+### Update: release candidate integrated (release/stockup-candidate, local)
+- Merged `origin/dev/design-probe` (`a688418`) into the release branch. The only conflict was the append-only `docs/CURRENT_STATE.md`; both sides were kept in order. No UI file was edited by the backend agent.
+- Gates on the merged result: typecheck passes; 176 tests pass across 29 files; production build compiles.
+- Route smoke test (merged build, local): `/api/assets` and `/` return 200; `/api/own` rejects a bad body with 400; CSP and `X-Frame-Options: DENY` present.
+- Secret behaviour confirmed: with no `REVIEW_HMAC_SECRET` a token-bearing request returns a generic 500 (fails closed); with the host secret loaded a forged token is refused with 400 and a legacy request reaches the chain check.
+- **BLOCKER, unchanged:** the merged frontend does NOT yet send `reviewToken`. `own-flow.tsx` still posts only `settleParams` to `/api/settle` and `/api/receipt`, and does not read `reviewToken` from `/api/own`. The UI contract in `docs/UI_REQUEST_CONTRACT.md` is not implemented. `REVIEW_TOKEN_REQUIRED` must stay unset.
+- Not verified: a released (`ready_to_sign`) trade receiving a token live; a real wallet; the browser journey on the merged build.
