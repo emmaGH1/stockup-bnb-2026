@@ -241,3 +241,8 @@ Local only. Not pushed. Base `c2dc503`.
 - Verified against code: `receiptId` is deterministic (same tx gives the same ID), the quote lifetime is 120 s, and the review carries `secondsLeft` and `calldataDigest`. The 15-minute review window is a proposed value for the human to confirm.
 - Needs the design agent for the request-shape change (`own-flow.tsx` sends `reviewId` instead of the full `settleParams`). Not edited by me.
 - Needs a human decision: signed token with a host secret (`REVIEW_HMAC_SECRET`) or a KV store (needs an account).
+
+### Update: real-wallet test procedure written (dev/core-engineering)
+- `docs/WALLET_TEST.md`: nine cases (detection, read without connecting, explicit connect, wrong network, account mismatch, quote expiry, review-versus-prompt, rejection, mobile layout), with stop conditions and evidence rules.
+- Checked against code: the complete JSON-RPC method list is `eth_accounts`, `eth_chainId`, `eth_requestAccounts`, `eth_sendTransaction`, `wallet_switchEthereumChain`; no signing methods exist; the UI strings and the 100 s rule match; the router address is the one in `swap.ts`.
+- Status: NOT EXECUTED. No real wallet has been tested. Mobile in-app browsers and EIP-6963 discovery are untested.
