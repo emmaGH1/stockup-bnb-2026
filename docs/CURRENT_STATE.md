@@ -208,3 +208,10 @@ Local only. Not pushed. Base `c2dc503`.
 - Mutants on `issueReceipt`: removing the finality, listing, or symbol check each fails a test. Using the client's multiplier, or computing shares from the wrong field, also fails.
 - Removing only the settled-state guard is equivalent: `isFinal()` already requires `state === 'settled'`. Removing both guards and the finality check was a real gap; a new test (mismatch/reverted with 10 confirmations must be refused) now catches it.
 - Gates: 89 tests pass; typecheck passes. Not pushed.
+
+### Update: settlement and receipt input validation (dev/core-engineering)
+- New `src/lib/settle-input.ts` validates the body for `/api/settle` and `/api/receipt` before any chain read: tx hash shape, token and recipient addresses, and value, minOut and quote as non-negative decimal integers. Zero value or minOut is rejected. A minOut above the quote is rejected.
+- Both routes call the validator and return a 400 with the reason. The previous code used unchecked `BigInt()` parsing.
+- Tests: `test/settle-input.test.ts` (10 cases). A mutant that removes the minOut-versus-quote check fails a test.
+- Limit, unchanged: the expected values still come from the client, which sends them from the verified review. Validation rules out malformed or inconsistent values; it does not make the client trusted. The stronger fix is storing the verified review on the server, which is a design decision and not done.
+- Gates: 99 tests pass across 20 files; typecheck passes. No UI file changed.
