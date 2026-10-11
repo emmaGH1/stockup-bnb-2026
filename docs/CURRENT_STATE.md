@@ -276,3 +276,12 @@ Local only. Not pushed. Base `c2dc503`.
 - Live checks (unfunded recipient, outcome `not_eligible`): no secret gives `reviewBound: false`; with the host secret loaded also `reviewBound: false`, as expected, because no released trade exists to bind.
 - **NOT VERIFIED on the live server:** a released (`ready_to_sign`) trade that receives a token. That needs a funded recipient, which has not been tested and must not be used without approval. The route's released branch is covered by code review only.
 - Settle and receipt still run in legacy mode. `REVIEW_TOKEN_REQUIRED` is unset.
+
+### Update: settle and receipt check the signed expectation (dev/core-engineering)
+- `/api/settle` and `/api/receipt` now resolve their expectation through `expectationFor`. With a `reviewToken` the chain is checked against the signed values; a weaker browser minimum, a different wallet or a different token is refused before any chain read. Without a token: legacy mode unless `REVIEW_TOKEN_REQUIRED=1`.
+- A settled transaction stays verifiable after the review window: verification has no clock.
+- Tests: `test/routes-settlement.test.ts` (14 cases, calls the real route handlers with the settlement reader mocked). Mutant check: making settle ignore the token fails 6 of them.
+- Test-only: `vitest.config.ts` resolves the `@/` alias for tests; the build and tsconfig are unchanged.
+- Gates: typecheck passes; 161 tests pass across 27 files; production build compiles.
+- Live (secret loaded from the host file, dummy hash): a forged token is refused with `review token is invalid`, a malformed body with 400, and a legacy request reaches the on-chain check.
+- Not done: the UI does not send `reviewToken` yet, so the live product still runs in legacy mode. `REVIEW_TOKEN_REQUIRED` remains unset. The released-trade token path from `/api/own` is still unverified live.
