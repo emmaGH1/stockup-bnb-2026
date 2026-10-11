@@ -14,11 +14,11 @@ git clone <repo> stockup && cd stockup
 git checkout dev/core-engineering     # or the commit listed in docs/CURRENT_STATE.md
 npm ci
 npm run typecheck                     # expect: exit 0, no output
-npm test                              # expect: "Tests 144 passed"
+npm test                              # expect: "Tests 199 passed (31 files)"
 npm run build                         # expect: "Compiled successfully", routes listed
 ```
 
-What this proves: the code type-checks, the 105 unit tests pass, and it builds for production.
+What this proves: the code type-checks, the 199 tests pass across 31 files, and it builds for production.
 What it does not prove: anything about live chains or wallets.
 
 ## 2. Run the app and check the live pipeline (about 2 minutes)
@@ -89,7 +89,7 @@ npx vitest run test/claims.test.ts      # no success wording in the UI; no cashb
 
 - No real Stockup transaction has been sent. Settlement verification has been validated on a historical mainnet swap that Stockup did not make, and on no Stockup swap.
 - No ownership receipt for a Stockup trade exists.
-- A real wallet extension or mobile wallet browser has not been tested; the wallet path used a mock provider.
+- A real wallet connection has been reported in Mises Browser (Android) with Rabby, on BNB Smart Chain. No signature, transaction or balance check has been recorded from that device.
 
 These gaps are deliberate. The product will not claim them until the human approves a capped, real test (see `docs/MAINNET_TEST_PROCEDURE.md`).
 
