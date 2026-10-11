@@ -4,7 +4,7 @@ import { fetchMarketData, dexVsReferenceBps } from './marketdata';
 import { client } from './bsc';
 import { verifyAndDescribe } from './review';
 import { getAddress } from 'viem';
-import { checkMarketStatus, estimateFees, checkFees, checkQuoteValidity, checkWalletFunds, executionEligibility, type Check } from './checks';
+import { checkMarketStatus, estimateFees, checkFees, checkQuoteValidity, checkWalletFunds, executionEligibility, type Check, checkLabel } from './checks';
 import type { SecurityStatus } from './fixtures/w3w';
 import { identifyCompany, type Identification } from './company';
 import { bnbUsd } from './bnbprice';
@@ -86,6 +86,6 @@ export async function spendToOwn(req: OwnRequest) {
     outcome: review ? 'ready_to_sign' as const : reviewProblems.length ? 'not_eligible' as const : plan.guard.allowed ? 'not_eligible' as const : 'held' as const,
     note: review ? 'All checks passed and the transaction was decoded and verified. Review it, then authorize in your wallet.'
       : reviewProblems.length ? `Transaction failed verification: ${reviewProblems.join('; ')}. Nothing was sent.`
-      : plan.guard.allowed ? `Blocked by checks: ${[...eligibility.blockedBy, ...eligibility.unknown.map(u => `${u} (unknown)`)].join(', ')}. Nothing was sent.`
+      : plan.guard.allowed ? `Blocked by checks: ${[...eligibility.blockedBy.map(checkLabel), ...eligibility.unknown.map(u => `${checkLabel(u)} (unknown)`)].join(', ')}. Nothing was sent.`
       : 'Guard blocked the investment. Your own funds were not touched. Nothing was sent.' };
 }

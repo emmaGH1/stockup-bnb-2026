@@ -61,3 +61,14 @@ export function executionEligibility(checks: Check[]): Eligibility {
   const req = checks.filter(c => c.required);
   return { eligible: req.every(c => c.state === 'pass'), blockedBy: req.filter(c => c.state === 'fail').map(c => c.id), unknown: req.filter(c => c.state === 'unknown').map(c => c.id) };
 }
+
+/** Plain-language name for a check id. Internal ids must never reach a user-facing note or receipt. */
+const CHECK_LABELS: Record<string, string> = {
+  market_status: 'market status',
+  route: 'trading route',
+  wallet_funds: 'wallet funds',
+  quote_validity: 'quote freshness',
+  guard: 'price impact and pool depth',
+  fees: 'fees',
+};
+export function checkLabel(id: string): string { return CHECK_LABELS[id] ?? id.replace(/_/g, ' '); }

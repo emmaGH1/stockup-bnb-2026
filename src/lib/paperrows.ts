@@ -1,3 +1,4 @@
+import { checkLabel } from './checks';
 // Pure model behind the receipt-to-ownership-receipt interface. Each ownership row is 'waiting' until the fact is PROVEN
 // by real data; 'issued' requires a verified receipt from /api/receipt. No decorative success states.
 export type RowState = 'done' | 'blocked' | 'waiting';
@@ -32,7 +33,7 @@ export function ownershipRows(i: PaperInput): PaperRow[] {
     : { key: 'invest', label: 'Planned, own funds', state: 'waiting', value: '' });
   rows.push(!r?.eligibility ? { key: 'checks', label: 'Checks', state: 'waiting', value: '' }
     : r.eligibility.eligible ? { key: 'checks', label: 'Checks', state: 'done', value: 'all required passed' }
-    : { key: 'checks', label: 'Checks', state: 'blocked', value: [...r.eligibility.blockedBy, ...r.eligibility.unknown.map(u => `${u}?`)].join(', ') || 'not eligible' });
+    : { key: 'checks', label: 'Checks', state: 'blocked', value: [...r.eligibility.blockedBy.map(checkLabel), ...r.eligibility.unknown.map(u => `${checkLabel(u)} (unknown)`)].join(', ') || 'not eligible' });
   rows.push(i.txHash ? { key: 'auth', label: 'Submitted', state: 'done', value: `${short(i.txHash)} (not confirmed)` } : { key: 'auth', label: 'Submitted', state: 'waiting', value: '' });
   const s = i.settle;
   rows.push(!s ? { key: 'settle', label: 'Settlement', state: 'waiting', value: '' }
