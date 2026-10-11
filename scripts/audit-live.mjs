@@ -37,7 +37,7 @@ const results = [];
 // 1) Layout + console + network at desktop and mobile, no wallet present
 for (const [name, width] of [['desktop', 1280], ['mobile', 390]]) {
   const s = await session(name, { width });
-  await s.p.getByText('Use a sample').click();
+  await s.p.getByText('Optional: paste a receipt').click(); await s.p.getByText('Use a sample').click();
   await s.p.getByRole('button', { name: 'Read receipt' }).click();
   await s.p.getByPlaceholder('0x…').fill(RECIPIENT);
   await s.p.getByRole('button', { name: /Check and prepare my investment/ }).click();
@@ -63,7 +63,7 @@ const scenarios = [
 ];
 for (const [label, prov] of scenarios) {
   const s = await session(label, { width: 1280, provider: prov });
-  await s.p.getByText('Use a sample').click(); await s.p.getByRole('button', { name: 'Read receipt' }).click();
+  await s.p.getByText('Optional: paste a receipt').click(); await s.p.getByText('Use a sample').click(); await s.p.getByRole('button', { name: 'Read receipt' }).click();
   await s.p.getByPlaceholder('0x…').fill(RECIPIENT);
   await s.p.getByRole('button', { name: /Check and prepare my investment/ }).click();
   await s.p.waitForSelector('text=Execution eligibility', { timeout: 120000 });

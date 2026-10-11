@@ -285,3 +285,70 @@ Local only. Not pushed. Base `c2dc503`.
 - Gates: typecheck passes; 161 tests pass across 27 files; production build compiles.
 - Live (secret loaded from the host file, dummy hash): a forged token is refused with `review token is invalid`, a malformed body with 400, and a legacy request reaches the on-chain check.
 - Not done: the UI does not send `reviewToken` yet, so the live product still runs in legacy mode. `REVIEW_TOKEN_REQUIRED` remains unset. The released-trade token path from `/api/own` is still unverified live.
+
+## Design probe (dev/design-probe, 2026-10-11 ~00:30 UTC VPS clock)
+- Branch `dev/design-probe` (feature branch; `main` untouched; not merged).
+- Scope: first fold (product statement on a 12-column grid) and the investment workspace restyled with provisional tokens (paper #F4F3F0, ink #171917, mist #DADBD6, vermilion #F26438). Workspace logic, Binance integrations, wallet checks and API routes are unchanged.
+- Copy changed on the fold: headline now states the product definition, not receipt scanning. The footer no longer says the page never sends a transaction; it says a transaction is sent only after the user authorizes it in their own wallet.
+- Gates: typecheck OK; 86/86 tests pass; production build OK.
+- Browser: desktop 1280px and mobile 390px, no horizontal overflow, no console or page errors. Screenshots show the first fold only: docs/evidence/design-probe/.
+- NOT done: propagation of the design to other screens; the workspace below the fold was not screenshotted. Awaiting human visual approval before any propagation.
+- No funds spent, nothing deployed, repo still private, nothing merged or submitted.
+
+## Design probe v2 (dev/design-probe, 2026-10-11 ~00:55 UTC VPS clock)
+- Approved direction implemented as a probe: Industrial Editorial x Expressive Consumer Finance. Palette tokens as given: paper #F4F3F0, ink #171917, mist #DADBD6, vermilion #F26438 (+white). NOT propagated beyond the two probe surfaces (STOP GATE: awaiting human approval).
+- First fold: numbered grid modules (01 What Stockup does / 02 Investment workspace), Archivo headline with a Source Serif 4 italic accent, vermilion CTA ("Run the investment check"), original SVG flow diagram (spending event -> your own-funds allocation -> tokenized stock), mono micro-labels. Label/arrow collision in the diagram found on screenshots and fixed.
+- Fonts: @fontsource-variable/archivo + @fontsource/source-serif-4, SIL OFL 1.1, bundled locally, no runtime fetch.
+- Workspace: composition pass only (ruled white panels, mono legends, sticky form on desktop). All strings, logic, API routes, wallet checks unchanged.
+- Evidence: docs/evidence/design-probe/probe-{desktop-1280,mobile-390}-full.png (full page, 1280px / 390px). No horizontal overflow, no console/page errors, #invest anchor present.
+- AI-slop lint (playbook 4.5G): no gradients, no blue/purple defaults, no status pills, no fake live indicators, no fabricated metrics (diagram 5% = real default input; AMZNon labeled example), no card-everything.
+- Gates: typecheck OK; 86/86 tests; production build OK. No funds spent, nothing deployed, repo private, main untouched.
+- Reference provenance (playbook 4.5E), per DESIGN_REFERENCES.md: 01 grid/markers/numbered modules (not their brand/robot imagery); 04 product-as-hero staging adapted to the flow diagram (no scooter); 06 grotesk+serif pairing via OFL fonts (no ID Grotesk/Times binaries); 03 data readability as guardrail only (their fabricated stats rejected); 05 principle: dotted-leader + square-marker motif reusable site-wide (no purple 3D forms); 02 one-accent restraint (vermilion only); 07 poster type deliberately unused so far.
+
+## Design probe v3 (dev/design-probe, 2026-10-11 ~01:05 UTC VPS clock)
+- Scope held to exactly two surfaces: first fold + investment workspace. Everything else untouched.
+- Type exploration: Space Grotesk Variable + Instrument Serif (both SIL OFL, bundled via @fontsource). Previous variant (Archivo + Source Serif 4) remains on commit ff3f3a9 for comparison. Both font packages installed during exploration; the rejected one will be removed at lock-in.
+- Shopping<->exposure link made explicit: diagram receipt shows merchant AMAZON; token card reads "AMZNon / AMAZON · CHECKED"; fold sub-copy uses the owner's product sentence (spending decisions -> user-funded investments in tokenized stocks) plus the verification clause.
+- Constraints enforced: receipts are an input method, not the central motif (identity carried by the shopping->allocation->exposure diagram and copy); no gradients, no rounded-card stacks, no fabricated metrics, no decorative crypto graphics.
+- Gates: typecheck OK; 86/86 tests; build OK; full-page captures at 1280px/390px with zero horizontal overflow and no console/page errors.
+- STOP GATE: awaiting human approval. Not deployed; main untouched; repo private.
+
+## Design probe verification + delivery (dev/design-probe, 2026-10-11 ~01:10 UTC VPS clock)
+- Both probe surfaces are implemented running screens, verified in headless Chromium against the production build with a read-only live check (nothing signed or sent; no wallet connected; Authorize stayed disabled).
+- Populated-workspace evidence captured at 1280px and 390px: identification, instrument+listing checks, live Binance market data, PancakeSwap quote vs reference, all six execution checks with sources, decoded review panel, allocation summary, guard verdict. Zero overflow, no console/page errors.
+- Gates re-run: typecheck OK; 86/86 tests; production build OK.
+- Evidence: docs/evidence/design-probe/ (README describes conditions honestly). Commit on dev/design-probe; main untouched; not deployed; repo private.
+
+## Design probe evidence set (dev/design-probe, 2026-10-11 ~01:10 UTC VPS clock)
+- Re-captured at 1440px (judging-video width) + 390px: landing fold and populated workspace. Superseded 1280px captures removed from HEAD (history keeps them). Zero overflow, no errors at all four widths/2 viewports. Commit follows.
+
+## Design system propagation complete (dev/design-probe, 2026-10-11 ~01:15 UTC VPS clock)
+- docs/DESIGN.md locked: palette (paper/ink/mist/vermilion/white), Space Grotesk Variable + Instrument Serif (OFL, bundled), dotted-leader + square-station motif, component rules, reference provenance, standing slop-lint rules.
+- Propagated class-level only: receipt pair (white/ink panels, serif headers, mono micro-labels, parser highlight now vermilion/15), all workspace section headers to mono micro style, connect/verify buttons to ink outline, get-receipt/authorize to ink fill, review + receipt panels to 2px ink. Semantic green/red/amber kept for check states only. No logic, copy, API, wallet, or test changes.
+- Gates: typecheck OK; 86/86 tests; build OK. Evidence re-captured at 1440px + 390px (landing + populated workspace via read-only live check): zero overflow, no console/page errors. Contact sheets refreshed.
+- Stops held: no deploy, main untouched, repo private, nothing signed or sent.
+
+## Correction: design probe is NOT approved (dev/design-probe, 2026-10-11 VPS clock)
+- The human reviewed the desktop and mobile contact sheets and did NOT approve the design probe. The revision is targeted to the two probe surfaces and is not authorization to rebuild the application.
+- Earlier entries above that say "docs/DESIGN.md locked" or "design system propagation complete" are wrong in their implication. I misread "Begin implementation now" as approval after a stop instruction, locked docs/DESIGN.md, and propagated classes to the receipt pair and workspace (commits d6e43e6, d6f58ce). Those changes exist on dev/design-probe only. docs/DESIGN.md is now marked DRAFT, NOT APPROVED.
+- Last probe state the human actually reviewed: the contact sheets (propagated state, d6f58ce). Pre-propagation probe: 45a6e8e. Whether to revert propagation is awaiting the human's decision.
+- Unchanged: business logic, Binance integrations, API routes, wallet safeguards, tests. Not deployed, main untouched, repo private, nothing signed or sent.
+
+## Hero revision checkpoint (dev/design-probe, NOT approved by the human)
+- Hero: large ink-stage commerce-to-investment scene (src/components/hero-stage.tsx, replaces hero-strip). Example only: Amazon purchase $100, proposed $5 (5%) of the user's own funds, AMZNon shown as PLANNED until BNB Chain confirms. No holdings, no detection, no cashback implied.
+- Headline "Shop the brands. Build a stake." (human-supplied). Subheading states the MVP: record a purchase, fund a slice, review quote and safeguards before the wallet approves a swap.
+- CTA "Try the Amazon example" (#invest-example) prefills the sample purchase and scrolls to the workspace. Fills fields only; test/example-prefill.test.ts asserts no fetch, no wallet call. Verified in headless Chromium at 1440 and 390: fields filled, 0 API calls, 0 wallet calls.
+- Gates: typecheck OK; 88/88 tests; build OK. Workspace reorganization not started; awaiting the human's full list.
+
+## Revision 2 of the design probe (dev/design-probe, 2026-10-11 ~04:00 UTC VPS clock) — NOT approved
+- Hero: large ink-stage commerce-to-investment scene (src/components/hero-stage.tsx). Example only: Amazon purchase $100, proposed $5 (5%) of the user's own funds, AMZNon PLANNED until BNB Chain confirms. The connector between shop and token has no arrowhead and the page says "Shopping never buys stock by itself." Headline "Shop the brands. Build a stake." (human-supplied). Primary CTA "Try the Amazon example" prefills the sample and scrolls to the workspace; fills fields only, no API call, no wallet request (test/example-prefill.test.ts).
+- Workspace: result-first. Company quick-picks (fill the merchant field only, no availability claims), manual merchant/amount primary, optional collapsed receipt paste, one prominent "Proposed investment · not executed" result card, plain-language verdict line, blocked/unknown checks repeated in the card. Receipt trail moved to a collapsed section. Technical detail (token contract, pool liquidity, BNB/USD, market data, check sources) is in collapsed sections, but amounts, fees, price impact, every safeguard and the full review-before-authorize panel remain visible. Ownership receipt button is disabled until settlement is verified.
+- Mobile: result scrolls into view after a check; "Connect wallet to authorize" sits directly above the Authorize button; tap targets >= 44px for form actions.
+- Unchanged by construction: execution engine, API routes, dependencies, handlers (run, sign, connect, checkSettlement, getReceipt), authorize gating, quote-age guard, account/chain checks. git diff since the status-correction commit touches no file under src/lib (except the new constant list quickpicks.ts) or src/app/api, and not package.json.
+- Verification: typecheck OK; 101/101 tests; production build OK; headless Chromium at 1440 and 390 on the production build: all six workspace sections present, zero overflow, no console errors, Authorize disabled, zero wallet requests, zero transactions.
+- Known limits: not reviewed by the human; the known-good deployment is untouched; nothing deployed; main untouched; repo private. Receipt-trail and some collapsed sections are only partly exercised after a settled trade because no Stockup trade has executed.
+
+## Verification pass on d98d98f (dev/design-probe, 2026-10-11 ~04:05 UTC VPS clock) — design still NOT approved
+- typecheck OK; 101/101 tests; production build OK.
+- scripts/audit-live.mjs against the local production build (1280/390 layout, console, network, four wallet scenarios; never clicks Authorize): no layout problems, no console errors, no failed or 4xx/5xx requests. No wallet: Authorize disabled. Wallet rejects connect: honest message, Authorize disabled. Wrong chain: Authorize disabled. Matching account on BSC: connected, Authorize disabled until both acknowledgements. Methods requested by the page: eth_requestAccounts and eth_chainId only; no unsafe method in any scenario.
+- Known gaps, not fixed: on desktop the page does not scroll to the investment result after a check (it scrolls on phones only), so the result card can sit above the viewport; the full-page screenshots were not all inspected by eye after the last changes (mobile review panel image was not viewed).

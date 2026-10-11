@@ -11,6 +11,11 @@ Name: "STOCKUP 2.0 - SPEND TO OWN". Anything below beyond these two statements (
 3. Never claim a trade succeeded unless settlement was independently verified from the chain.
 These are enforced by `test/claims.test.ts`.
 
+## Product truth: vision versus current MVP (from the human, 2026-10-11)
+- **Long-term vision (NOT built, NOT to be claimed):** convert merchant cashback or rewards into tokenized-stock exposure.
+- **Current MVP:** no real merchant cashback and no automatic purchase detection. The spending event is typed or pasted by the user, and the investment is the user's own money.
+- Consequence for copy and design: the interface, hero and demo must not imply cashback, rewards, automatic detection or linked cards. The vision may be described only in docs, as future direction.
+
 ## Human product definition (verbatim)
 > Stockup is a consumer fintech application that connects everyday purchases to investments in tokenized shares of the companies people shop with.
 

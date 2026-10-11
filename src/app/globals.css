@@ -1,1 +1,13 @@
 @import "tailwindcss";
+
+/* Approved probe direction: paper/ink/mist + vermilion accent; grotesk UI with editorial serif accents.
+   Fonts bundled locally via @fontsource, SIL OFL 1.1. Revisit after probe review. */
+@theme {
+  --color-paper: #F4F3F0;
+  --color-ink: #171917;
+  --color-mist: #DADBD6;
+  --color-vermilion: #F26438;
+  --color-white: #FFFFFF;
+  --font-sans: "Space Grotesk Variable", ui-sans-serif, system-ui, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+}
