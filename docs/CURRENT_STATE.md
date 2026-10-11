@@ -216,3 +216,6 @@ Last updated: 2026-10-10 ~18:50 UTC (VPS clock). Branch `dev/foundation`. Latest
 - Populated-workspace evidence captured at 1280px and 390px: identification, instrument+listing checks, live Binance market data, PancakeSwap quote vs reference, all six execution checks with sources, decoded review panel, allocation summary, guard verdict. Zero overflow, no console/page errors.
 - Gates re-run: typecheck OK; 86/86 tests; production build OK.
 - Evidence: docs/evidence/design-probe/ (README describes conditions honestly). Commit on dev/design-probe; main untouched; not deployed; repo private.
+
+## Design probe evidence set (dev/design-probe, 2026-10-11 ~01:10 UTC VPS clock)
+- Re-captured at 1440px (judging-video width) + 390px: landing fold and populated workspace. Superseded 1280px captures removed from HEAD (history keeps them). Zero overflow, no errors at all four widths/2 viewports. Commit follows.
