@@ -88,4 +88,8 @@ describe('workspace safety wording and gating', () => {
     expect(hero).not.toMatch(/M 377 224 L 385 230/);
     expect(hero).not.toMatch(/M 164 307 L 170 315/);
   });
+
+  it('the reference-price comparison shows a magnitude with fewer/more, never a minus sign next to the word', () => {
+    expect(ui).toMatch(/Math\.abs\(res\.quote\.vsReferenceBps\) \/ 100/);
+  });
 });

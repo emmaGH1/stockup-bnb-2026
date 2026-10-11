@@ -1,11 +1,10 @@
-# Design probe evidence (dev/design-probe)
+# Design probe evidence (dev/design-probe) — revision 2
 
-**Status: probe NOT approved by the human.** These captures show the current draft for review and revision, not an approved design.
+**Status: NOT approved by the human.** These captures show the revised draft for review.
 
-Captured from the production build served locally (`next start`). Desktop 1440px (judging-video width) and mobile 390px. Zero horizontal overflow, no console/page errors at both widths.
+Captured from the production build served locally (`next start`), 1440px desktop and 390px mobile. Zero horizontal overflow, no console or page errors.
 
-- `probe-landing-desktop-1440-full.png` — first fold + empty workspace, full page.
-- `probe-landing-mobile-390-full.png` — same at 390px.
-- `probe-workspace-desktop-1440-full.png` — workspace populated by a READ-ONLY live check (`POST /api/own`): BSC reads, Binance public data, PancakeSwap quote + `eth_call`. Nothing signed or sent; no wallet connected; Authorize stayed disabled. Recipient is the placeholder `0x…0001`; the wallet-funds check read its real mainnet balance.
-- `probe-workspace-mobile-390-full.png` — same at 390px.
-- Live values (AMZNon $262.30, quote 0.019050, pool 4.365 BNB) are real mainnet data at capture time (~01:08 UTC 2026-10-11) and will drift.
+- `revision2-fold-desktop-1440.png`, `revision2-fold-mobile-390.png`, `revision2-contact-sheet-fold.png` — first fold. Example only: Amazon purchase $100, proposed $5 (5%) of the user's own funds, AMZNon shown as PLANNED.
+- `revision2-workspace-desktop-1440-full.png`, `revision2-workspace-mobile-390-full.png` — workspace after the example CTA and a READ-ONLY live check (`POST /api/own`: BSC reads, Binance public data, PancakeSwap quote + `eth_call`). Nothing signed or sent. A placeholder recipient `0x…0001` was typed; no wallet extension was connected; Authorize stayed disabled; zero wallet requests were made.
+- Live values (AMZNon price, quote, balance of the placeholder address) are real mainnet reads at capture time (~03:55 UTC 2026-10-11) and will drift.
+- Earlier first-revision captures were removed from HEAD; git history keeps them.

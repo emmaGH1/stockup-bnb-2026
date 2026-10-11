@@ -264,7 +264,7 @@ export function OwnFlow() {
               <section aria-label="Executable quote" className="border-b pb-4 text-sm">
                 <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-ink/60">Executable quote</h2>
                 <p className="mt-1">PancakeSwap on-chain quote (amounts in the result above): simulation {res.quote.dex.simulated ? 'passed' : 'not run or failed'}.
-                  {res.quote.vsReferenceBps != null && ` Versus Binance reference price: ${(res.quote.vsReferenceBps / 100).toFixed(2)}% ${res.quote.vsReferenceBps >= 0 ? 'fewer' : 'more'} tokens.`}</p>
+                  {res.quote.vsReferenceBps != null && ` Versus Binance reference price: ${(Math.abs(res.quote.vsReferenceBps) / 100).toFixed(2)}% ${res.quote.vsReferenceBps >= 0 ? 'fewer' : 'more'} tokens.`}</p>
                 <p className="mt-1 text-neutral-600">Binance swap quote: {res.quote.binance.available ? 'available' : `not available. ${res.quote.binance.reason}`}</p>
               </section>)}
             {res.checks && (
