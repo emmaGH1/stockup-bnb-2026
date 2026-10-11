@@ -229,3 +229,9 @@ Local only. Not pushed. Base `c2dc503`.
 - Regression guard `test/public-rwa-boundary.test.ts`: fails if runtime code imports the signed client (a mutant adding that import was caught), and checks that the public endpoints remain configured and carry no API-key headers.
 - `src/lib/status.ts` imports `./fixtures/w3w`, a fixture module, not the signed client. The guard matches only `src/lib/w3w` by design.
 - Gates: typecheck passes; test count recorded in the commit message.
+
+### Update: README, judge flow and architecture rewritten from the code (dev/core-engineering)
+- `README.md` rewritten: verified claims with the command that reproduces each one, a "not verified" list, known limits, and the repository map. The old text (4 tests, provisional shell) is gone.
+- `docs/JUDGE_FLOW.md` added: a six-section reproduction path. Each expected result was run against the live server before it was written down.
+- **Finding during verification:** the first judge-flow draft used `0x…dEaD` as a placeholder recipient and expected `not_eligible`. The command returned `ready_to_sign` with a transaction released. The burn address holds about 16.5 million BNB, and `0x…0001` holds 35 BNB. Both are funded. The draft was corrected to require an unfunded address and to warn against well-known addresses. The server behaved correctly; the draft's expectation was wrong.
+- Not done: no change to the server. A recipient check that rejects "well-known" addresses is not a sound safety rule and was not added.
