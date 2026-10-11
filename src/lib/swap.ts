@@ -33,6 +33,17 @@ export async function planBnbBuy(token: string, bnbIn: bigint, recipient: string
   return { to: ROUTER_V2, data, value: bnbIn, quotedOut, minOut, path, slippageBps };
 }
 
+/** Pure: impact including the 0.25% V2 pool fee, measured against the fee-free spot output. Always >= impactBps. */
+export function impactIncludingFeeBps(amountIn: bigint, reserveIn: bigint, reserveOut: bigint, feeBps = 25n): number {
+  if (reserveIn <= 0n || reserveOut <= 0n || amountIn <= 0n) return 10_000;
+  // spot out = amountIn * reserveOut / reserveIn; actual V2 out = amountInWithFee * reserveOut / (reserveIn*10000 + amountInWithFee)
+  const spotOut = (amountIn * reserveOut) / reserveIn;
+  const inWithFee = amountIn * (10_000n - feeBps);
+  const actualOut = (inWithFee * reserveOut) / (reserveIn * 10_000n + inWithFee);
+  if (spotOut <= 0n) return 10_000;
+  return Number(((spotOut - actualOut) * 10_000n) / spotOut);
+}
+
 /** No-spend simulation via eth_call with a state override that funds `from`. Proves the calldata executes against live state. */
 export async function simulate(plan: SwapPlan, from: string, c = client()) {
   const res = await c.call({

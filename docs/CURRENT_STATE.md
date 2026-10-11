@@ -215,3 +215,10 @@ Local only. Not pushed. Base `c2dc503`.
 - Tests: `test/settle-input.test.ts` (10 cases). A mutant that removes the minOut-versus-quote check fails a test.
 - Limit, unchanged: the expected values still come from the client, which sends them from the verified review. Validation rules out malformed or inconsistent values; it does not make the client trusted. The stronger fix is storing the verified review on the server, which is a design decision and not done.
 - Gates: 99 tests pass across 20 files; typecheck passes. No UI file changed.
+
+### Update: transaction-path review and fee-inclusive price impact (dev/core-engineering)
+- Probed the transaction path before changing it: the gas reserve scales with a high gas price (fails correctly at 50 gwei); the quote expiry boundary is exact (120 s passes, 120.001 s fails); impact and guard math are correct. No critical defect found in the wallet, quote, or guard logic.
+- Added `impactIncludingFeeBps` (V2 0.25% fee, measured against fee-free spot). On live reserves: fee-free 15 bps, fee-inclusive 40 bps, router's actual output 40 bps below spot. The two match.
+- `/api/plan` returns the new field `impactIncludingFeeBps` alongside the unchanged `impactBps`. The guard still uses the fee-free figure, so no decision changed.
+- Not done, needs the design agent: the UI labels `impactBps` as "Price impact"; it should show the fee-inclusive figure or label both. This is a proposal for `own-flow.tsx`, not an edit I made.
+- Tests: `test/impact.test.ts` (4 cases). Gates: 103 tests across 21 files pass; typecheck passes.

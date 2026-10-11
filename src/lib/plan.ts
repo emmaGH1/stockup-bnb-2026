@@ -2,7 +2,7 @@ import { getAddress, isAddress, parseEther, parseAbi, formatUnits } from 'viem';
 import { client } from './bsc';
 import type { SecurityStatus } from './fixtures/w3w';
 import { evaluateGuard } from './guard';
-import { planBnbBuy, simulate, impactBps, WBNB } from './swap';
+import { planBnbBuy, simulate, impactBps, impactIncludingFeeBps, WBNB } from './swap';
 
 async function estimateGas(plan: { to: `0x${string}`; data: `0x${string}`; value: bigint }, from: string, c: ReturnType<typeof client>): Promise<bigint | null> {
   try { return await c.estimateGas({ account: getAddress(from), to: plan.to, data: plan.data, value: plan.value, stateOverride: [{ address: getAddress(from), balance: plan.value + 10n ** 18n }] }); }
@@ -46,7 +46,8 @@ export async function buildPlan(req: PlanRequest) {
     minOutWei: plan.minOut.toString(), valueWei: plan.value.toString(), quotedOutWei: plan.quotedOut.toString(),
     quotedAtMs: Date.now(), gasUnits: gas?.toString() ?? null,
     asset: asset.symbol, tokenAddress: asset.address, pair, pairLiquidityBnb: Number(formatUnits(reserveBnb, 18)),
-    quotedOut: formatUnits(plan.quotedOut, 18), minOut: formatUnits(plan.minOut, 18), impactBps: impact, slippageBps: plan.slippageBps,
+    quotedOut: formatUnits(plan.quotedOut, 18), minOut: formatUnits(plan.minOut, 18), impactBps: impact,
+    impactIncludingFeeBps: impactIncludingFeeBps(bnbIn, reserveBnb, reserveTok), slippageBps: plan.slippageBps,
     guard, simulation,
     // Unsigned tx for the USER'S wallet to sign. Only offered when guard passed and simulation succeeded.
     tx: guard.allowed && simulation.ok ? { to: plan.to, data: plan.data, value: '0x' + plan.value.toString(16), chainId: 56 } : null,
