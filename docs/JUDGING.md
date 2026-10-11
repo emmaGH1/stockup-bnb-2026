@@ -5,6 +5,6 @@
 | Depth of W3W API + agentic skill use | 25% | many endpoints, off-market state handling |
 | Technical implementation / code quality | 20% | src/ docs/ scripts/, docker-compose, .env.example, MIT |
 | Design, UX, architecture docs | 15% | Mermaid diagrams, clean flow |
-| On-chain BSC execution | 15% | >=2 verified BSC txs during window (needs human approval to spend) |
+| On-chain BSC execution | 15% | Verified BSC transaction(s) during the window (count requirement unverified; needs human approval to spend) |
 Bounties: Agentic Wallet/Wallet Skills; BNB Agent Studio (ERC-8004/8183, x402).
 Unverified: weights came from a search summary, not the official page.

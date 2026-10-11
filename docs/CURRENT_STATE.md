@@ -63,7 +63,7 @@ Last updated: 2026-10-10 ~18:50 UTC (VPS clock). Branch `dev/foundation`. Latest
 ## Blockers (owned by a human)
 1. Approval for one capped real purchase (about $5 of BNB plus gas), from a funded wallet connected by the user.
 2. Binance Agentic Wallet sign-in, if the official quote is wanted.
-3. Official judging-page check of the weights and the "2 transactions" requirement.
+3. Official judging-page check of the weights. The two-transaction requirement was unverified and is not claimed.
 
 ## Next actions
 1. Commit the docs (this change).
@@ -261,3 +261,11 @@ Local only. Not pushed. Base `c2dc503`.
 - Checked on the live server: input errors (`spend must be >0 and <= 10000 USD`, `invalid recipient`, `body must be a JSON object`) return 400 with their messages. A forced RPC failure returns 500 with the generic message and no internal detail.
 - Known limit: a 500 is not logged anywhere, since no logging is wired. The response is clean; the server operator has no record of the fault.
 - A build break was introduced and fixed in this round (an object literal holding a `const`); typecheck and the build pass on the final code.
+
+### Update: review-policy, UI request contract, docs corrected (dev/core-engineering)
+- `src/lib/review-policy.ts`: backend policy. A `reviewToken` in the body is checked against the signed values. Without a token, legacy mode applies unless `REVIEW_TOKEN_REQUIRED=1`. Issuance returns nothing when no server secret exists.
+- `test/review-policy.test.ts`: 11 cases covering requirement, legacy, signed, weaker-minimum refusal, missing secret, forged token, router and chain fixed on the server, and expiry window.
+- `docs/UI_REQUEST_CONTRACT.md`: the request-shape change and error messages for the UI agent. No UI file was edited.
+- **Not wired:** `/api/own` does not issue tokens yet; settle and receipt still accept browser values in legacy mode; `REVIEW_TOKEN_REQUIRED` is unset. The signed path is not enforced.
+- Gates: typecheck passes; 144 tests pass across 25 files.
+- Docs corrected: test counts updated to 144; the unverified "two transactions" judging claim removed from README, JUDGING, IMPLEMENTATION, MAINNET_TEST_PROCEDURE and JUDGE_FLOW. It remains only as a correction line in CURRENT_STATE.

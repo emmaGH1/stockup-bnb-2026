@@ -125,7 +125,7 @@ Anything less is **not** a successful trade and must not be described as one.
 ## 12. Not in this procedure
 
 - No Binance sign-in, no `baw` quote. The official Binance quote is not used.
-- No second transaction. The "two transactions" judging rule is unverified and is not part of this test.
+- No second transaction. No transaction-count requirement is confirmed for judging, so this test does not assume one.
 - No deployment, no repo visibility change, no merge.
 
 ---

@@ -21,7 +21,7 @@ Short version:
 ```bash
 npm ci
 npm run typecheck     # passes
-npm test              # 105 tests pass
+npm test              # 144 tests pass (25 files)
 npm run build         # production build passes
 npm start             # serves on http://localhost:3000
 ```

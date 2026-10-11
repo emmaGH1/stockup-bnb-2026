@@ -29,7 +29,7 @@ Branch: `dev/foundation`. Mode B (Sprint). Deadline: 2026-10-11 12:00 UTC (unver
 ## Blockers (owned by a human)
 - Real purchase: approval, funded wallet connected via browser extension, a cap (about $5 plus gas).
 - Binance Agentic Wallet sign-in (pairing code in the Binance app) for the official quote.
-- Official judging page check (weights and the "2 transactions" rule come from a search summary).
+- Official judging page check (weights come from a search summary; no transaction-count requirement is confirmed).
 
 ## What the judges will see (evidence we can actually produce)
 - The receipt flow and the honest "no" for unsupported merchants (Starbucks: no pool, market closed).

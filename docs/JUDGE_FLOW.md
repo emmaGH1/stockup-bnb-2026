@@ -14,7 +14,7 @@ git clone <repo> stockup && cd stockup
 git checkout dev/core-engineering     # or the commit listed in docs/CURRENT_STATE.md
 npm ci
 npm run typecheck                     # expect: exit 0, no output
-npm test                              # expect: "Tests 105 passed"
+npm test                              # expect: "Tests 144 passed"
 npm run build                         # expect: "Compiled successfully", routes listed
 ```
 
