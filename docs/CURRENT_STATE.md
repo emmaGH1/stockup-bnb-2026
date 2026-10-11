@@ -210,3 +210,9 @@ Last updated: 2026-10-10 ~18:50 UTC (VPS clock). Branch `dev/foundation`. Latest
 - Constraints enforced: receipts are an input method, not the central motif (identity carried by the shopping->allocation->exposure diagram and copy); no gradients, no rounded-card stacks, no fabricated metrics, no decorative crypto graphics.
 - Gates: typecheck OK; 86/86 tests; build OK; full-page captures at 1280px/390px with zero horizontal overflow and no console/page errors.
 - STOP GATE: awaiting human approval. Not deployed; main untouched; repo private.
+
+## Design probe verification + delivery (dev/design-probe, 2026-10-11 ~01:10 UTC VPS clock)
+- Both probe surfaces are implemented running screens, verified in headless Chromium against the production build with a read-only live check (nothing signed or sent; no wallet connected; Authorize stayed disabled).
+- Populated-workspace evidence captured at 1280px and 390px: identification, instrument+listing checks, live Binance market data, PancakeSwap quote vs reference, all six execution checks with sources, decoded review panel, allocation summary, guard verdict. Zero overflow, no console/page errors.
+- Gates re-run: typecheck OK; 86/86 tests; production build OK.
+- Evidence: docs/evidence/design-probe/ (README describes conditions honestly). Commit on dev/design-probe; main untouched; not deployed; repo private.
