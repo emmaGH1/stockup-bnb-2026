@@ -26,3 +26,28 @@ Rule: fixture data is never presented as live and never counted as mainnet or W3
 | 2 | Diagnostic variant with `/build` omitted from the prehash (not the documented rule; used only to test the signature) | HTTP 401, `code 40102` Invalid signature | Expected: this variant is wrong per docs. Not a valid retry. |
 
 Stopped under the retry rule. Did not change IP, proxy or VPN, which the docs list as separate compliance controls (40302, 40303). Needed from the human: check that the key is approved for API access and that the account's jurisdiction is supported; contact Binance support with code 40304 and endpoint `/build/api/v1/dex/balance/supported/chain`.
+
+## OUTSTANDING RELEASE ISSUE: reviewToken does not survive a page reload (recorded 2026-10-11)
+**Status: open. Needs a human decision. Not fixed, deliberately.** Applies to the release candidate `dev/release-candidate` (`901e2c1`, UI by the core agent).
+
+| Item | Detail |
+|---|---|
+| Behaviour | `own-flow.tsx` keeps the check result, the `txHash` and the `reviewToken` only in React component state (`useState`). A reload, a closed tab or a navigation discards all three. |
+| Why it is this way | `docs/UI_REQUEST_CONTRACT.md` line 45 forbids `localStorage`, `sessionStorage`, cookies and URLs for the token: "Component state only." That is a deliberate security choice. |
+| Where the contract contradicts itself | The same file, verification step 3, expects "Reload the page, then open an old settled receipt: settle and receipt still succeed." Component state cannot satisfy that once enforcement is on. |
+| Impact today | None while `REVIEW_TOKEN_REQUIRED` is unset. Settle and receipt then run in legacy mode with the browser's values. The reload case works without a token. |
+| Impact if `REVIEW_TOKEN_REQUIRED=1` | A user who sends a swap and reloads cannot verify settlement or get an ownership receipt. The server answers 400 "review token is required", which the UI shows as "This check is out of date. Run the check again." Running the check again cannot recover it, because a new check produces a new token for a different expectation. Their transaction would remain valid on-chain, but the app could not confirm it. |
+| Also affected | Rotating `REVIEW_HMAC_SECRET` between a trade and its receipt has the same effect under enforcement. |
+| What was tested | Token issued on a released trade, sent on settle, rejected when the browser tampers with `minOutWei` or drops the token (enforced mode), and authorization blocked after the review window. Reload recovery was NOT tested, because it cannot work under the current design. |
+
+### Decision required (owner / core engineering). No option has been implemented.
+| Option | Effect | Cost |
+|---|---|---|
+| A. Keep legacy mode for this release (recommended for the deadline) | Leave `REVIEW_TOKEN_REQUIRED` unset. Reload recovery works. Settle and receipt still check the chain against the browser's values. | The signed binding is issued and verified when the UI sends it, but is not mandatory. |
+| B. Allow `sessionStorage` for the token | Reload within the tab recovers. | Reverses a written security rule, and a script running on the page could read the token. Needs the owner's explicit approval and a CSP review. A closed tab still loses it. |
+| C. Server-side lookup by transaction hash | Recovery from any browser. | New server state or a KV store. A new API contract. Not feasible before 2026-10-11 12:00 UTC without an account. |
+
+### Constraints that stay in force
+- The API contract is unchanged. No security rule has been weakened by this note.
+- `REVIEW_TOKEN_REQUIRED` stays off until the owner chooses and the chosen option is built and tested.
+- The release-candidate worktree was not edited by the UI agent.
