@@ -56,6 +56,22 @@ export function OwnFlow() {
     if (p.merchantLine) setMerchant(p.merchantLine);
     if (p.totalUsd != null) setSpend(String(p.totalUsd));
   }
+  const recipientRef = useRef<HTMLInputElement | null>(null);
+  // Hero CTA (#invest-example): prefill the Amazon sample purchase. Fills the form only; no network call, no wallet request.
+  function loadExample() {
+    const p = parseReceiptText(SAMPLE_RECEIPT);
+    setPasted(SAMPLE_RECEIPT); setParsed(p); setInvestPct('5');
+    if (p.merchantLine) setMerchant(p.merchantLine);
+    if (p.totalUsd != null) setSpend(String(p.totalUsd));
+    window.history.replaceState(null, '', '#invest');
+    document.getElementById('invest')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => recipientRef.current?.focus({ preventScroll: true }), 500);
+  }
+  useEffect(() => {
+    const go = () => { if (window.location.hash === '#invest-example') loadExample(); };
+    go(); window.addEventListener('hashchange', go);
+    return () => window.removeEventListener('hashchange', go);
+  }, []);
   const [receipt, setReceipt] = useState<null | { ok: boolean; reason?: string; receipt?: {
     receiptId: string; issuedAt: string; chain: string;
     onChain: { txHash: string; blockNumber: string; confirmations: number; tokenSymbol: string; tokenAddress: string; holder: string; receivedTokens: string; authorizedMinimum: string; gasCostBnb: string; holderBalanceNow: string | null };
@@ -160,7 +176,7 @@ export function OwnFlow() {
           <input className={field} inputMode="decimal" value={investPct} onChange={e => setInvestPct(e.target.value)} />
           <span className="mt-1 block text-xs font-normal text-neutral-600">{Number(spend) > 0 && Number(investPct) > 0 ? `= ${money(Number(spend) * Number(investPct) / 100)} of your own money` : ''}</span></label>
         <label className="block text-sm font-medium">Your BSC address (receives the stock)
-          <input className={`${field} font-mono`} placeholder="0x…" value={recipient} onChange={e => setRecipient(e.target.value)} /></label>
+          <input ref={recipientRef} className={`${field} font-mono`} placeholder="0x…" value={recipient} onChange={e => setRecipient(e.target.value)} /></label>
         <button type="button" onClick={connect} className="w-full border border-ink px-4 py-2 text-sm">Connect my browser wallet</button>
         <p role="status" className="text-xs text-neutral-600">{walletLine(wallet)}</p>
         <button disabled={busy || !merchant.trim() || !(Number(spend) > 0)} className="w-full bg-vermilion px-4 py-3 text-sm font-semibold text-ink disabled:opacity-50">

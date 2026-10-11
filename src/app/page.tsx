@@ -1,5 +1,5 @@
 import { OwnFlow } from '@/components/own-flow';
-import { HeroStrip } from '@/components/hero-strip';
+import { HeroStage } from '@/components/hero-stage';
 
 export default function Home() {
   return (
@@ -9,30 +9,29 @@ export default function Home() {
         <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink/60">Spend to Own · BNB Chain</p>
       </header>
 
-      {/* 01 — first fold: grid, product statement, signature flow diagram */}
-      <section aria-label="Introduction" className="grid gap-10 border-b-2 border-ink py-10 md:grid-cols-12 md:py-14">
-        <div className="md:col-span-7">
+      {/* 01 — first fold: product statement beside a large staged commerce-to-investment scene */}
+      <section aria-label="Introduction" className="grid gap-8 border-b-2 border-ink py-8 md:grid-cols-12 md:gap-10 md:py-10">
+        <div className="flex flex-col md:col-span-5">
           <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink/60">
             <span className="mr-2 inline-block size-2 bg-vermilion" aria-hidden />01 · What Stockup does
           </p>
-          <h1 className="mt-5 text-balance text-5xl font-bold leading-[0.95] tracking-tight md:text-7xl">
-            Everyday purchases,{' '}
-            <em className="font-serif font-medium italic tracking-normal">invested</em>{' '}
-            in the companies you shop with.
+          <h1 className="mt-4 text-balance text-6xl font-bold leading-[0.92] tracking-tight md:text-5xl lg:text-6xl xl:text-7xl">
+            Shop the brands. Build a{' '}
+            <em className="font-serif font-medium italic tracking-normal">stake</em>.
           </h1>
-          <p className="mt-6 max-w-lg text-base leading-7 text-ink/80">
-            Stockup transforms everyday spending decisions into user-funded investments in tokenized stocks —
-            listing, quote, safeguards and settlement verified before anything is called real.
+          <p className="mt-5 max-w-md text-base leading-7 text-ink/80">
+            Record a purchase yourself, fund a slice with your own money, and review the quote and safeguards
+            before your wallet approves a swap into that company’s tokenized stock.
           </p>
-          <div className="mt-8 flex flex-wrap items-center gap-4">
-            <a href="#invest" className="bg-vermilion px-5 py-3 text-sm font-semibold text-ink">
-              Run the investment check
+          <div className="mt-8 flex flex-wrap items-center gap-4 md:mt-auto md:pt-8">
+            <a href="#invest-example" className="bg-vermilion px-5 py-3 text-sm font-semibold text-ink">
+              Try the Amazon example
             </a>
             <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink/60">You fund it. No merchant cashback.</p>
           </div>
         </div>
-        <div className="md:col-span-5">
-          <HeroStrip />
+        <div className="md:col-span-7">
+          <HeroStage />
         </div>
       </section>
 
@@ -42,7 +41,7 @@ export default function Home() {
         verified. Stockup never signs for you: a transaction is sent only after you authorize it in your own wallet.
       </p>
 
-      {/* 02 — investment workspace */}
+      {/* 02 — investment workspace (unchanged in this revision step) */}
       <section id="invest" aria-label="Investment workspace" className="mt-12 scroll-mt-6 border-t-2 border-ink pt-8 pb-20">
         <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink/60">
           <span className="mr-2 inline-block size-2 bg-vermilion" aria-hidden />02 · Investment workspace

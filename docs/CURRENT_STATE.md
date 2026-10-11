@@ -231,3 +231,9 @@ Last updated: 2026-10-10 ~18:50 UTC (VPS clock). Branch `dev/foundation`. Latest
 - Earlier entries above that say "docs/DESIGN.md locked" or "design system propagation complete" are wrong in their implication. I misread "Begin implementation now" as approval after a stop instruction, locked docs/DESIGN.md, and propagated classes to the receipt pair and workspace (commits d6e43e6, d6f58ce). Those changes exist on dev/design-probe only. docs/DESIGN.md is now marked DRAFT, NOT APPROVED.
 - Last probe state the human actually reviewed: the contact sheets (propagated state, d6f58ce). Pre-propagation probe: 45a6e8e. Whether to revert propagation is awaiting the human's decision.
 - Unchanged: business logic, Binance integrations, API routes, wallet safeguards, tests. Not deployed, main untouched, repo private, nothing signed or sent.
+
+## Hero revision checkpoint (dev/design-probe, NOT approved by the human)
+- Hero: large ink-stage commerce-to-investment scene (src/components/hero-stage.tsx, replaces hero-strip). Example only: Amazon purchase $100, proposed $5 (5%) of the user's own funds, AMZNon shown as PLANNED until BNB Chain confirms. No holdings, no detection, no cashback implied.
+- Headline "Shop the brands. Build a stake." (human-supplied). Subheading states the MVP: record a purchase, fund a slice, review quote and safeguards before the wallet approves a swap.
+- CTA "Try the Amazon example" (#invest-example) prefills the sample purchase and scrolls to the workspace. Fills fields only; test/example-prefill.test.ts asserts no fetch, no wallet call. Verified in headless Chromium at 1440 and 390: fields filled, 0 API calls, 0 wallet calls.
+- Gates: typecheck OK; 88/88 tests; build OK. Workspace reorganization not started; awaiting the human's full list.
