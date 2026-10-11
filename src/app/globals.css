@@ -7,6 +7,7 @@
   --color-ink: #171917;
   --color-mist: #DADBD6;
   --color-vermilion: #F26438;
-  --font-sans: "Archivo Variable", ui-sans-serif, system-ui, "Helvetica Neue", Arial, sans-serif;
-  --font-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --color-white: #FFFFFF;
+  --font-sans: "Space Grotesk Variable", ui-sans-serif, system-ui, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
 }

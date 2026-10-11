@@ -202,3 +202,11 @@ Last updated: 2026-10-10 ~18:50 UTC (VPS clock). Branch `dev/foundation`. Latest
 - AI-slop lint (playbook 4.5G): no gradients, no blue/purple defaults, no status pills, no fake live indicators, no fabricated metrics (diagram 5% = real default input; AMZNon labeled example), no card-everything.
 - Gates: typecheck OK; 86/86 tests; production build OK. No funds spent, nothing deployed, repo private, main untouched.
 - Reference provenance (playbook 4.5E), per DESIGN_REFERENCES.md: 01 grid/markers/numbered modules (not their brand/robot imagery); 04 product-as-hero staging adapted to the flow diagram (no scooter); 06 grotesk+serif pairing via OFL fonts (no ID Grotesk/Times binaries); 03 data readability as guardrail only (their fabricated stats rejected); 05 principle: dotted-leader + square-marker motif reusable site-wide (no purple 3D forms); 02 one-accent restraint (vermilion only); 07 poster type deliberately unused so far.
+
+## Design probe v3 (dev/design-probe, 2026-10-11 ~01:05 UTC VPS clock)
+- Scope held to exactly two surfaces: first fold + investment workspace. Everything else untouched.
+- Type exploration: Space Grotesk Variable + Instrument Serif (both SIL OFL, bundled via @fontsource). Previous variant (Archivo + Source Serif 4) remains on commit ff3f3a9 for comparison. Both font packages installed during exploration; the rejected one will be removed at lock-in.
+- Shopping<->exposure link made explicit: diagram receipt shows merchant AMAZON; token card reads "AMZNon / AMAZON · CHECKED"; fold sub-copy uses the owner's product sentence (spending decisions -> user-funded investments in tokenized stocks) plus the verification clause.
+- Constraints enforced: receipts are an input method, not the central motif (identity carried by the shopping->allocation->exposure diagram and copy); no gradients, no rounded-card stacks, no fabricated metrics, no decorative crypto graphics.
+- Gates: typecheck OK; 86/86 tests; build OK; full-page captures at 1280px/390px with zero horizontal overflow and no console/page errors.
+- STOP GATE: awaiting human approval. Not deployed; main untouched; repo private.

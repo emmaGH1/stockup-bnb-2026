@@ -1,7 +1,6 @@
-import '@fontsource-variable/archivo';
-import '@fontsource/source-serif-4/400.css';
-import '@fontsource/source-serif-4/400-italic.css';
-import '@fontsource/source-serif-4/600.css';
+import '@fontsource-variable/space-grotesk';
+import '@fontsource/instrument-serif/400.css';
+import '@fontsource/instrument-serif/400-italic.css';
 import './globals.css';
 
 export const metadata = { title: 'Stockup 2.0 — Spend to Own' };

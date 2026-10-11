@@ -21,9 +21,8 @@ export default function Home() {
             in the companies you shop with.
           </h1>
           <p className="mt-6 max-w-lg text-base leading-7 text-ink/80">
-            Record a spending event, choose a slice of it to fund yourself, and Stockup prepares a check of
-            tokenized stock on BNB Chain — listing, quote, safeguards and settlement, verified before anything
-            is called real.
+            Stockup transforms everyday spending decisions into user-funded investments in tokenized stocks —
+            listing, quote, safeguards and settlement verified before anything is called real.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <a href="#invest" className="bg-vermilion px-5 py-3 text-sm font-semibold text-ink">
