@@ -45,6 +45,14 @@ describe('verifySettlement', () => {
     expect(await m({ tx: { to: '0x000000000000000000000000000000000000dEaD', value: VALUE, input, from: ME } })).toMatch(/router/);
     expect(await m({ tx: { to: ROUTER_V2, value: 1n, input, from: ME } })).toMatch(/differs from the authorized/);
   });
+  it('mismatch: wrong path (not WBNB -> token), wrong calldata recipient, non-swap calldata', async () => {
+    const m = async (o: Parameters<typeof fake>[0]) => { const s = await verifySettlement(H, exp, fake(o)); return s.state === 'mismatch' ? s.problems.join() : s.state; };
+    const badPath = encodeFunctionData({ abi, functionName: 'swapExactETHForTokens', args: [MIN, [TOKEN, WBNB], ME, 9_999_999_999n] });
+    expect(await m({ tx: { to: ROUTER_V2, value: VALUE, input: badPath, from: ME } })).toMatch(/on-chain path/);
+    const otherRecipient = encodeFunctionData({ abi, functionName: 'swapExactETHForTokens', args: [MIN, [WBNB, TOKEN], getAddress('0x000000000000000000000000000000000000bEEF'), 9_999_999_999n] });
+    expect(await m({ tx: { to: ROUTER_V2, value: VALUE, input: otherRecipient, from: ME } })).toMatch(/routed to a different address/);
+    expect(await m({ tx: { to: ROUTER_V2, value: VALUE, input: '0xdeadbeef', from: ME } })).toMatch(/not swapExactETHForTokens/);
+  });
   it('mismatch: a swap sent from someone else\'s wallet is not reported as this user\'s settlement', async () => {
     const OTHER = getAddress('0x000000000000000000000000000000000000bEEF');
     const s = await verifySettlement(H, exp, fake({ tx: { to: ROUTER_V2, value: VALUE, input, from: OTHER } }));

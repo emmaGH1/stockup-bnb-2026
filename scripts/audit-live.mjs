@@ -2,7 +2,8 @@
 import { chromium } from 'playwright-core';
 const exe = process.env.HOME + '/.cache/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell';
 const U = process.argv[2];
-const RECIPIENT = '0x1234567890123456789012345678901234567890';
+// Mock-provider account only. Use a wallet you control (or a throwaway address); the old fixed address holds real BNB on mainnet.
+const RECIPIENT = process.env.AUDIT_ACCOUNT ?? (() => { throw new Error('set AUDIT_ACCOUNT=<mock account address>'); })();
 const b = await chromium.launch({ executablePath: exe, args: ['--no-sandbox'] });
 
 async function session(label, { width, provider }) {

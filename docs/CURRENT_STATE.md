@@ -197,3 +197,9 @@ Local only. Not pushed. Base `c2dc503`.
 - **Open:** `/api/settle` and `/api/receipt` still take the expected value, minOut and recipient from the client. The UI passes them from the verified review. A server-side fix (storing the review server-side) is not done.
 - **Known limits (unchanged):** no rate limiting; `'unsafe-inline'` in the CSP; temporary Vercel preview has expired.
 - **Blockers needing a human:** approval for a capped real purchase; Binance sign-in if the official quote is wanted; confirming the hackathon's public-repo rule on the official page.
+
+### Update: settlement test coverage and fixture cleanup (dev/core-engineering, local)
+- Added a settlement test for wrong path, calldata recipient and non-swap calldata. Mutation check: removing the path check or the sender check each makes a test fail.
+- `scripts/audit-live.mjs` now takes its mock account from `AUDIT_ACCOUNT` and no longer uses the fixed address `0x1234…7890` (holds real BNB on mainnet).
+- Gates: 88 tests pass; typecheck passes.
+- Still not pushed.
