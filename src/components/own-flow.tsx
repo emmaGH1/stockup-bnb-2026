@@ -7,7 +7,7 @@ import { ownershipRows, isIssued } from '@/lib/paperrows';
 import { parseReceiptText, SAMPLE_RECEIPT, type ParsedReceipt } from '@/lib/receipttext';
 import { reviewTokenFor, reviewErrorText, isAuthorizationExpired, EXPIRED_AUTHORIZATION } from '@/lib/review-messages';
 
-interface Eip1193 { request(a: { method: string; params?: unknown[] }): Promise<unknown> }
+interface Eip1193 { request(a: { method: string; params?: unknown[] }): Promise<unknown>; on?(event: string, fn: (...args: unknown[]) => void): void; removeListener?(event: string, fn: (...args: unknown[]) => void): void }
 function walletLine(w: WalletState): string {
   if (w.status === 'connected') return `Connected to BNB Smart Chain (56) as ${w.account.slice(0, 8)}…${w.account.slice(-4)}.`;
   if (w.status === 'wrong_chain') return 'Your wallet is on another network. Connecting again will ask it to switch to BSC.';
@@ -117,9 +117,30 @@ export function OwnFlow() {
   }
 
   const [wallet, setWallet] = useState<WalletState>({ status: 'disconnected' });
+  const ignoreWalletEvents = useRef(false);
+  // Wallet account or network changed: re-read the state. The recipient is never changed automatically; the review is bound to it.
+  useEffect(() => {
+    const w = eth();
+    if (!w || typeof w.on !== 'function') return;
+    const refresh = async () => { if (!ignoreWalletEvents.current) setWallet(await readWallet(w)); };
+    const onAccounts = (accts: unknown) => {
+      if (ignoreWalletEvents.current) return;
+      if (Array.isArray(accts) && accts.length === 0) setWallet({ status: 'disconnected' }); else void refresh();
+    };
+    w.on('accountsChanged', onAccounts);
+    w.on('chainChanged', refresh);
+    return () => { w.removeListener?.('accountsChanged', onAccounts); w.removeListener?.('chainChanged', refresh); };
+  }, []);
+  // App-level only: forgets this connection in Stockup. It cannot revoke the wallet's own permission; that is done in the wallet.
+  function disconnect() {
+    ignoreWalletEvents.current = true;
+    setWallet({ status: 'disconnected' });
+    setErr('');
+  }
 
   // Explicit click only. Requests account access; never a transaction.
   async function connect() {
+    ignoreWalletEvents.current = false;
     setErr('');
     const w = eth();
     const st = await connectWallet(w);
@@ -199,7 +220,16 @@ export function OwnFlow() {
           <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-ink/70">3 · Your wallet</p>
           <label className="block text-sm font-medium">Your BSC address (receives the stock)
             <input ref={recipientRef} className={`${field} font-mono`} placeholder="0x…" value={recipient} onChange={e => setRecipient(e.target.value)} /></label>
-          {!reviewConnectShown && <button type="button" onClick={connect} className="min-h-11 w-full border border-ink px-4 text-sm">Connect my browser wallet</button>}
+          {!reviewConnectShown && wallet.status !== 'connected' && <button type="button" onClick={connect} className="min-h-11 w-full border border-ink px-4 text-sm">Connect my browser wallet</button>}
+          {wallet.status === 'connected' && (
+            <div className="space-y-2 border-l-4 border-green-700 bg-green-50 p-3 text-sm">
+              <p className="font-semibold">Wallet connected</p>
+              <p className="break-all font-mono text-xs">{wallet.account}</p>
+              <p className="text-xs">Network: BNB Smart Chain (56)</p>
+              {wallet.account.toLowerCase() !== recipient.toLowerCase() && <p className="text-xs font-semibold text-amber-800">This account is not the recipient on the form. Authorize stays blocked until they match.</p>}
+              <button type="button" onClick={disconnect} className="min-h-11 border border-ink px-3 text-sm">Disconnect in Stockup</button>
+              <p className="text-xs text-neutral-600">This only forgets the connection here. To revoke access, disconnect Stockup in your wallet.</p>
+            </div>)}
           <p role="status" className="text-xs text-neutral-600">{walletLine(wallet)}</p>
         </div>
         <button disabled={busy || !merchant.trim() || !(Number(spend) > 0)} className="min-h-12 w-full bg-vermilion px-4 py-3 text-base font-semibold text-ink disabled:opacity-50">

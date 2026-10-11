@@ -119,9 +119,9 @@ describe('workspace safety wording and gating', () => {
     expect(ui.split('\n').filter(l => l.includes('type="checkbox"') && l.includes('size-6')).length).toBe(2);
     expect((ui.match(/<label className="flex min-h-11 cursor-pointer items-start gap-3 py-1">/g) ?? []).length).toBe(2);
   });
-  it('the form connect button is hidden only while the review panel shows its own connect button', () => {
+  it('the form connect button is hidden while the review panel shows its own, and whenever a wallet is already connected', () => {
     expect(ui).toMatch(/const reviewConnectShown = !!\(res\?\.review && res\.plan\?\.tx\) && wallet\.status !== 'connected'/);
-    expect(ui).toMatch(/\{!reviewConnectShown && <button type="button" onClick=\{connect\}/);
+    expect(ui).toMatch(/\{!reviewConnectShown && wallet\.status !== 'connected' && <button type="button" onClick=\{connect\}/);
     // the wallet logic itself is untouched: one connect(), one sign(), authorize gating unchanged
     expect((ui.match(/async function connect\(\)/g) ?? []).length).toBe(1);
     expect(ui).toMatch(/disabled=\{!ack \|\| !confirm \|\| !!txHash \|\| wallet\.status !== 'connected'\}/);
