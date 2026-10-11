@@ -25,6 +25,10 @@ const INPUT_MESSAGE_PREFIXES = [
   'minOutWei must',
   'quotedOutWei must',
   'minOutWei cannot exceed quotedOutWei',
+  // Review-token rejections are caller input problems (the UI shows them). The signing secret error is NOT listed.
+  'review token is required',
+  'review token is invalid',
+  'request does not match the signed review',
 ];
 
 export function isInputError(message: string): boolean {
