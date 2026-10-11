@@ -253,3 +253,11 @@ Local only. Not pushed. Base `c2dc503`.
 - The bundled Next 16.4 docs name `proxy.ts` (not `middleware.ts`) as the nonce location. Recorded as the proposed file.
 - No rate limiting exists. Options and a proposed limit (30/min per IP on `/api/own` and `/api/plan`, 60/min on settle and receipt) are in the proposal, not applied; the store and the trusted IP header need a human decision.
 - Not verified: the nonce setup in a browser, and any live CSP violations.
+
+### Update: API errors no longer leak internal detail (dev/core-engineering)
+- New `src/lib/api-error.ts`: an explicit allow-list of input-error messages is returned as 400 with the caller's wording (the UI shows it). Everything else is a 500 with one generic message.
+- All four routes (`/api/own`, `/api/plan`, `/api/settle`, `/api/receipt`) use it.
+- Tests: `test/api-error.test.ts` (5 cases). A mutant that returns every message as 400 (the old behaviour) fails two of them.
+- Checked on the live server: input errors (`spend must be >0 and <= 10000 USD`, `invalid recipient`, `body must be a JSON object`) return 400 with their messages. A forced RPC failure returns 500 with the generic message and no internal detail.
+- Known limit: a 500 is not logged anywhere, since no logging is wired. The response is clean; the server operator has no record of the fault.
+- A build break was introduced and fixed in this round (an object literal holding a `const`); typecheck and the build pass on the final code.

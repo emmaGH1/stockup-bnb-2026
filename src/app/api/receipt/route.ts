@@ -4,6 +4,7 @@ import { parseSettleInput } from '@/lib/settle-input';
 import { issueReceipt } from '@/lib/receipt';
 export const dynamic = 'force-dynamic';
 import { readBounded } from '@/lib/http';
+import { errorResponseBody } from '@/lib/api-error';
 
 // Read-only. Re-verifies settlement from the chain on every call; a receipt is never built from client claims alone.
 export async function POST(req: Request) {
@@ -19,5 +20,5 @@ export async function POST(req: Request) {
       spendUsd: Number(c.spendUsd) || 0, investUsd: Number(c.investUsd) || 0,
       sharesPerToken: c.sharesPerToken == null ? null : Number(c.sharesPerToken) });
     return NextResponse.json({ settlement: s, ...out });
-  } catch (e) { return NextResponse.json({ error: e instanceof Error ? e.message : 'bad request' }, { status: 400 }); }
+  } catch (e) { const f = errorResponseBody(e); return NextResponse.json(f.body, { status: f.status }); }
 }

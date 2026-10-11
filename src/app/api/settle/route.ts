@@ -3,6 +3,7 @@ import { verifySettlement } from '@/lib/settle';
 import { parseSettleInput } from '@/lib/settle-input';
 export const dynamic = 'force-dynamic';
 import { readBounded } from '@/lib/http';
+import { errorResponseBody } from '@/lib/api-error';
 
 // Read-only. Never sends anything; only reads receipts from BSC.
 export async function POST(req: Request) {
@@ -12,5 +13,5 @@ export async function POST(req: Request) {
     const i = p.value;
     const s = await verifySettlement(i.txHash, { token: i.token, recipient: i.recipient, valueWei: i.valueWei, minOutWei: i.minOutWei, quotedOutWei: i.quotedOutWei });
     return NextResponse.json(s);
-  } catch (e) { return NextResponse.json({ error: e instanceof Error ? e.message : 'bad request' }, { status: 400 }); }
+  } catch (e) { const f = errorResponseBody(e); return NextResponse.json(f.body, { status: f.status }); }
 }
