@@ -31,7 +31,7 @@ export function PaperPair({ pasted, parsed, rows, issued, receiptId, reason }: {
         </header>
         <div className="mt-3 md:min-h-[10.5rem] whitespace-pre-wrap break-words">
           {lines.length ? lines.map((l, i) => <div key={i} className={parsed && l === parsed.merchantLine ? 'bg-vermilion/15' : parsed?.totalLabel && l === parsed.totalLabel ? 'bg-vermilion/15' : ''}>{l}</div>)
-            : <div className="text-ink/50">No receipt yet. Paste text or use the sample.</div>}
+            : <div className="text-ink/50">Nothing pasted. This panel shows pasted receipt text only; typing the purchase into the form works too.</div>}
         </div>
         {parsed && <p className="mt-3 border-t border-dashed border-ink/30 pt-2 font-mono text-[10px] text-ink/60">Highlighted lines are what Stockup read. It cannot tell if this receipt is real.</p>}
       </article>

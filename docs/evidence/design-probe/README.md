@@ -1,6 +1,6 @@
 # Design probe evidence (dev/design-probe) — revision 2
 
-**Status: NOT approved by the human.** These captures show the revised draft for review.
+**Status: Revision 2 APPROVED by the human as the final hackathon design baseline (2026-10-11 ~07:49 UTC (VPS clock)).** These captures show that baseline (commit `a688418`).
 
 Captured from the production build served locally (`next start`), 1440px desktop and 390px mobile. Zero horizontal overflow, no console or page errors.
 

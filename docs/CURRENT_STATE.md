@@ -360,3 +360,21 @@ Local only. Not pushed. Base `c2dc503`.
 - Secret behaviour confirmed: with no `REVIEW_HMAC_SECRET` a token-bearing request returns a generic 500 (fails closed); with the host secret loaded a forged token is refused with 400 and a legacy request reaches the chain check.
 - **BLOCKER, unchanged:** the merged frontend does NOT yet send `reviewToken`. `own-flow.tsx` still posts only `settleParams` to `/api/settle` and `/api/receipt`, and does not read `reviewToken` from `/api/own`. The UI contract in `docs/UI_REQUEST_CONTRACT.md` is not implemented. `REVIEW_TOKEN_REQUIRED` must stay unset.
 - Not verified: a released (`ready_to_sign`) trade receiving a token live; a real wallet; the browser journey on the merged build.
+
+## Outstanding release issue recorded: reviewToken reload limitation (2026-10-11 ~07:20 UTC VPS clock)
+- Documentation only, no code or contract change. Full entry: docs/BLOCKERS.md ("OUTSTANDING RELEASE ISSUE: reviewToken does not survive a page reload"). Summary: the token lives in component state only, by the contract's own rule; under REVIEW_TOKEN_REQUIRED=1 a reload after sending makes settle and receipt unrecoverable. Keep enforcement off for this release unless the owner picks another option. The contract also contradicts itself on this point (line 45 versus verification step 3).
+
+## Evidence and test artifacts committed (dev/design-probe, 2026-10-11 ~07:35 UTC VPS clock)
+- docs/evidence/release-checks/: mobile authorization screenshots, results table, limits. scripts/release-checks/: the three Playwright scripts used (mock wallet, placeholder address, never presses Authorize, never sends).
+- This branch itself: typecheck OK; 101/101 tests; production build OK (the release candidate has 186 tests because it includes the core agent's backend tests).
+- Design still NOT approved by the human. Nothing deployed, merged to main, or submitted. No transaction sent.
+
+## Final polish pass (dev/design-probe, 2026-10-11 ~07:50 UTC VPS clock) — design still NOT approved
+- Targeted fixes only: desktop scroll-to-result, guard-line contradiction in the not-eligible state, larger acknowledgement checkboxes, one connect button at a time around the review panel, notice and empty-receipt wording for typed purchases. No change to src/lib, API routes, dependencies, hero, palette or typography. Gates: typecheck OK; 107/107 tests; build OK. Evidence: docs/evidence/release-checks/.
+- Not done: owner sign-off; real-wallet test; reviewToken reload decision (docs/BLOCKERS.md). Nothing deployed, merged to main or submitted; no transaction sent.
+
+## APPROVAL RECORDED: UI Revision 2 is the final hackathon design baseline (2026-10-11 ~07:49 UTC (VPS clock))
+- The human formally approved Stockup UI Revision 2 (design-probe `a688418`) as the final hackathon design baseline. This supersedes every earlier "NOT approved" line in this file; those lines are kept as history.
+- Not covered by that approval, each still needing its own explicit approval: merge to `main`, public deployment or any production release, any transaction, making the repository public, the hackathon submission. `REVIEW_TOKEN_REQUIRED` stays off. The reviewToken reload limitation (docs/BLOCKERS.md) stays an open release issue.
+- Post-baseline commit `3861cdc` (targeted polish the human authorized) sits on top of `a688418`. It changed no hero, palette, typography or layout. As far as I know the human has not separately viewed it.
+- Handoff for the release integration agent: docs/HANDOFF_UI_TO_RELEASE.md.
