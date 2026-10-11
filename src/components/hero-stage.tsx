@@ -90,14 +90,14 @@ const proposed = { fill: PAPER, fontFamily: sans, fontSize: 13, fontWeight: 700 
 
 export function HeroStage() {
   const ticksD = Array.from({ length: 16 }, (_, i) => `M ${10 + i * 40} 348 v 6`).join(' ');
-  const ticksM = Array.from({ length: 9 }, (_, i) => `M ${10 + i * 40} 310 v 6`).join(' ');
+  const ticksM = Array.from({ length: 9 }, (_, i) => `M ${10 + i * 40} 278 v 6`).join(' ');
   return (
     <figure>
       {/* Desktop composition */}
-      <svg viewBox="0 0 640 490" role="img" aria-label={ALT} className="hidden w-full bg-ink md:block">
+      <svg viewBox="0 0 640 466" role="img" aria-label={ALT} className="hidden w-full bg-ink md:block">
         <Defs id="d" />
-        <rect width={640} height={490} fill="url(#d-grid)" />
-        <Plus x={10} y={10} /><Plus x={630} y={10} /><Plus x={10} y={480} /><Plus x={630} y={480} />
+        <rect width={640} height={466} fill="url(#d-grid)" />
+        <Plus x={10} y={10} /><Plus x={630} y={10} /><Plus x={10} y={456} /><Plus x={630} y={456} />
         <Label x={30} y={32}>01 · YOU SHOP AT A COMPANY</Label>
         <Storefront x={30} y={48} s={1.1} />
         <path d="M 10 348 H 630" stroke={PAPER} strokeWidth={2.2} />
@@ -105,7 +105,6 @@ export function HeroStage() {
         <Label x={388} y={72}>03 · SUPPORTED TOKENIZED STOCK</Label>
         <Slab x={388} y={84} w={222} h={264} id="d" />
         <path d="M 304 230 H 384" {...dotted} />
-        <path d="M 377 224 L 385 230 L 377 236" {...head} />
         <rect x={336} y={226} width={8} height={8} fill={VERM} />
         <Label x={344} y={206} anchor="middle">SAME</Label>
         <Label x={344} y={262} anchor="middle">COMPANY</Label>
@@ -114,33 +113,30 @@ export function HeroStage() {
         <path d="M 595 394 V 358" {...dotted} />
         <path d="M 589 365 L 595 357 L 601 365" {...head} />
         <SpendBar x={30} y={398} w={580} h={46} />
-        <Label x={30} y={472}>PLANNED UNTIL BNB CHAIN CONFIRMS</Label>
       </svg>
 
-      {/* Mobile composition: stacked, near-native text sizes */}
-      <svg viewBox="0 0 340 700" role="img" aria-label={ALT} className="w-full bg-ink md:hidden">
+      {/* Mobile composition: stacked, near-native text sizes, kept short to limit scrolling */}
+      <svg viewBox="0 0 340 612" role="img" aria-label={ALT} className="w-full bg-ink md:hidden">
         <Defs id="m" />
-        <rect width={340} height={700} fill="url(#m-grid)" />
+        <rect width={340} height={612} fill="url(#m-grid)" />
         <Plus x={10} y={10} /><Plus x={330} y={10} />
         <Label x={20} y={26}>01 · YOU SHOP AT A COMPANY</Label>
-        <Storefront x={50} y={38} s={1} />
-        <path d="M 10 310 H 330" stroke={PAPER} strokeWidth={2.2} />
+        <Storefront x={68} y={36} s={0.85} />
+        <path d="M 10 278 H 330" stroke={PAPER} strokeWidth={2.2} />
         <path d={ticksM} stroke={PAPER} strokeOpacity={0.5} strokeWidth={1} />
-        <path d="M 170 320 V 356" {...dotted} />
-        <path d="M 164 349 L 170 357 L 176 349" {...head} />
-        <rect x={166} y={332} width={8} height={8} fill={VERM} />
-        <Label x={186} y={342}>SAME COMPANY</Label>
-        <Label x={20} y={386}>03 · SUPPORTED TOKENIZED STOCK</Label>
-        <Slab x={50} y={396} w={240} h={170} id="m" />
-        <Label x={20} y={622}>02 · YOU FUND A SLICE</Label>
-        <path d="M 318 636 V 590" {...dotted} />
-        <path d="M 312 597 L 318 589 L 324 597" {...head} />
-        <text x={300} y={590} textAnchor="end" {...proposed}>PROPOSED · $5 (5%) OF YOUR OWN FUNDS</text>
-        <SpendBar x={20} y={636} w={300} h={42} />
-        <Label x={20} y={694}>PLANNED UNTIL BNB CHAIN CONFIRMS</Label>
+        <path d="M 170 286 V 314" {...dotted} />
+        <rect x={166} y={294} width={8} height={8} fill={VERM} />
+        <Label x={186} y={304}>SAME COMPANY</Label>
+        <Label x={20} y={338}>03 · SUPPORTED TOKENIZED STOCK</Label>
+        <Slab x={50} y={346} w={240} h={150} id="m" />
+        <Label x={20} y={520}>02 · YOU FUND A SLICE</Label>
+        <path d="M 312 554 V 522 H 270 V 510" {...dotted} />
+        <path d="M 264 517 L 270 509 L 276 517" {...head} />
+        <text x={300} y={544} textAnchor="end" {...proposed}>PROPOSED · $5 (5%) OF YOUR OWN FUNDS</text>
+        <SpendBar x={20} y={556} w={300} h={42} />
       </svg>
       <figcaption className="mt-3 font-mono text-[10px] uppercase tracking-[0.12em] text-ink/60">
-        Example only · you record the purchase · you fund the slice · nothing is owned until BNB Chain confirms
+        Example only · shopping alone buys nothing · you choose and fund the slice · nothing is owned until BNB Chain confirms
       </figcaption>
     </figure>
   );

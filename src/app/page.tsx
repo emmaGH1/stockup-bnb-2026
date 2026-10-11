@@ -20,14 +20,16 @@ export default function Home() {
             <em className="font-serif font-medium italic tracking-normal">stake</em>.
           </h1>
           <p className="mt-5 max-w-md text-base leading-7 text-ink/80">
-            Record a purchase yourself, fund a slice with your own money, and review the quote and safeguards
-            before your wallet approves a swap into that company’s tokenized stock.
+            Tell Stockup what you bought. Pick how much of your own money to invest. Check the quote and safety
+            checks, then approve the swap in your wallet.
           </p>
-          <div className="mt-8 flex flex-wrap items-center gap-4 md:mt-auto md:pt-8">
+          <p className="mt-4 max-w-md border-l-4 border-vermilion pl-3 text-base font-semibold leading-6">
+            Shopping never buys stock by itself. You choose the amount, and you approve it.
+          </p>
+          <div className="mt-6 flex flex-wrap items-center gap-4 md:mt-auto md:pt-8">
             <a href="#invest-example" className="bg-vermilion px-5 py-3 text-sm font-semibold text-ink">
               Try the Amazon example
             </a>
-            <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink/60">You fund it. No merchant cashback.</p>
           </div>
         </div>
         <div className="md:col-span-7">
@@ -35,10 +37,8 @@ export default function Home() {
         </div>
       </section>
 
-      <p role="note" className="mt-8 max-w-2xl border-l-4 border-vermilion bg-mist/50 p-4 text-sm leading-6">
-        Development build. Stockup reads the receipt text you paste and cannot verify it. The investment is your
-        own money; there is no merchant cashback. Nothing is a confirmed trade until on-chain settlement is
-        verified. Stockup never signs for you: a transaction is sent only after you authorize it in your own wallet.
+      <p className="mt-4 font-mono text-[11px] uppercase leading-5 tracking-[0.12em] text-ink/70">
+        Development build · you fund the investment, no merchant cashback · nothing counts until BNB Chain settlement is verified
       </p>
 
       {/* 02 — investment workspace (unchanged in this revision step) */}
@@ -47,11 +47,16 @@ export default function Home() {
           <span className="mr-2 inline-block size-2 bg-vermilion" aria-hidden />02 · Investment workspace
         </p>
         <h2 className="mt-3 text-2xl font-bold tracking-tight md:text-3xl">Check a real allocation before anything moves</h2>
-        <p className="mt-2 max-w-xl text-sm leading-6 text-ink/70">
+        <p className="mt-2 hidden max-w-xl text-sm leading-6 text-ink/70 md:block">
           Live market data, an on-chain quote and safeguards, with every number sourced. The transaction stays
           unsigned until your own wallet authorizes it.
         </p>
-        <div className="mt-8">
+        <p role="note" className="mt-4 max-w-2xl border-l-4 border-vermilion bg-mist/50 p-3 text-[13px] leading-5 md:p-4 md:text-sm md:leading-6">
+          Development build. Stockup reads the receipt text you paste and cannot verify it. The investment is your
+          own money; there is no merchant cashback. Nothing is a confirmed trade until on-chain settlement is
+          verified. Stockup never signs for you: a transaction is sent only after you authorize it in your own wallet.
+        </p>
+        <div className="mt-6 md:mt-8">
           <OwnFlow />
         </div>
       </section>
