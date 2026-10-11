@@ -161,7 +161,7 @@ export function OwnFlow() {
           <span className="mt-1 block text-xs font-normal text-neutral-600">{Number(spend) > 0 && Number(investPct) > 0 ? `= ${money(Number(spend) * Number(investPct) / 100)} of your own money` : ''}</span></label>
         <label className="block text-sm font-medium">Your BSC address (receives the stock)
           <input className={`${field} font-mono`} placeholder="0x…" value={recipient} onChange={e => setRecipient(e.target.value)} /></label>
-        <button type="button" onClick={connect} className="w-full border border-neutral-900 px-4 py-2 text-sm">Connect my browser wallet</button>
+        <button type="button" onClick={connect} className="w-full border border-ink px-4 py-2 text-sm">Connect my browser wallet</button>
         <p role="status" className="text-xs text-neutral-600">{walletLine(wallet)}</p>
         <button disabled={busy || !merchant.trim() || !(Number(spend) > 0)} className="w-full bg-vermilion px-4 py-3 text-sm font-semibold text-ink disabled:opacity-50">
           {busy ? 'Checking live BSC…' : 'Check and prepare my investment'}</button>
@@ -169,11 +169,11 @@ export function OwnFlow() {
       </form>
 
       <div aria-live="polite" className="border border-ink/30 bg-white p-4 md:p-6">
-        {!res && !err && <p className="text-sm text-neutral-500">Result appears here after a live check against BSC mainnet.</p>}
+        {!res && !err && <p className="text-sm text-ink/60">Result appears here after a live check against BSC mainnet.</p>}
         {res && (
           <div className="space-y-6">
             <section aria-label="Company identification" className="border-b pb-4 text-sm">
-              <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Identified company</h2>
+              <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-ink/60">Identified company</h2>
               {res.identification.status === 'identified' && res.identification.company && (
                 <p className="mt-1"><span className="text-base font-semibold">{res.identification.company.name}</span> <span className="font-mono">({res.identification.company.ticker})</span>
                   <span className="block text-neutral-600">Matched “{res.identification.matchedAlias}” in “{res.identification.input}”.</span></p>)}
@@ -182,7 +182,7 @@ export function OwnFlow() {
             </section>
             {res.instrument && (
               <section aria-label="Tokenized instrument" className="border-b pb-4 text-sm">
-                <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Supported instrument</h2>
+                <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-ink/60">Supported instrument</h2>
                 <p className="mt-1"><span className="text-base font-semibold">{res.instrument.symbol}</span> on BNB Chain · 1 token = {Number(res.instrument.multiplier).toFixed(4)} share(s)</p>
                 <p className="break-all font-mono text-xs text-neutral-600">{res.instrument.address}</p>
                 <p className="mt-1 text-neutral-600">Listed by Binance Web3 (Ondo) and symbol confirmed on-chain: {res.instrument.verifiedOnChain ? 'yes' : 'no'}.
@@ -190,7 +190,7 @@ export function OwnFlow() {
               </section>)}
             {res.market && (
               <section aria-label="Live market information" className="border-b pb-4 text-sm">
-                <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Live market information (Binance Web3)</h2>
+                <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-ink/60">Live market information (Binance Web3)</h2>
                 <dl className="mt-1 grid grid-cols-2 gap-y-1">
                   <dt className="text-neutral-500">Token price</dt><dd className="text-right">{res.market.tokenPriceUsd != null ? money(res.market.tokenPriceUsd) : 'n/a'}{res.market.changePct24h != null && ` (${res.market.changePct24h.toFixed(2)}% 24h)`}</dd>
                   <dt className="text-neutral-500">US stock price</dt><dd className="text-right">{res.market.stockPriceUsd != null ? money(res.market.stockPriceUsd) : 'not reported'}</dd>
@@ -201,14 +201,14 @@ export function OwnFlow() {
               </section>)}
             {res.quote && (
               <section aria-label="Executable quote" className="border-b pb-4 text-sm">
-                <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Executable quote</h2>
+                <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-ink/60">Executable quote</h2>
                 <p className="mt-1">PancakeSwap on-chain quote: <strong>{res.quote.dex.tokensOut.toFixed(6)}</strong> tokens (min {res.quote.dex.minOut.toFixed(6)}), simulation {res.quote.dex.simulated ? 'passed' : 'not run or failed'}.
                   {res.quote.vsReferenceBps != null && ` Versus Binance reference price: ${(res.quote.vsReferenceBps / 100).toFixed(2)}% ${res.quote.vsReferenceBps >= 0 ? 'fewer' : 'more'} tokens.`}</p>
                 <p className="mt-1 text-neutral-600">Binance swap quote: {res.quote.binance.available ? 'available' : `not available. ${res.quote.binance.reason}`}</p>
               </section>)}
             {res.checks && (
               <section aria-label="Pre-execution checks" className="border-b pb-4 text-sm">
-                <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Execution eligibility: {res.eligibility?.eligible ? 'eligible' : 'not eligible'}</h2>
+                <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-ink/60">Execution eligibility: {res.eligibility?.eligible ? 'eligible' : 'not eligible'}</h2>
                 <ul className="mt-2 space-y-2">
                   {res.checks.map(c => (
                     <li key={c.id} className="grid grid-cols-[4.5rem_1fr] gap-2">
@@ -218,8 +218,8 @@ export function OwnFlow() {
                 </ul>
               </section>)}
             {res.review && res.plan?.tx && (
-              <section ref={reviewRef} aria-label="Review and authorize" className="scroll-mt-4 border-2 border-neutral-900 p-4 text-sm">
-                <h2 className="text-base font-semibold">Review before you authorize</h2>
+              <section ref={reviewRef} aria-label="Review and authorize" className="scroll-mt-4 border-2 border-ink p-4 text-sm">
+                <h2 className="text-base font-bold tracking-tight">Review before you authorize</h2>
                 <p className="mt-1 text-neutral-600">Decoded from the transaction itself, not from this page&apos;s text.</p>
                 <dl className="mt-3 grid grid-cols-[9rem_1fr] gap-y-2">
                   <dt className="text-neutral-500">You send</dt><dd><strong>{res.review.sendsBnb} BNB</strong> (about {money(res.investment?.investUsd ?? 0)}) from your own funds</dd>
@@ -236,23 +236,23 @@ export function OwnFlow() {
                     I reviewed the amounts and addresses above and I am authorizing this exact transaction.</label>
                   <label className="flex items-start gap-2"><input type="checkbox" checked={confirm} onChange={e => setConfirm(e.target.checked)} className="mt-1" />
                     I understand this spends real BNB on BSC mainnet and cannot be undone.</label>
-                  <button type="button" disabled={!ack || !confirm || !!txHash || wallet.status !== 'connected'} onClick={sign} className="w-full bg-neutral-900 px-4 py-3 text-white disabled:opacity-40">Authorize in my wallet</button>
+                  <button type="button" disabled={!ack || !confirm || !!txHash || wallet.status !== 'connected'} onClick={sign} className="w-full bg-ink px-4 py-3 text-white disabled:opacity-40">Authorize in my wallet</button>
                   {wallet.status !== 'connected' && <p className="text-xs text-neutral-600">Use “Connect my browser wallet” in step 2 to authorize. Stockup will check that the account matches the recipient and that the wallet is on BSC before anything is sent.</p>}
                   <p className="text-xs text-neutral-500">Your wallet will show its own confirmation. If the amounts there differ from this page, reject it.</p>
                   {txHash && (
                     <div className="space-y-2 border-t pt-3">
                       <p className="break-all font-mono text-xs">Submitted to the network (not confirmed): <a className="underline" href={`https://bscscan.com/tx/${txHash}`} target="_blank" rel="noreferrer">{txHash}</a> Submitted is not settled. Nothing is confirmed until you verify settlement below.</p>
                       <div className="flex gap-2">
-                        <button type="button" onClick={checkSettlement} className="border border-neutral-900 px-3 py-2">Verify settlement on-chain</button>
-                        <button type="button" onClick={getReceipt} className="bg-neutral-900 px-3 py-2 text-white">Get ownership receipt</button>
+                        <button type="button" onClick={checkSettlement} className="border border-ink px-3 py-2">Verify settlement on-chain</button>
+                        <button type="button" onClick={getReceipt} className="bg-ink px-3 py-2 text-white">Get ownership receipt</button>
                       </div>
                       {receipt && !receipt.ok && <p role="status" className="border-l-4 border-amber-600 bg-amber-50 p-3">{receipt.reason}</p>}
                       {receipt?.ok && receipt.receipt && (
-                        <article aria-label="Ownership receipt" className="border-2 border-neutral-900 bg-white p-4">
-                          <header className="flex items-baseline justify-between border-b pb-2"><h3 className="text-base font-semibold">Ownership receipt</h3><span className="font-mono text-xs">{receipt.receipt.receiptId}</span></header>
+                        <article aria-label="Ownership receipt" className="border-2 border-ink bg-white p-4">
+                          <header className="flex items-baseline justify-between border-b pb-2"><h3 className="text-base font-bold tracking-tight">Ownership receipt</h3><span className="font-mono text-xs">{receipt.receipt.receiptId}</span></header>
                           <p className="mt-3 text-lg font-semibold">{Number(receipt.receipt.onChain.receivedTokens).toFixed(6)} {receipt.receipt.onChain.tokenSymbol}</p>
                           <p className="text-xs text-neutral-600">≈ {receipt.receipt.exposure.sharesApprox?.toFixed(6) ?? 'n/a'} shares of {receipt.receipt.recordedByApp.companyName} ({receipt.receipt.exposure.basis})</p>
-                          <h4 className="mt-4 text-xs font-semibold uppercase tracking-wide text-green-800">Verified on-chain</h4>
+                          <h4 className="mt-4 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-green-800">Verified on-chain</h4>
                           <dl className="mt-1 grid grid-cols-[8rem_1fr] gap-y-1 text-xs">
                             <dt className="text-neutral-500">Holder</dt><dd className="break-all font-mono">{receipt.receipt.onChain.holder}</dd>
                             <dt className="text-neutral-500">Token</dt><dd className="break-all font-mono">{receipt.receipt.onChain.tokenAddress}</dd>
@@ -262,9 +262,9 @@ export function OwnFlow() {
                             <dt className="text-neutral-500">Gas</dt><dd>{Number(receipt.receipt.onChain.gasCostBnb).toFixed(6)} BNB</dd>
                             <dt className="text-neutral-500">Balance now</dt><dd>{receipt.receipt.onChain.holderBalanceNow ?? 'unavailable'}</dd>
                           </dl>
-                          <h4 className="mt-4 text-xs font-semibold uppercase tracking-wide text-neutral-600">Recorded by Stockup (not on-chain)</h4>
+                          <h4 className="mt-4 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-ink/60">Recorded by Stockup (not on-chain)</h4>
                           <p className="text-xs">{receipt.receipt.recordedByApp.merchantInput} → {receipt.receipt.recordedByApp.companyName} ({receipt.receipt.recordedByApp.ticker}); purchase {money(receipt.receipt.recordedByApp.spendUsd)}, invested {money(receipt.receipt.recordedByApp.investUsd)} of your own funds. {receipt.receipt.recordedByApp.note}</p>
-                          <h4 className="mt-4 text-xs font-semibold uppercase tracking-wide text-neutral-600">Check it yourself</h4>
+                          <h4 className="mt-4 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-ink/60">Check it yourself</h4>
                           <ul className="list-disc pl-5 text-xs">{receipt.receipt.verifyYourself.map(v => <li key={v}>{v}</li>)}</ul>
                           <p className="mt-2 text-xs"><a className="underline" href={receipt.receipt.links.token} target="_blank" rel="noreferrer">Token on BscScan</a> · <a className="underline" href={receipt.receipt.links.holderOnToken} target="_blank" rel="noreferrer">Your holding on BscScan</a></p>
                           <ul className="mt-3 list-disc border-t pt-2 pl-5 text-xs text-neutral-600">{receipt.receipt.limits.map(l => <li key={l}>{l}</li>)}</ul>
