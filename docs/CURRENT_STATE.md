@@ -222,3 +222,10 @@ Local only. Not pushed. Base `c2dc503`.
 - `/api/plan` returns the new field `impactIncludingFeeBps` alongside the unchanged `impactBps`. The guard still uses the fee-free figure, so no decision changed.
 - Not done, needs the design agent: the UI labels `impactBps` as "Price impact"; it should show the fee-inclusive figure or label both. This is a proposal for `own-flow.tsx`, not an edit I made.
 - Tests: `test/impact.test.ts` (4 cases). Gates: 103 tests across 21 files pass; typecheck passes.
+
+### Update: public Binance RWA integrations preserved; authenticated API untouched (dev/core-engineering)
+- The authenticated Binance Web3 client (`src/lib/w3w.ts`, code 40304) is not imported by any runtime code. Its only importer is `scripts/probe-w3w-auth.ts`, the one-off probe. Nothing was retried and nothing bypasses the compliance restriction.
+- Public RWA endpoints (keyless) pass `scripts/probe-binance-public.ts` (4/4). Live: AMZNon listed, status `TRADING` (offhours), token price $262.30, 3,154 holders, 1 share per token.
+- Regression guard `test/public-rwa-boundary.test.ts`: fails if runtime code imports the signed client (a mutant adding that import was caught), and checks that the public endpoints remain configured and carry no API-key headers.
+- `src/lib/status.ts` imports `./fixtures/w3w`, a fixture module, not the signed client. The guard matches only `src/lib/w3w` by design.
+- Gates: typecheck passes; test count recorded in the commit message.
