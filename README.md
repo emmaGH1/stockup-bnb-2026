@@ -1,70 +1,86 @@
-# Stockup 2.0: Spend to Own
+# Stockup
 
-Stockup turns a shopping receipt into an investment journey: the user's own money buys a
-tokenized stock on BNB Smart Chain, after live checks and a review of exactly what their wallet will sign.
+**Shop the brands. Build a stake.**
 
-**Status: pre-submission, not deployed, no real trade executed.** Everything below is either verified in this repo
-or labelled as not verified. No ownership receipt exists yet. See [docs/CURRENT_STATE.md](docs/CURRENT_STATE.md) for the
-dated record.
+Stockup turns a purchase into a deliberate, small investment. You type or paste what you bought. Stockup identifies the public company behind the merchant and proposes putting a share of the amount, from your own wallet, into a tokenized stock on BNB Smart Chain. Nothing is bought until you review the exact transaction and sign it in your wallet.
 
-## Rules the product enforces
-1. The purchase is a receipt the user pastes or types. Stockup cannot verify the receipt is genuine.
-2. The investment is the user's own money. There is no merchant cashback or reward.
-3. A trade is claimed as successful only after the on-chain settlement is verified. "Submitted" is not "settled".
+Every step is checked before Stockup claims anything. Instruments are matched against Binance's BSC tokenized-stock list and confirmed on chain. Market status, pool liquidity, price impact and gas are read live. The transaction is decoded from its calldata and compared with what you were shown. A trade is reported as settled only after the chain confirms it.
 
-These rules are enforced by tests in `test/claims.test.ts`.
+## Status
 
-## How a judge can check this (about 10 minutes, no funds, no keys)
-See [docs/JUDGE_FLOW.md](docs/JUDGE_FLOW.md) for the exact steps, expected results, and what each result proves.
+Judge-facing app: https://stockup-bnb.vercel.app/ (production deployment `stockup-bnb-preview-n4qbs7agy`, Vercel deployment ID `dpl_6ZbMCbhzLauApf5rY9fxxZX5NGKA`). Anonymous access works with no login. The page and the purchase-to-checks flow return as designed.
 
-Short version:
-```bash
-npm ci
-npm run typecheck     # passes
-npm test              # 144 tests pass (25 files)
-npm run build         # production build passes
-npm start             # serves on http://localhost:3000
-```
+Source: `cd066cb` (on `main`). Vercel records no git provenance for this deployment, so the commit is established by the deployment process, not by a Vercel-recorded commit.
 
-## What is verified, and how
-| Claim | Evidence | Reproduce |
-|---|---|---|
-| Typecheck, tests, build pass | CI and local runs at the commit in `docs/CURRENT_STATE.md` | `npm run typecheck && npm test && npm run build` |
-| Tokenized stock is on Binance's BSC list, with a matching on-chain symbol | live public endpoints | `npx tsx scripts/revalidate-trade.ts` (set `RECIPIENT`) |
-| Public Binance RWA endpoints still return the fields the code reads | live probe | `npx tsx scripts/probe-binance-public.ts` |
-| Live PancakeSwap V2 quote and eth_call simulation for a $5 trade | live BSC mainnet reads | `curl -X POST localhost:3000/api/plan ...` (see judge flow; the recipient must be an address you control or an unfunded one) |
-| Calldata decodes to the router, path, recipient, minimum and deadline the user is shown | unit tests with tamper cases | `npx vitest run test/review.test.ts` |
-| Settlement check rejects wrong router, sender, path, recipient, amount and non-swap calldata | unit tests with mutation checks | `npx vitest run test/settle.test.ts` |
-| Ownership receipt refused for non-settled, non-final or unlisted tokens | unit tests | `npx vitest run test/receipt.test.ts` |
-| Authorize stays disabled until the wallet is connected and matches the recipient on BSC | browser audit, mock wallet only | `scripts/audit-live.mjs` (needs Playwright and a deployed URL) |
+- Typecheck and production build pass on a clean install. 199 tests pass across 31 files.
+- Rabby, as a browser extension in Mises Browser on Android, connected to Stockup on BNB Smart Chain (chain 56). This is human-reported. No transaction or signature was requested or approved.
+- No real-money transaction has been executed. No ownership receipt exists.
 
-## What is NOT verified
-- A real wallet extension or a mobile wallet browser. Every wallet test used a mock EIP-1193 provider.
-- Any real Stockup transaction. No funds have been spent and nothing has been broadcast.
-- Binance's official executable quote (`baw`). It needs a human sign-in and returns NOT_LOGGED_IN.
-- Binance's signed Web3 API. It returns compliance code 40304 for the test key. The product does not use it. See `docs/BLOCKERS.md`.
-- Binance Web3 trading fees. They are not in the fee figure.
-- Issuer identity. Eligibility is a Binance listing plus an on-chain symbol match, not proof of who issued the token.
+## What Stockup does not do
+
+- It does not read cards, bank accounts or merchant records, and it cannot verify that a receipt is genuine.
+- It does not detect purchases automatically and has no merchant integration.
+- It has no cashback or rewards. The investment is paid from your own wallet.
+- It does not guarantee returns.
+- It does not report a trade as successful before on-chain settlement is verified.
+
+## How it works
+
+1. **Purchase.** You enter the merchant and amount. A pasted receipt is an optional shortcut.
+2. **Company.** The merchant is matched against a curated list of public companies. Ambiguous or unknown merchants stop the flow.
+3. **Instrument.** The ticker must appear on Binance's BSC tokenized-stock list, and the on-chain symbol must match.
+4. **Checks.** Market status, pool liquidity, price impact, fees, gas and balance are read live. Any unknown check blocks execution.
+5. **Review.** The server builds an unsigned PancakeSwap V2 swap and decodes it to confirm the router, path, recipient, minimum output and deadline.
+6. **Wallet.** Your wallet signs. The app never holds a key and never sends a transaction itself.
+7. **Settlement.** Stockup checks the sender, router, path, recipient and token transfers, and requires three confirmations. An ownership receipt is issued only for a final, settled transaction on a listed token.
+
+## Safety model
+
+- **Server.** It contains no signing or broadcasting code. Each trade is capped at 0.05 BNB.
+- **Review token.** When a trade is released, the server issues an HMAC-SHA256 token that binds the wallet, token, router, amounts and quote. The token's 15-minute window applies only to new authorization. Verifying a settled transaction does not depend on it.
+- **Wallet calls.** The browser requests account access, chain reads, a switch to BNB Smart Chain, and one transaction after two explicit confirmations. It never requests a signature.
+- **Disconnect.** Stockup can forget a connection. Revoking access happens in the wallet.
+
+## Ownership and exposure
+
+A token is an Ondo tokenized exposure to the stock, listed by Binance. It is not a direct share and carries no shareholder rights. The share figure on a receipt is an approximation, computed from Binance's listed multiplier. Ondo and Binance terms, and any regional restrictions, apply. This project does not verify those terms.
+
+## Verified
+
+- Binance public RWA endpoints return the fields the code reads.
+- On a live $5 AMZNon quote, the guard and transaction simulation pass. Price impact is 15 bps excluding the pool fee and 40 bps including it.
+- Forged, tampered and modified review tokens are rejected. A genuine token reaches the on-chain lookup.
+- Settlement verification refuses a transaction from the wrong sender, router, path, recipient or amount.
+
+## Not verified
+
+- No real-money trade has been executed or settled.
+- No device run has covered a signature, a transaction or a balance check.
+- Vercel does not record the source commit of the production deployment.
+- Binance trading fees are not included in the fee figure.
+- Issuer identity rests on Binance's listing and an on-chain symbol match.
 
 ## Known limits
-- Settlement and receipt routes take the expected amounts and recipient from the client. Input validation rejects malformed or inconsistent values, but the stronger fix (a server-side review store) is not built.
-- No rate limiting. `'unsafe-inline'` remains in the CSP.
-- The ownership exposure is an Ondo tokenized exposure to the stock, not direct share ownership.
 
-## Configuration
-Copy `.env.example` to `.env` if you need to change anything. No secret is required to run or test the app.
+- The settlement and receipt routes take expected amounts from the client. When a review token is sent, they are checked against the signed values. Without a token they run in legacy mode, and `REVIEW_TOKEN_REQUIRED` is still unset.
+- There is no rate limiting, and the Content-Security-Policy still allows `unsafe-inline`.
 
-| Variable | Needed? | Notes |
-|---|---|---|
-| `BSC_RPC_URL` | optional | defaults to `https://bsc-dataseed.binance.org` |
-| `W3W_API_KEY`, `W3W_API_SECRET` | no | used only by the one-off probe `scripts/probe-w3w-auth.ts`; never read by the app |
+## Run locally
 
-Never commit `.env`. It is git-ignored.
+```bash
+npm ci
+npm run typecheck
+npm test
+npm run build
+npm start
+```
+
+`REVIEW_HMAC_SECRET` is needed only on a server that issues signed review tokens. Never commit it. `.env.example` lists the variables.
 
 ## Repository map
-- `src/lib/`: business logic. Discovery (`instruments.ts`, `company.ts`), market data (`marketdata.ts`), quote and guard (`swap.ts`, `plan.ts`, `guard.ts`), checks (`checks.ts`), review (`review.ts`), settlement (`settle.ts`, `settle-input.ts`), receipt (`receipt.ts`), receipt text parsing (`receipttext.ts`).
-- `src/app/api/`: `/api/own` (whole journey), `/api/plan`, `/api/settle`, `/api/receipt`, `/api/assets`, `/api/token`. All read-only; none sends a transaction.
-- `src/components/own-flow.tsx`: the browser flow. It asks the user's wallet to sign; the app holds no key.
-- `scripts/`: read-only integration probes and audits.
-- `test/`: 105 unit tests.
-- `docs/`: `ARCHITECTURE.md`, `JUDGE_FLOW.md`, `CURRENT_STATE.md`, `BLOCKERS.md`, `DEVEX_REPORT.md`, `MAINNET_TEST_PROCEDURE.md` (draft, not approved), `DEPLOY.md`.
+
+- `src/lib/`: business logic, including company matching, instruments, market data, quote and guard, checks, review, settlement, receipts and the review token.
+- `src/app/api/`: `/api/own` (full check), `/api/plan`, `/api/settle`, `/api/receipt`, `/api/assets`, `/api/token`. None sends a transaction.
+- `src/components/own-flow.tsx`: the browser flow.
+- `test/`: unit and route tests.
+- `docs/`: technical notes. [JUDGE_FLOW.md](docs/JUDGE_FLOW.md) lists the checks a reviewer can reproduce.
