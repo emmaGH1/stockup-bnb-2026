@@ -5,6 +5,7 @@ import { QUICK_PICKS } from '@/lib/quickpicks';
 import { connectWallet, readWallet, switchToBsc, type WalletState } from '@/lib/wallet/provider';
 import { ownershipRows, isIssued } from '@/lib/paperrows';
 import { parseReceiptText, SAMPLE_RECEIPT, type ParsedReceipt } from '@/lib/receipttext';
+import { reviewTokenFor, reviewErrorText, isAuthorizationExpired, EXPIRED_AUTHORIZATION } from '@/lib/review-messages';
 
 interface Eip1193 { request(a: { method: string; params?: unknown[] }): Promise<unknown> }
 function walletLine(w: WalletState): string {
@@ -29,6 +30,7 @@ interface Result {
   fees?: { totalUsd: number | null };
   review?: { contract: string; sendsBnb: string; minTokensOut: string; receivesToken: string; recipient: string; deadlineUtc: string; secondsLeft: number; calldataDigest: string } | null;
   reviewProblems?: string[];
+  reviewToken?: string | null; reviewExpiresAt?: number | null; reviewBound?: boolean;
   investment?: { spendUsd: number; investUsd: number; investBps: number; fundedBy: string };
   bnbUsd?: number; convertedBnb?: string; outcome: 'ready_to_sign' | 'held' | 'not_eligible' | 'over_limit' | 'no_route' | 'unidentified' | 'no_token'; note: string;
   plan: null | { tx: { to: string; data: string; value: string; chainId: number } | null; quotedOut: string; minOut: string; impactBps: number; pairLiquidityBnb: number; guard: { allowed: boolean; reasons: string[] }; simulation: { ok: boolean; error?: string } };
@@ -96,10 +98,11 @@ export function OwnFlow() {
     if (!txHash || !res?.settleParams || !res.instrument || res.identification.status !== 'identified') return;
     setReceipt(null);
     try {
-      const r = await fetch('/api/receipt', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ txHash, ...res.settleParams,
+      const r = await fetch('/api/receipt', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ txHash, ...res.settleParams, ...(reviewTokenFor(res) ? { reviewToken: reviewTokenFor(res) } : {}),
         context: { merchantInput: res.identification.input, companyName: res.identification.company?.name, ticker: res.identification.company?.ticker,
           spendUsd: res.investment?.spendUsd, investUsd: res.investment?.investUsd, sharesPerToken: Number(res.instrument.multiplier) } }) });
-      setReceipt(await r.json());
+      const j = await r.json();
+      setReceipt(j.error ? { ok: false, reason: reviewErrorText(j.error) } : j);
     } catch { setReceipt({ ok: false, reason: 'network error' }); }
   }
 
@@ -107,8 +110,9 @@ export function OwnFlow() {
     if (!txHash || !res?.settleParams) return;
     setSettle(null);
     try {
-      const r = await fetch('/api/settle', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ txHash, ...res.settleParams }) });
-      setSettle(await r.json());
+      const r = await fetch('/api/settle', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ txHash, ...res.settleParams, ...(reviewTokenFor(res) ? { reviewToken: reviewTokenFor(res) } : {}) }) });
+      const j = await r.json();
+      setSettle(j.error ? { state: 'error', error: reviewErrorText(j.error) } : j);
     } catch { setSettle({ state: 'error', error: 'network error' }); }
   }
 
@@ -130,6 +134,7 @@ export function OwnFlow() {
     const tx = res?.plan?.tx; const w = eth();
     if (!tx || !res?.review || !w || !confirm || !ack) return;
     if (Date.now() - quotedAt > 100_000) { setErr('This quote is too old to authorize. Run the check again.'); return; }
+    if (isAuthorizationExpired(res.reviewExpiresAt, Date.now())) { setErr(EXPIRED_AUTHORIZATION); return; }
     setErr('');
     let st = await readWallet(w);
     if (st.status === 'wrong_chain') { if (!(await switchToBsc(w))) { setErr('Switch your wallet to BNB Smart Chain (56) to continue.'); return; } st = await readWallet(w); }
