@@ -29,7 +29,7 @@ npm start            # serves on http://localhost:3000 (Next.js default; use -p 
 
 In a second terminal, ask the server to run the whole journey for a $100 Amazon purchase with a $5 investment.
 
-**Use a recipient that is unfunded on BSC.** Generate a new address (for example `node -e "console.log(require('viem/accounts').privateKeyToAccount(require('viem/accounts').generatePrivateKey()).address)"`) and discard its key. Do **not** use a well-known address: `0x000000000000000000000000000000000000dEaD` (the burn address, about 16.5 million BNB) and `0x0000000000000000000000000000000000000001` (35 BNB) are both funded, so the server will release a transaction for them. Releasing a transaction for a funded address is correct behavior, but it is not a safe demo input. Check the recipient's balance first with `getBalance`.
+**Use a recipient that is unfunded on BSC.** Generate a new address (for example `node --input-type=module -e "import('viem/accounts').then(m=>console.log(m.privateKeyToAccount(m.generatePrivateKey()).address))"`) and discard its key. Do **not** use a well-known address: `0x000000000000000000000000000000000000dEaD` (the burn address, about 16.5 million BNB) and `0x0000000000000000000000000000000000000001` (35 BNB) are both funded, so the server will release a transaction for them. Releasing a transaction for a funded address is correct behavior, but it is not a safe demo input. Check the recipient's balance first with `getBalance`.
 
 ```bash
 curl -s -X POST http://localhost:3000/api/own \
