@@ -269,3 +269,10 @@ Local only. Not pushed. Base `c2dc503`.
 - **Not wired:** `/api/own` does not issue tokens yet; settle and receipt still accept browser values in legacy mode; `REVIEW_TOKEN_REQUIRED` is unset. The signed path is not enforced.
 - Gates: typecheck passes; 144 tests pass across 25 files.
 - Docs corrected: test counts updated to 144; the unverified "two transactions" judging claim removed from README, JUDGING, IMPLEMENTATION, MAINNET_TEST_PROCEDURE and JUDGE_FLOW. It remains only as a correction line in CURRENT_STATE.
+
+### Update: review token issued from /api/own (dev/core-engineering)
+- `bindReleasedTrade` (in `src/lib/review-policy.ts`) runs only for a released trade (`review` set). It returns `reviewToken`, `reviewExpiresAt` and `reviewBound`. With no server secret it returns `reviewBound: false` and no token. `settleParams` is unchanged.
+- Tests: `test/review-binding.test.ts` (3 cases). Gates: typecheck passes; 147 tests pass across 26 files.
+- Live checks (unfunded recipient, outcome `not_eligible`): no secret gives `reviewBound: false`; with the host secret loaded also `reviewBound: false`, as expected, because no released trade exists to bind.
+- **NOT VERIFIED on the live server:** a released (`ready_to_sign`) trade that receives a token. That needs a funded recipient, which has not been tested and must not be used without approval. The route's released branch is covered by code review only.
+- Settle and receipt still run in legacy mode. `REVIEW_TOKEN_REQUIRED` is unset.

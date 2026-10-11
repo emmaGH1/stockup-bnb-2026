@@ -9,6 +9,7 @@ import type { SecurityStatus } from './fixtures/w3w';
 import { identifyCompany, type Identification } from './company';
 import { bnbUsd } from './bnbprice';
 import { buildPlan } from './plan';
+import { bindReleasedTrade } from './review-policy';
 
 export interface OwnRequest { merchant: string; spendUsd: number; investBps?: number; recipient: string }
 
@@ -82,7 +83,11 @@ export async function spendToOwn(req: OwnRequest) {
   const review = verified?.ok ? verified.review : null;
   const reviewProblems = verified && !verified.ok ? verified.problems : [];
   const safePlan = { ...plan, tx: review ? plan.tx : null };
-  return { identification, discovery, instrument: inst, liveStatus: live, market, quote, checks, fees, eligibility, review, reviewProblems, settleParams: review ? { token: inst.address, recipient: req.recipient, valueWei: plan.valueWei, minOutWei: plan.minOutWei, quotedOutWei: plan.quotedOutWei } : null,  investment, bnbUsd: price, convertedBnb: bnbStr, plan: safePlan,
+  // Signed review token for the released trade (additive; settle and receipt stay in legacy mode until REVIEW_TOKEN_REQUIRED=1).
+  const binding = review ? bindReleasedTrade({ wallet: req.recipient, token: inst.address, valueWei: plan.valueWei, minOutWei: plan.minOutWei,
+    quotedOutWei: plan.quotedOutWei, slippageBps: plan.slippageBps, calldataDigest: review.calldataDigest }, Math.floor(Date.now() / 1000))
+    : { reviewToken: null, reviewExpiresAt: null, reviewBound: false };
+  return { identification, discovery, instrument: inst, liveStatus: live, market, quote, checks, fees, eligibility, review, reviewProblems, reviewToken: binding.reviewToken, reviewExpiresAt: binding.reviewExpiresAt, reviewBound: binding.reviewBound, settleParams: review ? { token: inst.address, recipient: req.recipient, valueWei: plan.valueWei, minOutWei: plan.minOutWei, quotedOutWei: plan.quotedOutWei } : null,  investment, bnbUsd: price, convertedBnb: bnbStr, plan: safePlan,
     outcome: review ? 'ready_to_sign' as const : reviewProblems.length ? 'not_eligible' as const : plan.guard.allowed ? 'not_eligible' as const : 'held' as const,
     note: review ? 'All checks passed and the transaction was decoded and verified. Review it, then authorize in your wallet.'
       : reviewProblems.length ? `Transaction failed verification: ${reviewProblems.join('; ')}. Nothing was sent.`

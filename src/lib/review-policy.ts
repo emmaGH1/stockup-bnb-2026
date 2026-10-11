@@ -56,3 +56,17 @@ export function issueReviewToken(t: ReleasedTrade, nowSec: number, env: Env = pr
   try { secret = getReviewSecret(env); } catch { return null; }
   return { reviewToken: signReview(reviewFieldsFor(t), secret, nowSec), expiresAt: nowSec + REVIEW_TTL_SEC };
 }
+
+export interface ReviewBinding { reviewToken: string | null; reviewExpiresAt: number | null; reviewBound: boolean }
+
+/**
+ * Binds a released trade to a signed token for /api/own. When the server has no signing secret the trade is NOT bound:
+ * the response says so (reviewBound: false, reviewToken: null) and no token is invented. Settle and receipt then run in
+ * legacy mode until REVIEW_TOKEN_REQUIRED=1.
+ */
+export function bindReleasedTrade(t: ReleasedTrade, nowSec: number, env: Env = process.env): ReviewBinding {
+  const issued = issueReviewToken(t, nowSec, env);
+  return issued
+    ? { reviewToken: issued.reviewToken, reviewExpiresAt: issued.expiresAt, reviewBound: true }
+    : { reviewToken: null, reviewExpiresAt: null, reviewBound: false };
+}
